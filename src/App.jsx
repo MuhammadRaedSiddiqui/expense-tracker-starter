@@ -13,6 +13,7 @@ function App() {
 
   const [filterType, setFilterType] = useState(FILTER_ALL);
   const [filterCategory, setFilterCategory] = useState(FILTER_ALL);
+  const [searchTerm, setSearchTerm] = useState("");
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
@@ -83,6 +84,8 @@ function App() {
         setFilterType={setFilterType}
         filterCategory={filterCategory}
         setFilterCategory={setFilterCategory}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
         onDeleteTransaction={handleDeleteTransaction}
         onEditTransaction={handleEditTransaction}
       />
