@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import FormInput from './FormInput'
 import FormSelect from './FormSelect'
+import { TRANSACTION_TYPES } from '../constants'
 
 function TransactionForm({ onAddTransaction, categories }) {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
-  const [type, setType] = useState("expense");
+  const [type, setType] = useState(TRANSACTION_TYPES.EXPENSE);
   const [category, setCategory] = useState("food");
 
   const handleSubmit = (e) => {
@@ -24,13 +25,13 @@ function TransactionForm({ onAddTransaction, categories }) {
     onAddTransaction(newTransaction);
     setDescription("");
     setAmount("");
-    setType("expense");
+    setType(TRANSACTION_TYPES.EXPENSE);
     setCategory("food");
   };
 
   const typeOptions = [
-    { value: "income", label: "Income" },
-    { value: "expense", label: "Expense" }
+    { value: TRANSACTION_TYPES.INCOME, label: "Income" },
+    { value: TRANSACTION_TYPES.EXPENSE, label: "Expense" }
   ];
 
   const categoryOptions = categories.map(cat => ({

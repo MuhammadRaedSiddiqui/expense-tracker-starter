@@ -1,13 +1,15 @@
+import { FILTER_ALL, TRANSACTION_TYPES } from '../constants'
+
 function TransactionFilters({ filterType, setFilterType, filterCategory, setFilterCategory, categories }) {
   return (
     <div className="filters">
       <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
-        <option value="all">All Types</option>
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
+        <option value={FILTER_ALL}>All Types</option>
+        <option value={TRANSACTION_TYPES.INCOME}>Income</option>
+        <option value={TRANSACTION_TYPES.EXPENSE}>Expense</option>
       </select>
       <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
-        <option value="all">All Categories</option>
+        <option value={FILTER_ALL}>All Categories</option>
         {categories.map(cat => (
           <option key={cat} value={cat}>{cat}</option>
         ))}

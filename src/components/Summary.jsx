@@ -1,10 +1,12 @@
+import { TRANSACTION_TYPES } from '../constants'
+
 function Summary({ transactions }) {
   const totalIncome = transactions
-    .filter(t => t.type === "income")
+    .filter(t => t.type === TRANSACTION_TYPES.INCOME)
     .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
   const totalExpenses = transactions
-    .filter(t => t.type === "expense")
+    .filter(t => t.type === TRANSACTION_TYPES.EXPENSE)
     .reduce((sum, t) => sum + parseFloat(t.amount), 0);
 
   const balance = totalIncome - totalExpenses;

@@ -1,12 +1,13 @@
 import TransactionFilters from './TransactionFilters'
 import TransactionTable from './TransactionTable'
+import { FILTER_ALL } from '../constants'
 
 function TransactionList({ transactions, categories, filterType, setFilterType, filterCategory, setFilterCategory, onDeleteTransaction, onEditTransaction }) {
   let filteredTransactions = transactions;
-  if (filterType !== "all") {
+  if (filterType !== FILTER_ALL) {
     filteredTransactions = filteredTransactions.filter(t => t.type === filterType);
   }
-  if (filterCategory !== "all") {
+  if (filterCategory !== FILTER_ALL) {
     filteredTransactions = filteredTransactions.filter(t => t.category === filterCategory);
   }
 
