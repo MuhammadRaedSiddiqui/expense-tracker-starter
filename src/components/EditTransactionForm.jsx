@@ -5,14 +5,25 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
   const [amount, setAmount] = useState(transaction.amount);
   const [type, setType] = useState(transaction.type);
   const [category, setCategory] = useState(transaction.category);
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!description || !amount) return;
+    setError("");
+
+    if (!description.trim()) {
+      setError("Description is required");
+      return;
+    }
+
+    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+      setError("Amount must be a positive number");
+      return;
+    }
 
     const updatedTransaction = {
       ...transaction,
-      description,
+      description: description.trim(),
       amount: parseFloat(amount),
       type,
       category,
@@ -30,6 +41,7 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+        {error && <div className="error-message">{error}</div>}
       </td>
       <td>
         <select value={category} onChange={(e) => setCategory(e.target.value)}>

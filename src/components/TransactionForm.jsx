@@ -8,14 +8,25 @@ function TransactionForm({ onAddTransaction, categories }) {
   const [amount, setAmount] = useState("");
   const [type, setType] = useState(TRANSACTION_TYPES.EXPENSE);
   const [category, setCategory] = useState("food");
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!description || !amount) return;
+    setError("");
+
+    if (!description.trim()) {
+      setError("Description is required");
+      return;
+    }
+
+    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+      setError("Amount must be a positive number");
+      return;
+    }
 
     const newTransaction = {
       id: Date.now(),
-      description,
+      description: description.trim(),
       amount: parseFloat(amount),
       type,
       category,
@@ -42,6 +53,7 @@ function TransactionForm({ onAddTransaction, categories }) {
   return (
     <div className="add-transaction">
       <h2>Add Transaction</h2>
+      {error && <div className="error-message">{error}</div>}
       <form onSubmit={handleSubmit}>
         <FormInput
           type="text"
