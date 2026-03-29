@@ -27,19 +27,33 @@ npm run preview
 
 ## Architecture
 
-Single-component React app with no routing or external state management:
-- All logic lives in `src/App.jsx` (useState for state management)
+Modular React app with component-based structure:
+- `src/App.jsx` - Main component managing state and composition
+- `src/Summary.jsx` - Displays income, expenses, and balance with calculation logic
+- `src/TransactionForm.jsx` - Form for adding new transactions
+- `src/TransactionList.jsx` - Container for transaction display and filtering
+- `src/TransactionTable.jsx` - Table component for rendering transactions
+- `src/TransactionFilters.jsx` - Filter controls for type and category
+- `src/FormInput.jsx` - Reusable input component
+- `src/FormSelect.jsx` - Reusable select dropdown component
+- State management: useState hooks in App.jsx
+- No routing or external state management libraries
 - No data persistence - state resets on page refresh
-- Hardcoded initial transactions and categories
 - Standard Vite + React setup
 
-## Known Issues (Intentional)
+## Fixed Issues
 
-This codebase intentionally contains:
-- Bugs in the logic (e.g., type mismatches, calculation errors)
+The following issues have been resolved:
+- ✓ Calculation bugs fixed (amounts properly parsed with parseFloat)
+- ✓ Freelance Work transaction type corrected from expense to income
+- ✓ Code refactored into modular, reusable components
+- ✓ Separation of concerns (calculation logic in Summary, filtering in TransactionList)
+
+## Remaining Issues
+
+This codebase still contains:
 - Poor UI/UX design
-- Messy code structure (everything in one component)
+- No data persistence (localStorage, database)
 - No data validation or error handling
-- Amount values stored as strings but used in numeric calculations
-
-These issues are part of the learning experience and should be addressed as part of course exercises.
+- No delete or edit functionality for transactions
+- No tests
