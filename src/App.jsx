@@ -13,10 +13,23 @@ function App() {
 
   const [filterType, setFilterType] = useState(FILTER_ALL);
   const [filterCategory, setFilterCategory] = useState(FILTER_ALL);
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode');
+    return saved ? JSON.parse(saved) : false;
+  });
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
   }, [transactions]);
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+  }, [darkMode]);
 
   const handleAddTransaction = (newTransaction) => {
     setTransactions([...transactions, newTransaction]);
@@ -45,9 +58,18 @@ function App() {
           <h1>Finance Tracker</h1>
           <p className="subtitle">Track your income and expenses</p>
         </div>
-        <button onClick={handleClearAll} className="clear-btn" aria-label="Clear all transactions">
-          Clear All Data
-        </button>
+        <div className="header-actions">
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="theme-toggle"
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
+          <button onClick={handleClearAll} className="clear-btn" aria-label="Clear all transactions">
+            Clear All Data
+          </button>
+        </div>
       </div>
 
       <Summary transactions={transactions} />

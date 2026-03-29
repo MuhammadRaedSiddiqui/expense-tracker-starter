@@ -13,6 +13,30 @@
   gap: 16px;
 }
 
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.theme-toggle {
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  font-size: 1.25rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
 h1 {
   margin-bottom: 8px;
   color: #fff;
@@ -305,4 +329,81 @@ td select:focus {
   th, td {
     padding: 12px 8px;
   }
+}
+
+/* Dark Mode Styles */
+body.dark-mode .summary-card {
+  background: #2d3748;
+  color: #e0e0e0;
+}
+
+body.dark-mode .summary-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .summary-card h3 {
+  color: #a0aec0;
+}
+
+body.dark-mode .add-transaction {
+  background: #2d3748;
+  color: #e0e0e0;
+}
+
+body.dark-mode .add-transaction h2 {
+  color: #e0e0e0;
+}
+
+body.dark-mode .transactions {
+  background: #2d3748;
+  color: #e0e0e0;
+}
+
+body.dark-mode .transactions h2 {
+  color: #e0e0e0;
+}
+
+body.dark-mode form input,
+body.dark-mode form select,
+body.dark-mode td input,
+body.dark-mode td select,
+body.dark-mode .filters select {
+  background: #1a202c;
+  border-color: #4a5568;
+  color: #e0e0e0;
+}
+
+body.dark-mode form input:focus,
+body.dark-mode form select:focus,
+body.dark-mode td input:focus,
+body.dark-mode td select:focus,
+body.dark-mode .filters select:focus {
+  border-color: #667eea;
+  background: #2d3748;
+}
+
+body.dark-mode thead {
+  background: #1a202c;
+}
+
+body.dark-mode th {
+  color: #a0aec0;
+}
+
+body.dark-mode tbody tr:hover {
+  background-color: #1a202c;
+}
+
+body.dark-mode td {
+  border-bottom-color: #4a5568;
+}
+
+body.dark-mode .error-message {
+  background: #742a2a;
+  border-left-color: #fc8181;
+  color: #feb2b2;
+}
+
+body.dark-mode .empty-state {
+  color: #a0aec0;
 }

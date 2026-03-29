@@ -10,4 +10,10 @@ body {
   color: #333;
   min-height: 100vh;
   padding: 20px;
+  transition: background 0.3s ease;
+}
+
+body.dark-mode {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #e0e0e0;
 }
