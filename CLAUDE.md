@@ -62,6 +62,7 @@ Modular React app with component-based structure:
 - ✓ Accessibility features (ARIA labels, roles)
 - ✓ Responsive design
 - ✓ Modern UI with gradient theme
+- ✓ Dark mode toggle with persistence
 
 ## Fixed Issues
 
@@ -82,6 +83,7 @@ The following issues have been resolved:
 - ✓ Accessibility improvements (ARIA labels, semantic HTML)
 - ✓ Responsive design with media queries
 - ✓ Clear all data functionality
+- ✓ Dark mode toggle with localStorage persistence
 
 ## Remaining Opportunities
 
@@ -93,6 +95,7 @@ This codebase could be further enhanced with:
 - Charts and visualizations for spending insights
 - Budget tracking and alerts
 - Multiple currency support
-- Dark mode toggle
 - Search and advanced filtering
 - Transaction categories management (add/edit/delete categories)
+- Recurring transactions
+- Date range filtering

@@ -21,6 +21,7 @@ A modern, feature-rich expense tracker application built with React. Track your 
 - ✅ **Accessibility** - ARIA labels and semantic HTML for screen readers
 - ✅ **Responsive Design** - Works beautifully on desktop, tablet, and mobile
 - ✅ **Modern UI** - Gradient theme with smooth animations and hover effects
+- ✅ **Dark Mode** - Toggle between light and dark themes with persistence
 
 ## Getting Started
 
@@ -109,6 +110,7 @@ This project started as a basic expense tracker with intentional bugs and poor d
 - Empty state messaging
 - Currency and date formatting
 - Accessibility features
+- Dark mode with theme persistence
 
 ### Bug Fixes
 - Fixed calculation errors (string to number conversion)
