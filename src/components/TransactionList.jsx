@@ -1,7 +1,7 @@
 import TransactionFilters from './TransactionFilters'
 import TransactionTable from './TransactionTable'
 
-function TransactionList({ transactions, categories, filterType, setFilterType, filterCategory, setFilterCategory, onDeleteTransaction }) {
+function TransactionList({ transactions, categories, filterType, setFilterType, filterCategory, setFilterCategory, onDeleteTransaction, onEditTransaction }) {
   let filteredTransactions = transactions;
   if (filterType !== "all") {
     filteredTransactions = filteredTransactions.filter(t => t.type === filterType);
@@ -20,7 +20,12 @@ function TransactionList({ transactions, categories, filterType, setFilterType, 
         setFilterCategory={setFilterCategory}
         categories={categories}
       />
-      <TransactionTable transactions={filteredTransactions} onDeleteTransaction={onDeleteTransaction} />
+      <TransactionTable
+        transactions={filteredTransactions}
+        onDeleteTransaction={onDeleteTransaction}
+        onEditTransaction={onEditTransaction}
+        categories={categories}
+      />
     </div>
   );
 }
