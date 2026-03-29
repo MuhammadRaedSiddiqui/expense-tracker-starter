@@ -1,19 +1,19 @@
 import { EXCHANGE_RATES, BASE_CURRENCY, CURRENCIES } from './constants';
 
-export const convertToBaseCurrency = (amount, fromCurrency) => {
+export const convertToBaseCurrency = (amount, fromCurrency, exchangeRates = EXCHANGE_RATES) => {
   if (fromCurrency === BASE_CURRENCY) {
     return amount;
   }
   // Convert to USD: divide by the exchange rate
-  return amount / EXCHANGE_RATES[fromCurrency];
+  return amount / exchangeRates[fromCurrency];
 };
 
-export const convertFromBaseCurrency = (amount, toCurrency) => {
+export const convertFromBaseCurrency = (amount, toCurrency, exchangeRates = EXCHANGE_RATES) => {
   if (toCurrency === BASE_CURRENCY) {
     return amount;
   }
   // Convert from USD: multiply by the exchange rate
-  return amount * EXCHANGE_RATES[toCurrency];
+  return amount * exchangeRates[toCurrency];
 };
 
 export const formatCurrency = (amount, currencyCode = BASE_CURRENCY) => {

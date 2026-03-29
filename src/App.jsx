@@ -3,7 +3,7 @@ import './App.css'
 import Summary from './components/Summary'
 import TransactionForm from './components/TransactionForm'
 import TransactionList from './components/TransactionList'
-import { CATEGORIES, INITIAL_TRANSACTIONS, STORAGE_KEY, FILTER_ALL } from './constants'
+import { CATEGORIES, INITIAL_TRANSACTIONS, STORAGE_KEY, FILTER_ALL, EXCHANGE_RATES as STATIC_RATES } from './constants'
 
 function App() {
   const [transactions, setTransactions] = useState(() => {
@@ -22,6 +22,10 @@ function App() {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
   });
+  const [exchangeRates, setExchangeRates] = useState(STATIC_RATES);
+  const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
+  const [ratesLoading, setRatesLoading] = useState(false);
+  const [ratesError, setRatesError] = useState(null);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
@@ -35,6 +39,42 @@ function App() {
       document.body.classList.remove('dark-mode');
     }
   }, [darkMode]);
+
+  // Fetch exchange rates on mount
+  useEffect(() => {
+    fetchExchangeRates();
+  }, []);
+
+  const fetchExchangeRates = async () => {
+    setRatesLoading(true);
+    setRatesError(null);
+
+    try {
+      // Using frankfurter.app API - free, no API key needed
+      const response = await fetch('https://api.frankfurter.app/latest?from=USD');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch exchange rates');
+      }
+
+      const data = await response.json();
+
+      // Convert API response to our format (1 USD = X currency)
+      const rates = {
+        USD: 1,
+        ...data.rates
+      };
+
+      setExchangeRates(rates);
+      setRatesLastUpdated(new Date());
+      setRatesLoading(false);
+    } catch (error) {
+      console.error('Error fetching exchange rates:', error);
+      setRatesError('Failed to fetch live rates. Using cached rates.');
+      setRatesLoading(false);
+      // Keep using static rates as fallback
+    }
+  };
 
   const handleAddTransaction = (newTransaction) => {
     setTransactions([...transactions, newTransaction]);
@@ -62,6 +102,15 @@ function App() {
         <div>
           <h1>Finance Tracker</h1>
           <p className="subtitle">Track your income and expenses</p>
+          {ratesLastUpdated && (
+            <p className="rates-info">
+              Exchange rates updated: {ratesLastUpdated.toLocaleTimeString()}
+              <button onClick={fetchExchangeRates} className="refresh-rates" disabled={ratesLoading}>
+                {ratesLoading ? '⟳' : '↻'}
+              </button>
+            </p>
+          )}
+          {ratesError && <p className="rates-error">{ratesError}</p>}
         </div>
         <div className="header-actions">
           <button
@@ -77,7 +126,7 @@ function App() {
         </div>
       </div>
 
-      <Summary transactions={transactions} />
+      <Summary transactions={transactions} exchangeRates={exchangeRates} />
 
       <TransactionForm onAddTransaction={handleAddTransaction} categories={CATEGORIES} />
 

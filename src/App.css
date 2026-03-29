@@ -50,6 +50,53 @@ h1 {
   font-size: 1.1rem;
 }
 
+.rates-info {
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.refresh-rates {
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  min-width: 32px;
+}
+
+.refresh-rates:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(180deg);
+}
+
+.refresh-rates:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rates-error {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  color: #fbbf24;
+}
+
 .clear-btn {
   padding: 10px 20px;
   background: rgba(255, 255, 255, 0.2);
@@ -623,4 +670,12 @@ body.dark-mode .sort-order-btn {
 body.dark-mode .sort-order-btn:hover {
   background: #2d3748;
   border-color: #667eea;
+}
+
+body.dark-mode .rates-info {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+body.dark-mode .rates-error {
+  color: #fcd34d;
 }
