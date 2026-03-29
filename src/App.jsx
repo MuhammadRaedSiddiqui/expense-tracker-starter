@@ -32,10 +32,23 @@ function App() {
     ));
   };
 
+  const handleClearAll = () => {
+    if (window.confirm('Are you sure you want to delete all transactions? This cannot be undone.')) {
+      setTransactions(INITIAL_TRANSACTIONS);
+    }
+  };
+
   return (
     <div className="app">
-      <h1>Finance Tracker</h1>
-      <p className="subtitle">Track your income and expenses</p>
+      <div className="header">
+        <div>
+          <h1>Finance Tracker</h1>
+          <p className="subtitle">Track your income and expenses</p>
+        </div>
+        <button onClick={handleClearAll} className="clear-btn" aria-label="Clear all transactions">
+          Clear All Data
+        </button>
+      </div>
 
       <Summary transactions={transactions} />
 
