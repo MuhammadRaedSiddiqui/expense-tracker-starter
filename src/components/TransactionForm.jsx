@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import FormInput from './FormInput'
 import FormSelect from './FormSelect'
-import { TRANSACTION_TYPES } from '../constants'
+import { TRANSACTION_TYPES, CURRENCIES, BASE_CURRENCY } from '../constants'
 
 function TransactionForm({ onAddTransaction, categories }) {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState(TRANSACTION_TYPES.EXPENSE);
   const [category, setCategory] = useState("food");
+  const [currency, setCurrency] = useState(BASE_CURRENCY);
   const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
@@ -30,6 +31,7 @@ function TransactionForm({ onAddTransaction, categories }) {
       amount: parseFloat(amount),
       type,
       category,
+      currency,
       date: new Date().toISOString().split('T')[0],
     };
 
@@ -38,6 +40,7 @@ function TransactionForm({ onAddTransaction, categories }) {
     setAmount("");
     setType(TRANSACTION_TYPES.EXPENSE);
     setCategory("food");
+    setCurrency(BASE_CURRENCY);
   };
 
   const typeOptions = [
@@ -48,6 +51,11 @@ function TransactionForm({ onAddTransaction, categories }) {
   const categoryOptions = categories.map(cat => ({
     value: cat,
     label: cat
+  }));
+
+  const currencyOptions = CURRENCIES.map(curr => ({
+    value: curr.code,
+    label: `${curr.code} (${curr.symbol})`
   }));
 
   return (
@@ -68,6 +76,12 @@ function TransactionForm({ onAddTransaction, categories }) {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           aria-label="Transaction amount"
+        />
+        <FormSelect
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
+          options={currencyOptions}
+          aria-label="Currency"
         />
         <FormSelect
           value={type}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import EditTransactionForm from './EditTransactionForm'
 import { formatCurrency, formatDate } from '../utils'
+import { BASE_CURRENCY } from '../constants'
 
 function TransactionTable({ transactions, onDeleteTransaction, onEditTransaction, categories }) {
   const [editingId, setEditingId] = useState(null);
@@ -49,7 +50,8 @@ function TransactionTable({ transactions, onDeleteTransaction, onEditTransaction
               <td>{t.description}</td>
               <td>{t.category}</td>
               <td className={t.type === "income" ? "income-amount" : "expense-amount"}>
-                {t.type === "income" ? "+" : "-"}{formatCurrency(Math.abs(t.amount))}
+                {t.type === "income" ? "+" : "-"}
+                {formatCurrency(Math.abs(t.amount), t.currency || BASE_CURRENCY)}
               </td>
               <td>
                 <button onClick={() => setEditingId(t.id)} aria-label={`Edit ${t.description} transaction`}>Edit</button>

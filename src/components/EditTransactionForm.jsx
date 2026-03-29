@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { CURRENCIES, BASE_CURRENCY } from '../constants'
 
 function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
   const [description, setDescription] = useState(transaction.description);
   const [amount, setAmount] = useState(transaction.amount);
   const [type, setType] = useState(transaction.type);
   const [category, setCategory] = useState(transaction.category);
+  const [currency, setCurrency] = useState(transaction.currency || BASE_CURRENCY);
   const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
@@ -27,6 +29,7 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
       amount: parseFloat(amount),
       type,
       category,
+      currency,
     };
 
     onSave(updatedTransaction);
@@ -56,6 +59,11 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
+        <select value={currency} onChange={(e) => setCurrency(e.target.value)} style={{ marginTop: '4px' }}>
+          {CURRENCIES.map(curr => (
+            <option key={curr.code} value={curr.code}>{curr.code}</option>
+          ))}
+        </select>
       </td>
       <td>
         <button onClick={handleSubmit}>Save</button>
