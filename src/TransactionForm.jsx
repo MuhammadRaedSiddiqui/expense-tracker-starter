@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import FormInput from './FormInput'
+import FormSelect from './FormSelect'
 
 function TransactionForm({ onAddTransaction, categories }) {
   const [description, setDescription] = useState("");
@@ -26,31 +28,42 @@ function TransactionForm({ onAddTransaction, categories }) {
     setCategory("food");
   };
 
+  const typeOptions = [
+    { value: "income", label: "Income" },
+    { value: "expense", label: "Expense" }
+  ];
+
+  const categoryOptions = categories.map(cat => ({
+    value: cat,
+    label: cat
+  }));
+
   return (
     <div className="add-transaction">
       <h2>Add Transaction</h2>
       <form onSubmit={handleSubmit}>
-        <input
+        <FormInput
           type="text"
           placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <input
+        <FormInput
           type="number"
           placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
-        <select value={type} onChange={(e) => setType(e.target.value)}>
-          <option value="income">Income</option>
-          <option value="expense">Expense</option>
-        </select>
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          {categories.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+        <FormSelect
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          options={typeOptions}
+        />
+        <FormSelect
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          options={categoryOptions}
+        />
         <button type="submit">Add</button>
       </form>
     </div>
