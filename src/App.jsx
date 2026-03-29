@@ -14,6 +14,10 @@ function App() {
   const [filterType, setFilterType] = useState(FILTER_ALL);
   const [filterCategory, setFilterCategory] = useState(FILTER_ALL);
   const [searchTerm, setSearchTerm] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [sortBy, setSortBy] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
@@ -86,6 +90,14 @@ function App() {
         setFilterCategory={setFilterCategory}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        startDate={startDate}
+        setStartDate={setStartDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
         onDeleteTransaction={handleDeleteTransaction}
         onEditTransaction={handleEditTransaction}
       />

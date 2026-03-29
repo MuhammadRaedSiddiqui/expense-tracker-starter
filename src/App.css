@@ -261,6 +261,103 @@ button:active {
   transform: translateY(-50%);
 }
 
+.date-range-container {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.date-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-input-group label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.date-input {
+  padding: 10px 12px;
+  border: 2px solid #e5e7eb;
+  font-size: 14px;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-width: 150px;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.clear-dates {
+  padding: 10px 16px;
+  background: #f3f4f6;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.clear-dates:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.filters-sort-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.sort-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sort-select {
+  padding: 10px 16px;
+  border: 2px solid #e5e7eb;
+  font-size: 14px;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  font-weight: 500;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.sort-order-btn {
+  padding: 10px 14px;
+  background: #f3f4f6;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+  font-size: 1.25rem;
+  font-weight: 700;
+  min-width: 44px;
+}
+
+.sort-order-btn:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
 .filters {
   display: flex;
   gap: 12px;
@@ -477,4 +574,53 @@ body.dark-mode .clear-search {
 body.dark-mode .clear-search:hover {
   background: #1a202c;
   color: #e0e0e0;
+}
+
+body.dark-mode .date-input-group label {
+  color: #a0aec0;
+}
+
+body.dark-mode .date-input {
+  background: #1a202c;
+  border-color: #4a5568;
+  color: #e0e0e0;
+  color-scheme: dark;
+}
+
+body.dark-mode .date-input:focus {
+  border-color: #667eea;
+  background: #2d3748;
+}
+
+body.dark-mode .clear-dates {
+  background: #1a202c;
+  border-color: #4a5568;
+  color: #e0e0e0;
+}
+
+body.dark-mode .clear-dates:hover {
+  background: #2d3748;
+  border-color: #667eea;
+}
+
+body.dark-mode .sort-select {
+  background: #1a202c;
+  border-color: #4a5568;
+  color: #e0e0e0;
+}
+
+body.dark-mode .sort-select:focus {
+  border-color: #667eea;
+  background: #2d3748;
+}
+
+body.dark-mode .sort-order-btn {
+  background: #1a202c;
+  border-color: #4a5568;
+  color: #e0e0e0;
+}
+
+body.dark-mode .sort-order-btn:hover {
+  background: #2d3748;
+  border-color: #667eea;
 }
