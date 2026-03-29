@@ -12,7 +12,9 @@ A modern, feature-rich expense tracker application built with React. Track your 
 - ✅ **Edit Transactions** - Modify existing transactions inline
 - ✅ **Delete Transactions** - Remove individual transactions or clear all data
 - ✅ **Smart Filtering** - Filter by transaction type (income/expense) and category
+- ✅ **Date Range Filter** - Filter transactions by start and end dates
 - ✅ **Search** - Search transactions by description with instant results
+- ✅ **Sorting** - Sort by date, amount, or description with ascending/descending order
 - ✅ **Real-time Calculations** - Automatic balance, income, and expense totals
 - ✅ **Data Persistence** - Transactions saved to localStorage
 - ✅ **Form Validation** - Input validation with helpful error messages
@@ -99,8 +101,9 @@ This project started as a basic expense tracker with intentional bugs and poor d
 
 ### Functionality
 - Full CRUD operations (Create, Read, Update, Delete)
-- Advanced filtering capabilities
+- Advanced filtering capabilities (type, category, date range)
 - Search functionality for finding transactions
+- Sorting by date, amount, or description
 - Data persistence with localStorage
 - Form validation and error handling
 - Clear all data with confirmation

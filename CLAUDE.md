@@ -53,7 +53,10 @@ Modular React app with component-based structure:
 - ✓ Clear all data with confirmation
 - ✓ Filter by transaction type (income/expense/all)
 - ✓ Filter by category
+- ✓ Filter by date range (start and end dates)
 - ✓ Search transactions by description
+- ✓ Sort by date, amount, or description
+- ✓ Toggle sort order (ascending/descending)
 - ✓ Real-time balance calculation
 - ✓ Data persistence with localStorage
 - ✓ Form validation with error messages
@@ -98,5 +101,4 @@ This codebase could be further enhanced with:
 - Multiple currency support
 - Transaction categories management (add/edit/delete categories)
 - Recurring transactions
-- Date range filtering
-- Sorting transactions by date, amount, or description
+- Bulk operations (select multiple transactions)
