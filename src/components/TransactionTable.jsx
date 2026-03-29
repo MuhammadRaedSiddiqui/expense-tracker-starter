@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import EditTransactionForm from './EditTransactionForm'
+import { formatCurrency, formatDate } from '../utils'
 
 function TransactionTable({ transactions, onDeleteTransaction, onEditTransaction, categories }) {
   const [editingId, setEditingId] = useState(null);
@@ -12,6 +13,14 @@ function TransactionTable({ transactions, onDeleteTransaction, onEditTransaction
   const handleCancel = () => {
     setEditingId(null);
   };
+
+  if (transactions.length === 0) {
+    return (
+      <div className="empty-state">
+        <p>No transactions yet. Add your first transaction above!</p>
+      </div>
+    );
+  }
 
   return (
     <table>
@@ -36,11 +45,11 @@ function TransactionTable({ transactions, onDeleteTransaction, onEditTransaction
             />
           ) : (
             <tr key={t.id}>
-              <td>{t.date}</td>
+              <td>{formatDate(t.date)}</td>
               <td>{t.description}</td>
               <td>{t.category}</td>
               <td className={t.type === "income" ? "income-amount" : "expense-amount"}>
-                {t.type === "income" ? "+" : "-"}${t.amount}
+                {t.type === "income" ? "+" : "-"}{formatCurrency(Math.abs(t.amount))}
               </td>
               <td>
                 <button onClick={() => setEditingId(t.id)}>Edit</button>
