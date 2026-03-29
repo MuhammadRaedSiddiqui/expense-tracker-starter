@@ -60,6 +60,7 @@ Modular React app with component-based structure:
 - ✓ Multi-currency support (10 currencies with automatic conversion)
 - ✓ Real-time exchange rates via API (frankfurter.app)
 - ✓ Manual refresh for exchange rates
+- ✓ Charts and visualizations (pie chart, line chart)
 - ✓ Real-time balance calculation
 - ✓ Data persistence with localStorage
 - ✓ Form validation with error messages
@@ -99,7 +100,6 @@ This codebase could be further enhanced with:
 - Error boundaries for graceful error handling
 - Loading states for async operations
 - Data export/import functionality (CSV, JSON)
-- Charts and visualizations for spending insights
 - Budget tracking and alerts
 - Transaction categories management (add/edit/delete categories)
 - Recurring transactions

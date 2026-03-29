@@ -17,6 +17,7 @@ A modern, feature-rich expense tracker application built with React. Track your 
 - ✅ **Sorting** - Sort by date, amount, or description with ascending/descending order
 - ✅ **Multi-Currency Support** - Track expenses in 10 different currencies with automatic conversion
 - ✅ **Real-Time Exchange Rates** - Live exchange rates via API with manual refresh option
+- ✅ **Charts & Visualizations** - Pie chart for spending by category, line chart for income vs expenses trends
 - ✅ **Real-time Calculations** - Automatic balance, income, and expense totals
 - ✅ **Data Persistence** - Transactions saved to localStorage
 - ✅ **Form Validation** - Input validation with helpful error messages
@@ -87,6 +88,7 @@ src/
 
 - **React 19.2.0** - UI library
 - **Vite 7.2.4** - Build tool and dev server
+- **Recharts 3.8.1** - Data visualization library
 - **localStorage** - Client-side data persistence
 - **CSS3** - Modern styling with gradients and animations
 - **Multi-currency support** - 10 currencies with live exchange rate API (frankfurter.app)
