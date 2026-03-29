@@ -53,31 +53,35 @@ function TransactionForm({ onAddTransaction, categories }) {
   return (
     <div className="add-transaction">
       <h2>Add Transaction</h2>
-      {error && <div className="error-message">{error}</div>}
+      {error && <div className="error-message" role="alert" aria-live="polite">{error}</div>}
       <form onSubmit={handleSubmit}>
         <FormInput
           type="text"
           placeholder="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          aria-label="Transaction description"
         />
         <FormInput
           type="number"
           placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          aria-label="Transaction amount"
         />
         <FormSelect
           value={type}
           onChange={(e) => setType(e.target.value)}
           options={typeOptions}
+          aria-label="Transaction type"
         />
         <FormSelect
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           options={categoryOptions}
+          aria-label="Transaction category"
         />
-        <button type="submit">Add</button>
+        <button type="submit" aria-label="Add transaction">Add</button>
       </form>
     </div>
   );

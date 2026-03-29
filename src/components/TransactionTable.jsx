@@ -16,21 +16,21 @@ function TransactionTable({ transactions, onDeleteTransaction, onEditTransaction
 
   if (transactions.length === 0) {
     return (
-      <div className="empty-state">
+      <div className="empty-state" role="status" aria-live="polite">
         <p>No transactions yet. Add your first transaction above!</p>
       </div>
     );
   }
 
   return (
-    <table>
+    <table role="table" aria-label="Transactions list">
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Description</th>
-          <th>Category</th>
-          <th>Amount</th>
-          <th>Actions</th>
+          <th scope="col">Date</th>
+          <th scope="col">Description</th>
+          <th scope="col">Category</th>
+          <th scope="col">Amount</th>
+          <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -52,8 +52,8 @@ function TransactionTable({ transactions, onDeleteTransaction, onEditTransaction
                 {t.type === "income" ? "+" : "-"}{formatCurrency(Math.abs(t.amount))}
               </td>
               <td>
-                <button onClick={() => setEditingId(t.id)}>Edit</button>
-                <button onClick={() => onDeleteTransaction(t.id)}>Delete</button>
+                <button onClick={() => setEditingId(t.id)} aria-label={`Edit ${t.description} transaction`}>Edit</button>
+                <button onClick={() => onDeleteTransaction(t.id)} aria-label={`Delete ${t.description} transaction`}>Delete</button>
               </td>
             </tr>
           )
