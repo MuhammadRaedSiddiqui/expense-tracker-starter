@@ -21,16 +21,6 @@ function App() {
 
   const categories = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
 
-  const totalIncome = transactions
-    .filter(t => t.type === "income")
-    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-
-  const totalExpenses = transactions
-    .filter(t => t.type === "expense")
-    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-
-  const balance = totalIncome - totalExpenses;
-
   const handleAddTransaction = (newTransaction) => {
     setTransactions([...transactions, newTransaction]);
   };
@@ -40,7 +30,7 @@ function App() {
       <h1>Finance Tracker</h1>
       <p className="subtitle">Track your income and expenses</p>
 
-      <Summary totalIncome={totalIncome} totalExpenses={totalExpenses} balance={balance} />
+      <Summary transactions={transactions} />
 
       <TransactionForm onAddTransaction={handleAddTransaction} categories={categories} />
 
