@@ -1,4 +1,4 @@
-function TransactionTable({ transactions }) {
+function TransactionTable({ transactions, onDeleteTransaction }) {
   return (
     <table>
       <thead>
@@ -7,6 +7,7 @@ function TransactionTable({ transactions }) {
           <th>Description</th>
           <th>Category</th>
           <th>Amount</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -17,6 +18,9 @@ function TransactionTable({ transactions }) {
             <td>{t.category}</td>
             <td className={t.type === "income" ? "income-amount" : "expense-amount"}>
               {t.type === "income" ? "+" : "-"}${t.amount}
+            </td>
+            <td>
+              <button onClick={() => onDeleteTransaction(t.id)}>Delete</button>
             </td>
           </tr>
         ))}
