@@ -57,10 +57,11 @@ Modular React app with component-based structure:
 - ✓ Search transactions by description
 - ✓ Sort by date, amount, or description
 - ✓ Toggle sort order (ascending/descending)
+- ✓ Multi-currency support (10 currencies with automatic conversion)
 - ✓ Real-time balance calculation
 - ✓ Data persistence with localStorage
 - ✓ Form validation with error messages
-- ✓ Currency formatting (USD)
+- ✓ Currency formatting with proper symbols
 - ✓ Date formatting
 - ✓ Empty state message
 - ✓ Accessibility features (ARIA labels, roles)
@@ -98,7 +99,7 @@ This codebase could be further enhanced with:
 - Data export/import functionality (CSV, JSON)
 - Charts and visualizations for spending insights
 - Budget tracking and alerts
-- Multiple currency support
 - Transaction categories management (add/edit/delete categories)
 - Recurring transactions
 - Bulk operations (select multiple transactions)
+- Real-time exchange rate API integration

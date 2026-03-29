@@ -15,10 +15,11 @@ A modern, feature-rich expense tracker application built with React. Track your 
 - ✅ **Date Range Filter** - Filter transactions by start and end dates
 - ✅ **Search** - Search transactions by description with instant results
 - ✅ **Sorting** - Sort by date, amount, or description with ascending/descending order
+- ✅ **Multi-Currency Support** - Track expenses in 10 different currencies with automatic conversion
 - ✅ **Real-time Calculations** - Automatic balance, income, and expense totals
 - ✅ **Data Persistence** - Transactions saved to localStorage
 - ✅ **Form Validation** - Input validation with helpful error messages
-- ✅ **Currency Formatting** - Professional USD currency display
+- ✅ **Currency Formatting** - Professional currency display with proper symbols
 - ✅ **Date Formatting** - Human-readable date formats
 - ✅ **Empty State** - Helpful message when no transactions exist
 - ✅ **Accessibility** - ARIA labels and semantic HTML for screen readers
@@ -87,6 +88,7 @@ src/
 - **Vite 7.2.4** - Build tool and dev server
 - **localStorage** - Client-side data persistence
 - **CSS3** - Modern styling with gradients and animations
+- **Multi-currency support** - 10 currencies with exchange rate conversion
 
 ## Key Improvements
 
