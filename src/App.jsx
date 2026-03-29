@@ -3,6 +3,8 @@ import './App.css'
 import Summary from './components/Summary'
 import TransactionForm from './components/TransactionForm'
 import TransactionList from './components/TransactionList'
+import SpendingByCategory from './components/SpendingByCategory'
+import IncomeVsExpenses from './components/IncomeVsExpenses'
 import { CATEGORIES, INITIAL_TRANSACTIONS, STORAGE_KEY, FILTER_ALL, EXCHANGE_RATES as STATIC_RATES } from './constants'
 
 function App() {
@@ -127,6 +129,11 @@ function App() {
       </div>
 
       <Summary transactions={transactions} exchangeRates={exchangeRates} />
+
+      <div className="charts-section">
+        <SpendingByCategory transactions={transactions} exchangeRates={exchangeRates} />
+        <IncomeVsExpenses transactions={transactions} exchangeRates={exchangeRates} />
+      </div>
 
       <TransactionForm onAddTransaction={handleAddTransaction} categories={CATEGORIES} />
 

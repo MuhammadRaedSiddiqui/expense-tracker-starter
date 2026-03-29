@@ -117,6 +117,38 @@ h1 {
   margin-bottom: 32px;
 }
 
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.chart-container {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chart-container h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.125rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.chart-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.chart-empty p {
+  margin: 0;
+}
+
 .summary-card {
   flex: 1;
   border: none;
@@ -504,6 +536,10 @@ td select:focus {
     flex-direction: column;
   }
 
+  .charts-section {
+    grid-template-columns: 1fr;
+  }
+
   form {
     flex-direction: column;
   }
@@ -678,4 +714,16 @@ body.dark-mode .rates-info {
 
 body.dark-mode .rates-error {
   color: #fcd34d;
+}
+
+body.dark-mode .chart-container {
+  background: #2d3748;
+}
+
+body.dark-mode .chart-container h3 {
+  color: #e0e0e0;
+}
+
+body.dark-mode .chart-empty {
+  color: #a0aec0;
 }
