@@ -53,6 +53,7 @@ Modular React app with component-based structure:
 - ✓ Clear all data with confirmation
 - ✓ Filter by transaction type (income/expense/all)
 - ✓ Filter by category
+- ✓ Search transactions by description
 - ✓ Real-time balance calculation
 - ✓ Data persistence with localStorage
 - ✓ Form validation with error messages
@@ -95,7 +96,7 @@ This codebase could be further enhanced with:
 - Charts and visualizations for spending insights
 - Budget tracking and alerts
 - Multiple currency support
-- Search and advanced filtering
 - Transaction categories management (add/edit/delete categories)
 - Recurring transactions
 - Date range filtering
+- Sorting transactions by date, amount, or description
