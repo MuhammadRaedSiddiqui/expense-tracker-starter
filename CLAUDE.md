@@ -58,6 +58,8 @@ Modular React app with component-based structure:
 - ✓ Sort by date, amount, or description
 - ✓ Toggle sort order (ascending/descending)
 - ✓ Multi-currency support (10 currencies with automatic conversion)
+- ✓ Real-time exchange rates via API (frankfurter.app)
+- ✓ Manual refresh for exchange rates
 - ✓ Real-time balance calculation
 - ✓ Data persistence with localStorage
 - ✓ Form validation with error messages
@@ -102,4 +104,4 @@ This codebase could be further enhanced with:
 - Transaction categories management (add/edit/delete categories)
 - Recurring transactions
 - Bulk operations (select multiple transactions)
-- Real-time exchange rate API integration
+- Offline mode with sync when online
