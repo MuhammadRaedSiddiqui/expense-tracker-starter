@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import './App.css'
 import Summary from './components/Summary'
 import TransactionForm from './components/TransactionForm'
 import TransactionList from './components/TransactionList'
 import SpendingByCategory from './components/SpendingByCategory'
 import IncomeVsExpenses from './components/IncomeVsExpenses'
+import Modal from './components/Modal'
 import { CATEGORIES, INITIAL_TRANSACTIONS, STORAGE_KEY, FILTER_ALL, EXCHANGE_RATES as STATIC_RATES } from './constants'
 
 function App() {
@@ -28,6 +28,7 @@ function App() {
   const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
   const [ratesLoading, setRatesLoading] = useState(false);
   const [ratesError, setRatesError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
@@ -99,64 +100,84 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <div className="header">
-        <div>
-          <h1>Finance Tracker</h1>
-          <p className="subtitle">Track your income and expenses</p>
-          {ratesLastUpdated && (
-            <p className="rates-info">
-              Exchange rates updated: {ratesLastUpdated.toLocaleTimeString()}
-              <button onClick={fetchExchangeRates} className="refresh-rates" disabled={ratesLoading}>
-                {ratesLoading ? '⟳' : '↻'}
-              </button>
-            </p>
-          )}
-          {ratesError && <p className="rates-error">{ratesError}</p>}
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
+          <div>
+            <h1 className="text-3xl font-semibold text-slate-900 mb-1">Finance Tracker</h1>
+            <p className="text-sm text-slate-500">Track your income and expenses</p>
+            {ratesLastUpdated && (
+              <p className="text-xs text-slate-400 mt-2 flex items-center gap-2">
+                Exchange rates updated: {ratesLastUpdated.toLocaleTimeString()}
+                <button
+                  onClick={fetchExchangeRates}
+                  disabled={ratesLoading}
+                  className="text-slate-500 hover:text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {ratesLoading ? '⟳' : '↻'}
+                </button>
+              </p>
+            )}
+            {ratesError && <p className="text-xs text-rose-600 mt-1">{ratesError}</p>}
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+            >
+              Add Transaction
+            </button>
+            <button
+              onClick={handleClearAll}
+              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+              aria-label="Clear all transactions"
+            >
+              Clear All
+            </button>
+          </div>
         </div>
-        <div className="header-actions">
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="theme-toggle"
-            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-          >
-            {darkMode ? '☀️' : '🌙'}
-          </button>
-          <button onClick={handleClearAll} className="clear-btn" aria-label="Clear all transactions">
-            Clear All Data
-          </button>
+
+        <Summary transactions={transactions} exchangeRates={exchangeRates} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          <SpendingByCategory transactions={transactions} exchangeRates={exchangeRates} />
+          <IncomeVsExpenses transactions={transactions} exchangeRates={exchangeRates} />
         </div>
+
+        <TransactionList
+          transactions={transactions}
+          categories={CATEGORIES}
+          filterType={filterType}
+          setFilterType={setFilterType}
+          filterCategory={filterCategory}
+          setFilterCategory={setFilterCategory}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          onDeleteTransaction={handleDeleteTransaction}
+          onEditTransaction={handleEditTransaction}
+        />
+
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title="Add Transaction"
+        >
+          <TransactionForm
+            onAddTransaction={handleAddTransaction}
+            categories={CATEGORIES}
+            onClose={() => setIsModalOpen(false)}
+          />
+        </Modal>
       </div>
-
-      <Summary transactions={transactions} exchangeRates={exchangeRates} />
-
-      <div className="charts-section">
-        <SpendingByCategory transactions={transactions} exchangeRates={exchangeRates} />
-        <IncomeVsExpenses transactions={transactions} exchangeRates={exchangeRates} />
-      </div>
-
-      <TransactionForm onAddTransaction={handleAddTransaction} categories={CATEGORIES} />
-
-      <TransactionList
-        transactions={transactions}
-        categories={CATEGORIES}
-        filterType={filterType}
-        setFilterType={setFilterType}
-        filterCategory={filterCategory}
-        setFilterCategory={setFilterCategory}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-        sortOrder={sortOrder}
-        setSortOrder={setSortOrder}
-        onDeleteTransaction={handleDeleteTransaction}
-        onEditTransaction={handleEditTransaction}
-      />
     </div>
   );
 }

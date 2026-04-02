@@ -2,7 +2,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { TRANSACTION_TYPES, BASE_CURRENCY } from '../constants';
 import { convertToBaseCurrency } from '../utils';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#84cc16'];
+const COLORS = ['#d97706', '#059669', '#0891b2', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#ea580c', '#0284c7', '#65a30d'];
 
 function SpendingByCategory({ transactions, exchangeRates }) {
   // Calculate spending by category
@@ -27,15 +27,15 @@ function SpendingByCategory({ transactions, exchangeRates }) {
 
   if (chartData.length === 0) {
     return (
-      <div className="chart-empty">
+      <div className="text-center py-12 text-slate-500">
         <p>No expense data to display</p>
       </div>
     );
   }
 
   return (
-    <div className="chart-container">
-      <h3>Spending by Category</h3>
+    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+      <h3 className="text-base font-semibold text-slate-900 mb-4">Spending by Category</h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -43,17 +43,33 @@ function SpendingByCategory({ transactions, exchangeRates }) {
             cx="50%"
             cy="50%"
             labelLine={false}
-            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-            outerRadius={80}
+            outerRadius={90}
+            innerRadius={50}
             fill="#8884d8"
             dataKey="value"
+            paddingAngle={2}
           >
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => `$${value.toFixed(2)}`} />
-          <Legend />
+          <Tooltip
+            formatter={(value) => `$${value.toFixed(2)}`}
+            contentStyle={{
+              backgroundColor: '#ffffff',
+              border: '1px solid #e5e7eb',
+              borderRadius: '0.5rem',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '0.875rem'
+            }}
+          />
+          <Legend
+            wrapperStyle={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '0.875rem'
+            }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

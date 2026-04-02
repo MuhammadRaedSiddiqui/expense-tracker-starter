@@ -19,18 +19,20 @@ function Summary({ transactions, exchangeRates }) {
   const balance = totalIncome - totalExpenses;
 
   return (
-    <div className="summary">
-      <div className="summary-card">
-        <h3>Income</h3>
-        <p className="income-amount">{formatCurrency(totalIncome, BASE_CURRENCY)}</p>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Total Income</p>
+        <p className="text-2xl font-semibold text-emerald-600">{formatCurrency(totalIncome, BASE_CURRENCY)}</p>
       </div>
-      <div className="summary-card">
-        <h3>Expenses</h3>
-        <p className="expense-amount">{formatCurrency(totalExpenses, BASE_CURRENCY)}</p>
+      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Total Expenses</p>
+        <p className="text-2xl font-semibold text-rose-600">{formatCurrency(totalExpenses, BASE_CURRENCY)}</p>
       </div>
-      <div className="summary-card">
-        <h3>Balance</h3>
-        <p className="balance-amount">{formatCurrency(balance, BASE_CURRENCY)}</p>
+      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Balance</p>
+        <p className={`text-2xl font-semibold ${balance >= 0 ? 'text-slate-900' : 'text-rose-600'}`}>
+          {formatCurrency(balance, BASE_CURRENCY)}
+        </p>
       </div>
     </div>
   );
