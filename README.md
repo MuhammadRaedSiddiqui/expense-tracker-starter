@@ -1,143 +1,223 @@
-# Expense Tracker
+# Expense Tracker - B2B SaaS
 
-A modern, feature-rich expense tracker application built with React. Track your income and expenses with a beautiful, responsive interface.
+A modern, production-ready expense tracking application built with React, Tailwind CSS, and Supabase.
 
-![Expense Tracker](https://img.shields.io/badge/React-19.2.0-blue)
-![Vite](https://img.shields.io/badge/Vite-7.2.4-purple)
-![License](https://img.shields.io/badge/license-MIT-green)
-
-## Features
-
-- ✅ **Add Transactions** - Record income and expenses with descriptions, amounts, and categories
-- ✅ **Edit Transactions** - Modify existing transactions inline
-- ✅ **Delete Transactions** - Remove individual transactions or clear all data
-- ✅ **Smart Filtering** - Filter by transaction type (income/expense) and category
-- ✅ **Date Range Filter** - Filter transactions by start and end dates
-- ✅ **Search** - Search transactions by description with instant results
-- ✅ **Sorting** - Sort by date, amount, or description with ascending/descending order
-- ✅ **Multi-Currency Support** - Track expenses in 10 different currencies with automatic conversion
-- ✅ **Real-Time Exchange Rates** - Live exchange rates via API with manual refresh option
-- ✅ **Charts & Visualizations** - Pie chart for spending by category, line chart for income vs expenses trends
-- ✅ **Real-time Calculations** - Automatic balance, income, and expense totals
-- ✅ **Data Persistence** - Transactions saved to localStorage
-- ✅ **Form Validation** - Input validation with helpful error messages
-- ✅ **Currency Formatting** - Professional currency display with proper symbols
-- ✅ **Date Formatting** - Human-readable date formats
-- ✅ **Empty State** - Helpful message when no transactions exist
-- ✅ **Accessibility** - ARIA labels and semantic HTML for screen readers
-- ✅ **Responsive Design** - Works beautifully on desktop, tablet, and mobile
-- ✅ **Modern UI** - Gradient theme with smooth animations and hover effects
-- ✅ **Dark Mode** - Toggle between light and dark themes with persistence
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-
-- Node.js (v14 or higher)
+- Node.js 18+ 
 - npm or yarn
+- Supabase account (free tier)
+- Clerk account (free tier)
 
 ### Installation
 
-1. Clone the repository:
+1. Clone the repository
 ```bash
 git clone https://github.com/MuhammadRaedSiddiqui/expense-tracker-starter.git
 cd expense-tracker-starter
 ```
 
-2. Install dependencies:
+2. Install dependencies
 ```bash
 npm install
 ```
 
-3. Start the development server:
+3. Set up environment variables
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` with your actual credentials:
+- Supabase URL and anon key
+- Clerk publishable key
+- Stripe publishable key (for payments)
+
+4. Run the development server
 ```bash
 npm run dev
 ```
 
-4. Open your browser and navigate to `http://localhost:5173`
+Visit `http://localhost:5173`
 
-## Available Scripts
+## 📁 Project Structure
+
+```
+expense-tracker-starter/
+├── api/                      # Vercel serverless functions
+│   ├── health.js             # Health check endpoint
+│   ├── auth/                 # Authentication endpoints
+│   ├── transactions/         # Transaction CRUD
+│   ├── organizations/        # Organization management
+│   └── webhooks/             # Webhook handlers (Stripe, etc.)
+├── src/
+│   ├── components/           # React components
+│   ├── constants.js          # App constants
+│   ├── utils.js              # Utility functions
+│   ├── App.jsx               # Main app component
+│   └── main.jsx              # Entry point
+├── .env.example              # Environment variables template
+├── .prettierrc               # Prettier configuration
+├── eslint.config.js          # ESLint configuration
+├── tailwind.config.js        # Tailwind CSS configuration
+├── vercel.json               # Vercel deployment config
+└── vite.config.js            # Vite configuration
+```
+
+## 🛠️ Available Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
+- `npm run lint:fix` - Fix ESLint errors
+- `npm run format` - Format code with Prettier
+- `npm run format:check` - Check code formatting
 
-## Project Structure
+## 🔧 Tech Stack
 
+### Frontend
+- **React 19** - UI library
+- **Tailwind CSS** - Utility-first CSS framework
+- **Recharts** - Data visualization
+- **Vite** - Build tool
+
+### Backend
+- **Supabase** - PostgreSQL database, authentication, storage
+- **Clerk** - User authentication and management
+- **Vercel** - Serverless functions and hosting
+
+### Payments
+- **Stripe** - Payment processing and subscriptions
+
+### Monitoring
+- **Sentry** - Error tracking
+- **PostHog** - Product analytics
+
+## 🚧 Development Phases
+
+### ✅ Phase 0: Foundation & Setup (Current)
+- [x] Project restructure
+- [x] Environment variables setup
+- [x] ESLint + Prettier configuration
+- [x] API folder structure
+- [x] Vercel configuration
+- [ ] Supabase database setup
+- [ ] Monitoring integration
+
+### 🔄 Phase 1: Backend & Authentication (Next)
+- [ ] Supabase integration
+- [ ] Clerk authentication
+- [ ] API layer
+- [ ] Real-time sync
+
+### 📋 Upcoming Phases
+- Phase 2: Multi-tenancy & Teams
+- Phase 3: Billing & Monetization
+- Phase 4: Onboarding & UX Polish
+- Phase 5: Core Features Enhancement
+- Phase 6: Integrations & API
+- Phase 7: Enterprise Features
+- Phase 8: Testing & Quality
+- Phase 9: Mobile & PWA
+- Phase 10: Launch Preparation
+
+## 🌟 Features
+
+### Current Features
+- ✅ Transaction management (CRUD)
+- ✅ Multi-currency support with real-time exchange rates
+- ✅ Advanced filtering (type, category, date range, search)
+- ✅ Sorting by date, amount, description
+- ✅ Charts and visualizations
+- ✅ Dark mode
+- ✅ Responsive design
+- ✅ Modern B2B SaaS UI
+
+### Coming Soon
+- 🔄 User authentication
+- 🔄 Team collaboration
+- 🔄 Subscription billing
+- 🔄 Recurring transactions
+- 🔄 Receipt attachments
+- 🔄 Budget tracking
+- 🔄 API access
+- 🔄 Bank integrations
+
+## 📝 Environment Variables
+
+See `.env.example` for all required environment variables.
+
+### Required for Development
+- `VITE_SUPABASE_URL` - Your Supabase project URL
+- `VITE_SUPABASE_ANON_KEY` - Your Supabase anonymous key
+- `VITE_CLERK_PUBLISHABLE_KEY` - Your Clerk publishable key
+
+### Required for Production
+- All development variables
+- `VITE_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
+- Additional backend environment variables (see deployment docs)
+
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Import project in Vercel
+3. Add environment variables
+4. Deploy
+
+Vercel will automatically:
+- Build your frontend
+- Deploy serverless functions from `/api`
+- Set up preview deployments for PRs
+
+### Manual Deployment
+
+```bash
+npm run build
+# Upload dist/ folder to your hosting provider
 ```
-src/
-├── components/          # React components
-│   ├── Summary.jsx
-│   ├── TransactionForm.jsx
-│   ├── TransactionList.jsx
-│   ├── TransactionTable.jsx
-│   ├── TransactionFilters.jsx
-│   ├── EditTransactionForm.jsx
-│   ├── FormInput.jsx
-│   └── FormSelect.jsx
-├── constants.js         # App constants
-├── utils.js            # Utility functions
-├── App.jsx             # Main app component
-├── App.css             # App styles
-├── index.css           # Global styles
-└── main.jsx            # Entry point
+
+## 🧪 Testing
+
+```bash
+# Run linter
+npm run lint
+
+# Format code
+npm run format
+
+# Check formatting
+npm run format:check
 ```
 
-## Technologies Used
+## 🤝 Contributing
 
-- **React 19.2.0** - UI library
-- **Vite 7.2.4** - Build tool and dev server
-- **Recharts 3.8.1** - Data visualization library
-- **localStorage** - Client-side data persistence
-- **CSS3** - Modern styling with gradients and animations
-- **Multi-currency support** - 10 currencies with live exchange rate API (frankfurter.app)
+This is a learning project following a structured implementation plan. Contributions are welcome!
 
-## Key Improvements
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run linter and formatter
+5. Submit a pull request
 
-This project started as a basic expense tracker with intentional bugs and poor design. Through systematic refactoring, it has been transformed into a production-ready application:
+## 📄 License
 
-### Code Quality
-- Modular component architecture
-- Separation of concerns
-- Reusable components (FormInput, FormSelect)
-- Constants extracted to dedicated file
-- Utility functions for formatting
+MIT
 
-### Functionality
-- Full CRUD operations (Create, Read, Update, Delete)
-- Advanced filtering capabilities (type, category, date range)
-- Search functionality for finding transactions
-- Sorting by date, amount, or description
-- Data persistence with localStorage
-- Form validation and error handling
-- Clear all data with confirmation
+## 🆘 Support
 
-### User Experience
-- Modern gradient UI design
-- Smooth animations and transitions
-- Responsive layout for all devices
-- Empty state messaging
-- Currency and date formatting
-- Accessibility features
-- Dark mode with theme persistence
+For issues and questions, please open a GitHub issue.
 
-### Bug Fixes
-- Fixed calculation errors (string to number conversion)
-- Corrected transaction type mismatches
-- Proper amount parsing with parseFloat
+## 📚 Documentation
 
-## Contributing
+- [API Documentation](./api/README.md)
+- [Implementation Plan](https://github.com/MuhammadRaedSiddiqui/expense-tracker-starter/issues)
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+## 🎯 Roadmap
 
-## License
-
-This project is open source and available under the MIT License.
-
-## Acknowledgments
-
-This project was created as part of a Claude Code course to demonstrate systematic code improvement and refactoring techniques.
+See the full implementation plan in the project documentation. We're currently in Phase 0 (Foundation & Setup) with 10 phases planned total.
 
 ## Contact
 
