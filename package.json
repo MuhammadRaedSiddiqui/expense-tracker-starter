@@ -14,6 +14,7 @@
     "type-check": "echo 'TypeScript not yet configured'"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.61.4",
     "@posthog/react": "^1.8.3",
     "@sentry/react": "^10.47.0",
     "@supabase/supabase-js": "^2.101.1",

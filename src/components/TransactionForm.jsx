@@ -26,7 +26,6 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
     }
 
     const newTransaction = {
-      id: Date.now(),
       description: description.trim(),
       amount: parseFloat(amount),
       type,

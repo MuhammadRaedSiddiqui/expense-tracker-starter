@@ -1,12 +1,15 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import App from './App.jsx';
+import AuthGate from './components/AuthGate.jsx';
 import { initSentry } from './lib/sentry';
 import { PostHogProvider } from '@posthog/react';
+import { ClerkProvider } from '@clerk/clerk-react';
 
 // Initialize Sentry
 initSentry();
+
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 const posthogOptions = {
   api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
@@ -21,11 +24,13 @@ const posthogOptions = {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <PostHogProvider
-      apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN}
-      options={posthogOptions}
-    >
-      <App />
-    </PostHogProvider>
+    <ClerkProvider publishableKey={clerkPubKey}>
+      <PostHogProvider
+        apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN}
+        options={posthogOptions}
+      >
+        <AuthGate />
+      </PostHogProvider>
+    </ClerkProvider>
   </StrictMode>
 );

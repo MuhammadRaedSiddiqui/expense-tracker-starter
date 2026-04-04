@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/clerk-react';
 import Summary from './components/Summary';
 import TransactionForm from './components/TransactionForm';
 import TransactionList from './components/TransactionList';
@@ -6,18 +7,24 @@ import SpendingByCategory from './components/SpendingByCategory';
 import IncomeVsExpenses from './components/IncomeVsExpenses';
 import Modal from './components/Modal';
 import {
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
+  deleteAllTransactions,
+} from './lib/supabaseQueries';
+import { getClerkUserId } from './lib/clerk';
+import { captureException } from './lib/sentry';
+import {
   CATEGORIES,
-  INITIAL_TRANSACTIONS,
-  STORAGE_KEY,
   FILTER_ALL,
   EXCHANGE_RATES as STATIC_RATES,
 } from './constants';
 
-function App() {
-  const [transactions, setTransactions] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : INITIAL_TRANSACTIONS;
-  });
+function App({ organization, initialTransactions, onDataChange }) {
+  const { user } = useUser();
+  const [transactions, setTransactions] = useState(initialTransactions || []);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const [filterType, setFilterType] = useState(FILTER_ALL);
   const [filterCategory, setFilterCategory] = useState(FILTER_ALL);
@@ -26,28 +33,16 @@ function App() {
   const [endDate, setEndDate] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
-  });
   const [exchangeRates, setExchangeRates] = useState(STATIC_RATES);
   const [ratesLastUpdated, setRatesLastUpdated] = useState(null);
   const [ratesLoading, setRatesLoading] = useState(false);
   const [ratesError, setRatesError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Update local state when initialTransactions change
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
-  }, [transactions]);
-
-  useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
-    if (darkMode) {
-      document.body.classList.add('dark-mode');
-    } else {
-      document.body.classList.remove('dark-mode');
-    }
-  }, [darkMode]);
+    setTransactions(initialTransactions || []);
+  }, [initialTransactions]);
 
   // Fetch exchange rates on mount
   useEffect(() => {
@@ -85,25 +80,119 @@ function App() {
     }
   };
 
-  const handleAddTransaction = newTransaction => {
-    setTransactions([...transactions, newTransaction]);
+  const handleAddTransaction = async (newTransaction) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const userId = getClerkUserId(user);
+      const { data, error: createError } = await createTransaction(
+        organization.id,
+        userId,
+        newTransaction
+      );
+
+      if (createError) throw createError;
+
+      // Update local state optimistically
+      setTransactions([data, ...transactions]);
+
+      // Notify parent to refetch (ensures sync)
+      if (onDataChange) {
+        onDataChange();
+      }
+    } catch (err) {
+      console.error('Error adding transaction:', err);
+      captureException(err, { context: 'handleAddTransaction' });
+      setError('Failed to add transaction. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDeleteTransaction = id => {
-    setTransactions(transactions.filter(t => t.id !== id));
+  const handleDeleteTransaction = async (id) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { error: deleteError } = await deleteTransaction(id);
+
+      if (deleteError) throw deleteError;
+
+      // Update local state
+      setTransactions(transactions.filter(t => t.id !== id));
+
+      // Notify parent
+      if (onDataChange) {
+        onDataChange();
+      }
+    } catch (err) {
+      console.error('Error deleting transaction:', err);
+      captureException(err, { context: 'handleDeleteTransaction' });
+      setError('Failed to delete transaction. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEditTransaction = updatedTransaction => {
-    setTransactions(
-      transactions.map(t => (t.id === updatedTransaction.id ? updatedTransaction : t))
-    );
+  const handleEditTransaction = async (updatedTransaction) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, error: updateError } = await updateTransaction(
+        updatedTransaction.id,
+        updatedTransaction
+      );
+
+      if (updateError) throw updateError;
+
+      // Update local state
+      setTransactions(
+        transactions.map(t => (t.id === data.id ? data : t))
+      );
+
+      // Notify parent
+      if (onDataChange) {
+        onDataChange();
+      }
+    } catch (err) {
+      console.error('Error updating transaction:', err);
+      captureException(err, { context: 'handleEditTransaction' });
+      setError('Failed to update transaction. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleClearAll = () => {
+  const handleClearAll = async () => {
     if (
-      window.confirm('Are you sure you want to delete all transactions? This cannot be undone.')
+      !window.confirm('Are you sure you want to delete all transactions? This cannot be undone.')
     ) {
-      setTransactions(INITIAL_TRANSACTIONS);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { error: deleteError } = await deleteAllTransactions(organization.id);
+
+      if (deleteError) throw deleteError;
+
+      // Clear local state
+      setTransactions([]);
+
+      // Notify parent
+      if (onDataChange) {
+        onDataChange();
+      }
+    } catch (err) {
+      console.error('Error clearing transactions:', err);
+      captureException(err, { context: 'handleClearAll' });
+      setError('Failed to clear transactions. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
