@@ -1,11 +1,17 @@
-import { useState, useEffect } from 'react'
-import Summary from './components/Summary'
-import TransactionForm from './components/TransactionForm'
-import TransactionList from './components/TransactionList'
-import SpendingByCategory from './components/SpendingByCategory'
-import IncomeVsExpenses from './components/IncomeVsExpenses'
-import Modal from './components/Modal'
-import { CATEGORIES, INITIAL_TRANSACTIONS, STORAGE_KEY, FILTER_ALL, EXCHANGE_RATES as STATIC_RATES } from './constants'
+import { useState, useEffect } from 'react';
+import Summary from './components/Summary';
+import TransactionForm from './components/TransactionForm';
+import TransactionList from './components/TransactionList';
+import SpendingByCategory from './components/SpendingByCategory';
+import IncomeVsExpenses from './components/IncomeVsExpenses';
+import Modal from './components/Modal';
+import {
+  CATEGORIES,
+  INITIAL_TRANSACTIONS,
+  STORAGE_KEY,
+  FILTER_ALL,
+  EXCHANGE_RATES as STATIC_RATES,
+} from './constants';
 
 function App() {
   const [transactions, setTransactions] = useState(() => {
@@ -15,11 +21,11 @@ function App() {
 
   const [filterType, setFilterType] = useState(FILTER_ALL);
   const [filterCategory, setFilterCategory] = useState(FILTER_ALL);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [sortBy, setSortBy] = useState("date");
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [sortBy, setSortBy] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc');
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('darkMode');
     return saved ? JSON.parse(saved) : false;
@@ -65,7 +71,7 @@ function App() {
       // Convert API response to our format (1 USD = X currency)
       const rates = {
         USD: 1,
-        ...data.rates
+        ...data.rates,
       };
 
       setExchangeRates(rates);
@@ -79,22 +85,24 @@ function App() {
     }
   };
 
-  const handleAddTransaction = (newTransaction) => {
+  const handleAddTransaction = newTransaction => {
     setTransactions([...transactions, newTransaction]);
   };
 
-  const handleDeleteTransaction = (id) => {
+  const handleDeleteTransaction = id => {
     setTransactions(transactions.filter(t => t.id !== id));
   };
 
-  const handleEditTransaction = (updatedTransaction) => {
-    setTransactions(transactions.map(t =>
-      t.id === updatedTransaction.id ? updatedTransaction : t
-    ));
+  const handleEditTransaction = updatedTransaction => {
+    setTransactions(
+      transactions.map(t => (t.id === updatedTransaction.id ? updatedTransaction : t))
+    );
   };
 
   const handleClearAll = () => {
-    if (window.confirm('Are you sure you want to delete all transactions? This cannot be undone.')) {
+    if (
+      window.confirm('Are you sure you want to delete all transactions? This cannot be undone.')
+    ) {
       setTransactions(INITIAL_TRANSACTIONS);
     }
   };
@@ -166,11 +174,7 @@ function App() {
           onEditTransaction={handleEditTransaction}
         />
 
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          title="Add Transaction"
-        >
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Transaction">
           <TransactionForm
             onAddTransaction={handleAddTransaction}
             categories={CATEGORIES}
@@ -182,4 +186,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

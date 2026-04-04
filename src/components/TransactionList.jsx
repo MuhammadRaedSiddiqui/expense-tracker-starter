@@ -1,6 +1,6 @@
-import TransactionFilters from './TransactionFilters'
-import TransactionTable from './TransactionTable'
-import { FILTER_ALL } from '../constants'
+import TransactionFilters from './TransactionFilters';
+import TransactionTable from './TransactionTable';
+import { FILTER_ALL } from '../constants';
 
 function TransactionList({
   transactions,
@@ -20,7 +20,7 @@ function TransactionList({
   sortOrder,
   setSortOrder,
   onDeleteTransaction,
-  onEditTransaction
+  onEditTransaction,
 }) {
   let filteredTransactions = transactions;
 
@@ -79,7 +79,7 @@ function TransactionList({
           type="text"
           placeholder="Search transactions..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={e => setSearchTerm(e.target.value)}
           className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           aria-label="Search transactions by description"
         />
@@ -90,7 +90,12 @@ function TransactionList({
             aria-label="Clear search"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         )}
@@ -98,23 +103,27 @@ function TransactionList({
 
       <div className="flex flex-wrap gap-3 mb-4">
         <div className="flex flex-col">
-          <label htmlFor="start-date" className="text-xs font-medium text-slate-500 mb-1">From:</label>
+          <label htmlFor="start-date" className="text-xs font-medium text-slate-500 mb-1">
+            From:
+          </label>
           <input
             id="start-date"
             type="date"
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={e => setStartDate(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             aria-label="Start date"
           />
         </div>
         <div className="flex flex-col">
-          <label htmlFor="end-date" className="text-xs font-medium text-slate-500 mb-1">To:</label>
+          <label htmlFor="end-date" className="text-xs font-medium text-slate-500 mb-1">
+            To:
+          </label>
           <input
             id="end-date"
             type="date"
             value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
+            onChange={e => setEndDate(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             aria-label="End date"
           />
@@ -145,7 +154,7 @@ function TransactionList({
         <div className="flex gap-2">
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
+            onChange={e => setSortBy(e.target.value)}
             className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             aria-label="Sort by"
           >

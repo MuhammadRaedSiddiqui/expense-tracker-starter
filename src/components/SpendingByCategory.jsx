@@ -2,14 +2,29 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 import { TRANSACTION_TYPES, BASE_CURRENCY } from '../constants';
 import { convertToBaseCurrency } from '../utils';
 
-const COLORS = ['#d97706', '#059669', '#0891b2', '#dc2626', '#7c3aed', '#db2777', '#0d9488', '#ea580c', '#0284c7', '#65a30d'];
+const COLORS = [
+  '#d97706',
+  '#059669',
+  '#0891b2',
+  '#dc2626',
+  '#7c3aed',
+  '#db2777',
+  '#0d9488',
+  '#ea580c',
+  '#0284c7',
+  '#65a30d',
+];
 
 function SpendingByCategory({ transactions, exchangeRates }) {
   // Calculate spending by category
   const categoryData = transactions
     .filter(t => t.type === TRANSACTION_TYPES.EXPENSE)
     .reduce((acc, t) => {
-      const amountInBase = convertToBaseCurrency(parseFloat(t.amount), t.currency || BASE_CURRENCY, exchangeRates);
+      const amountInBase = convertToBaseCurrency(
+        parseFloat(t.amount),
+        t.currency || BASE_CURRENCY,
+        exchangeRates
+      );
 
       if (!acc[t.category]) {
         acc[t.category] = 0;
@@ -21,7 +36,7 @@ function SpendingByCategory({ transactions, exchangeRates }) {
   const chartData = Object.entries(categoryData)
     .map(([category, amount]) => ({
       name: category.charAt(0).toUpperCase() + category.slice(1),
-      value: parseFloat(amount.toFixed(2))
+      value: parseFloat(amount.toFixed(2)),
     }))
     .sort((a, b) => b.value - a.value);
 
@@ -54,20 +69,20 @@ function SpendingByCategory({ transactions, exchangeRates }) {
             ))}
           </Pie>
           <Tooltip
-            formatter={(value) => `$${value.toFixed(2)}`}
+            formatter={value => `$${value.toFixed(2)}`}
             contentStyle={{
               backgroundColor: '#ffffff',
               border: '1px solid #e5e7eb',
               borderRadius: '0.5rem',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               fontFamily: 'Inter, sans-serif',
-              fontSize: '0.875rem'
+              fontSize: '0.875rem',
             }}
           />
           <Legend
             wrapperStyle={{
               fontFamily: 'Inter, sans-serif',
-              fontSize: '0.875rem'
+              fontSize: '0.875rem',
             }}
           />
         </PieChart>

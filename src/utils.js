@@ -22,16 +22,17 @@ export const formatCurrency = (amount, currencyCode = BASE_CURRENCY) => {
 
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(amount).replace(/^/, symbol);
+    maximumFractionDigits: 2,
+  })
+    .format(amount)
+    .replace(/^/, symbol);
 };
 
-export const formatDate = (dateString) => {
+export const formatDate = dateString => {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   }).format(date);
 };
-

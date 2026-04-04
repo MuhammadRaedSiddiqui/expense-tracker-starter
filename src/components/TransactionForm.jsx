@@ -1,27 +1,27 @@
-import { useState } from 'react'
-import FormInput from './FormInput'
-import FormSelect from './FormSelect'
-import { TRANSACTION_TYPES, CURRENCIES, BASE_CURRENCY } from '../constants'
+import { useState } from 'react';
+import FormInput from './FormInput';
+import FormSelect from './FormSelect';
+import { TRANSACTION_TYPES, CURRENCIES, BASE_CURRENCY } from '../constants';
 
 function TransactionForm({ onAddTransaction, categories, onClose }) {
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState('');
+  const [amount, setAmount] = useState('');
   const [type, setType] = useState(TRANSACTION_TYPES.EXPENSE);
-  const [category, setCategory] = useState("food");
+  const [category, setCategory] = useState('food');
   const [currency, setCurrency] = useState(BASE_CURRENCY);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     if (!description.trim()) {
-      setError("Description is required");
+      setError('Description is required');
       return;
     }
 
     if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
-      setError("Amount must be a positive number");
+      setError('Amount must be a positive number');
       return;
     }
 
@@ -36,33 +36,37 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
     };
 
     onAddTransaction(newTransaction);
-    setDescription("");
-    setAmount("");
+    setDescription('');
+    setAmount('');
     setType(TRANSACTION_TYPES.EXPENSE);
-    setCategory("food");
+    setCategory('food');
     setCurrency(BASE_CURRENCY);
     if (onClose) onClose();
   };
 
   const typeOptions = [
-    { value: TRANSACTION_TYPES.INCOME, label: "Income" },
-    { value: TRANSACTION_TYPES.EXPENSE, label: "Expense" }
+    { value: TRANSACTION_TYPES.INCOME, label: 'Income' },
+    { value: TRANSACTION_TYPES.EXPENSE, label: 'Expense' },
   ];
 
   const categoryOptions = categories.map(cat => ({
     value: cat,
-    label: cat
+    label: cat,
   }));
 
   const currencyOptions = CURRENCIES.map(curr => ({
     value: curr.code,
-    label: `${curr.code} (${curr.symbol})`
+    label: `${curr.code} (${curr.symbol})`,
   }));
 
   return (
     <div>
       {error && (
-        <div className="mb-4 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-md px-4 py-3" role="alert" aria-live="polite">
+        <div
+          className="mb-4 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-md px-4 py-3"
+          role="alert"
+          aria-live="polite"
+        >
           {error}
         </div>
       )}
@@ -76,7 +80,7 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
             type="text"
             placeholder="e.g., Grocery shopping"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={e => setDescription(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             aria-label="Transaction description"
           />
@@ -92,7 +96,7 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
               type="number"
               placeholder="0.00"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={e => setAmount(e.target.value)}
               step="0.01"
               className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               aria-label="Transaction amount"
@@ -106,12 +110,14 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
             <select
               id="currency"
               value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
+              onChange={e => setCurrency(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               aria-label="Currency"
             >
               {currencyOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
@@ -125,12 +131,14 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
             <select
               id="type"
               value={type}
-              onChange={(e) => setType(e.target.value)}
+              onChange={e => setType(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               aria-label="Transaction type"
             >
               {typeOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
@@ -142,12 +150,14 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
             <select
               id="category"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={e => setCategory(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               aria-label="Transaction category"
             >
               {categoryOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>

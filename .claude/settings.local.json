@@ -6,7 +6,9 @@
       "Bash(git commit:*)",
       "WebSearch",
       "WebFetch(domain:marketplace.visualstudio.com)",
-      "Bash(code:*)"
+      "Bash(code:*)",
+      "Bash(npm list:*)",
+      "Bash(pkill -f \"vite\")"
     ]
   }
 }
