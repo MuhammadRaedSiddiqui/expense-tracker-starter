@@ -1,7 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { RouterProvider } from 'react-router-dom';
 import './index.css';
-import AuthGate from './components/AuthGate.jsx';
+import { router } from './router';
 import { initSentry } from './lib/sentry';
 import { PostHogProvider } from '@posthog/react';
 import { ClerkProvider } from '@clerk/clerk-react';
@@ -29,7 +30,7 @@ createRoot(document.getElementById('root')).render(
         apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN}
         options={posthogOptions}
       >
-        <AuthGate />
+        <RouterProvider router={router} />
       </PostHogProvider>
     </ClerkProvider>
   </StrictMode>
