@@ -8,6 +8,8 @@ import cors from 'cors';
 import { clerkMiddleware } from './middleware/auth.js';
 import organizationRoutes from './routes/organizations.js';
 import transactionRoutes from './routes/transactions.js';
+import memberRoutes from './routes/members.js';
+import invitationRoutes from './routes/invitations.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,6 +29,8 @@ app.get('/health', (req, res) => {
 // Protected routes
 app.use('/api/organizations', clerkMiddleware, organizationRoutes);
 app.use('/api/transactions', clerkMiddleware, transactionRoutes);
+app.use('/api/members', clerkMiddleware, memberRoutes);
+app.use('/api/invitations', clerkMiddleware, invitationRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Settings from './pages/Settings';
+import Team from './pages/Team';
 import CreateOrganization from './components/CreateOrganization';
 
 export const router = createBrowserRouter([
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
       {
         path: 'transactions',
         element: <Transactions />,
+      },
+      {
+        path: 'team',
+        element: <Team />,
       },
       {
         path: 'settings',

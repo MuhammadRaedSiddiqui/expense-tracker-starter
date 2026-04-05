@@ -136,3 +136,77 @@ export async function migrateLocalStorageData(organizationId, userId, transactio
 
   return { data: { count: results.length }, error: null };
 }
+
+/**
+ * Get organization members
+ */
+export async function getMembers(organizationId, getToken) {
+  const { data, error } = await apiRequest(
+    `/api/members?organizationId=${organizationId}`,
+    getToken
+  );
+  return { data: data?.members, error };
+}
+
+/**
+ * Update member role
+ */
+export async function updateMemberRole(memberId, role, getToken) {
+  const { data, error } = await apiRequest(`/api/members/${memberId}`, getToken, {
+    method: 'PUT',
+    body: JSON.stringify({ role }),
+  });
+  return { data: data?.member, error };
+}
+
+/**
+ * Remove member
+ */
+export async function removeMember(memberId, getToken) {
+  const { data, error } = await apiRequest(`/api/members/${memberId}`, getToken, {
+    method: 'DELETE',
+  });
+  return { data, error };
+}
+
+/**
+ * Create invitation
+ */
+export async function createInvitation(organizationId, email, role, getToken) {
+  const { data, error } = await apiRequest('/api/invitations', getToken, {
+    method: 'POST',
+    body: JSON.stringify({ organizationId, email, role }),
+  });
+  return { data: data?.invitation, error };
+}
+
+/**
+ * Get pending invitations
+ */
+export async function getInvitations(organizationId, getToken) {
+  const { data, error } = await apiRequest(
+    `/api/invitations?organizationId=${organizationId}`,
+    getToken
+  );
+  return { data: data?.invitations, error };
+}
+
+/**
+ * Accept invitation
+ */
+export async function acceptInvitation(token, getToken) {
+  const { data, error } = await apiRequest(`/api/invitations/${token}/accept`, getToken, {
+    method: 'POST',
+  });
+  return { data, error };
+}
+
+/**
+ * Revoke invitation
+ */
+export async function revokeInvitation(invitationId, getToken) {
+  const { data, error } = await apiRequest(`/api/invitations/${invitationId}`, getToken, {
+    method: 'DELETE',
+  });
+  return { data, error };
+}
