@@ -8,14 +8,20 @@
     "start": "node index.js",
     "dev": "node --watch index.js"
   },
-  "keywords": ["express", "clerk", "supabase", "api"],
+  "keywords": [
+    "express",
+    "clerk",
+    "supabase",
+    "api"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
     "@clerk/clerk-sdk-node": "^4.13.0",
     "@supabase/supabase-js": "^2.39.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "resend": "^6.10.0"
   }
 }

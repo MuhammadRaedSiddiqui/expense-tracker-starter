@@ -1,6 +1,8 @@
 import express from 'express';
 import { supabase } from '../lib/supabase.js';
 import crypto from 'crypto';
+import { clerkClient } from '@clerk/clerk-sdk-node';
+import { sendInvitationEmail } from '../lib/email.js';
 
 const router = express.Router();
 
@@ -75,8 +77,39 @@ router.post('/', async (req, res) => {
 
     if (error) throw error;
 
-    // TODO: Send invitation email
-    console.log(`Invitation created for ${email} with token: ${token}`);
+    // Get organization name for email
+    const { data: orgData } = await supabase
+      .from('organizations')
+      .select('name')
+      .eq('id', organizationId)
+      .single();
+
+    const organizationName = orgData?.name || 'Finance Tracker';
+
+    // Get inviter email from Clerk
+    let inviterEmail = 'team@financetracker.com';
+    try {
+      const inviter = await clerkClient.users.getUser(userId);
+      inviterEmail = inviter.emailAddresses[0]?.emailAddress || inviterEmail;
+    } catch (clerkError) {
+      console.error('Failed to fetch inviter email from Clerk:', clerkError);
+    }
+
+    // Send invitation email
+    try {
+      await sendInvitationEmail({
+        to: email,
+        invitationToken: token,
+        organizationName,
+        inviterEmail,
+        role,
+      });
+      console.log(`Invitation email sent to ${email}`);
+    } catch (emailError) {
+      console.error('Failed to send invitation email:', emailError);
+      // Don't fail the invitation creation if email fails
+      // The invitation is still created and can be shared manually
+    }
 
     res.status(201).json({ invitation: data });
   } catch (error) {
