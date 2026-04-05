@@ -7,6 +7,7 @@ import Transactions from './pages/Transactions';
 import Settings from './pages/Settings';
 import Team from './pages/Team';
 import CreateOrganization from './components/CreateOrganization';
+import AcceptInvitation from './pages/AcceptInvitation';
 
 export const router = createBrowserRouter([
   {
@@ -52,6 +53,14 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <CreateOrganization />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/invitation/:token',
+    element: (
+      <ProtectedRoute>
+        <AcceptInvitation />
       </ProtectedRoute>
     ),
   },
