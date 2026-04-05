@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/clerk-react';
-import { getUserOrganization, getTransactions } from '../lib/supabaseQueries';
-import { getClerkUserId } from '../lib/clerk';
+import { useUser, useAuth } from '@clerk/clerk-react';
+import { getUserOrganization, getTransactions } from '../lib/apiClient';
 
 /**
  * Custom hook to manage organization state and transaction loading
@@ -9,6 +8,7 @@ import { getClerkUserId } from '../lib/clerk';
  */
 export function useOrganization() {
   const { user, isLoaded } = useUser();
+  const { getToken } = useAuth();
   const [organization, setOrganization] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,10 +24,8 @@ export function useOrganization() {
     setError(null);
 
     try {
-      const userId = getClerkUserId(user);
-
-      // Fetch user's organization
-      const { data: org, error: orgError } = await getUserOrganization(userId);
+      // Fetch user's organization via API
+      const { data: org, error: orgError } = await getUserOrganization(getToken);
 
       if (orgError) throw orgError;
 
@@ -35,7 +33,7 @@ export function useOrganization() {
 
       // If organization exists, fetch transactions
       if (org) {
-        const { data: txns, error: txnError } = await getTransactions(org.id);
+        const { data: txns, error: txnError } = await getTransactions(org.id, getToken);
 
         if (txnError) throw txnError;
 

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useUser } from '@clerk/clerk-react';
-import { createOrganization, migrateLocalStorageData } from '../lib/supabaseQueries';
+import { useUser, useAuth } from '@clerk/clerk-react';
+import { createOrganization, migrateLocalStorageData } from '../lib/apiClient';
 import { getClerkUserId, getUserName } from '../lib/clerk';
 import { STORAGE_KEY } from '../constants';
 
 function CreateOrganization({ onComplete }) {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const [orgName, setOrgName] = useState(`${getUserName(user)}'s Finances`);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -23,8 +24,8 @@ function CreateOrganization({ onComplete }) {
     try {
       const userId = getClerkUserId(user);
 
-      // Create organization
-      const { data: org, error: orgError } = await createOrganization(userId, orgName);
+      // Create organization via API
+      const { data: org, error: orgError } = await createOrganization(orgName, getToken);
 
       if (orgError) throw orgError;
 
@@ -32,11 +33,12 @@ function CreateOrganization({ onComplete }) {
       if (existingTransactions && existingTransactions.length > 0) {
         setMigrationStep('migrate');
 
-        // Migrate localStorage data
+        // Migrate localStorage data via API
         const { error: migrateError } = await migrateLocalStorageData(
           org.id,
           userId,
-          existingTransactions
+          existingTransactions,
+          getToken
         );
 
         if (migrateError) throw migrateError;

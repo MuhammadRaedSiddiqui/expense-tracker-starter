@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useAuth } from '@clerk/clerk-react';
 import TransactionList from '../components/TransactionList';
 import TransactionForm from '../components/TransactionForm';
 import Modal from '../components/Modal';
@@ -8,7 +8,7 @@ import {
   updateTransaction,
   deleteTransaction,
   deleteAllTransactions,
-} from '../lib/supabaseQueries';
+} from '../lib/apiClient';
 import { getClerkUserId } from '../lib/clerk';
 import { captureException } from '../lib/sentry';
 import { CATEGORIES, FILTER_ALL } from '../constants';
@@ -16,6 +16,7 @@ import { useOrganization } from '../hooks/useOrganization';
 
 function Transactions() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const { organization, transactions: initialTransactions, refetch } = useOrganization();
   const [transactions, setTransactions] = useState(initialTransactions || []);
   const [loading, setLoading] = useState(false);
@@ -43,7 +44,8 @@ function Transactions() {
       const { data, error: createError } = await createTransaction(
         organization.id,
         userId,
-        newTransaction
+        newTransaction,
+        getToken
       );
 
       if (createError) throw createError;
@@ -67,7 +69,7 @@ function Transactions() {
     setError(null);
 
     try {
-      const { error: deleteError } = await deleteTransaction(id);
+      const { error: deleteError } = await deleteTransaction(id, getToken);
 
       if (deleteError) throw deleteError;
 
@@ -92,7 +94,8 @@ function Transactions() {
     try {
       const { data, error: updateError } = await updateTransaction(
         updatedTransaction.id,
-        updatedTransaction
+        updatedTransaction,
+        getToken
       );
 
       if (updateError) throw updateError;
@@ -124,7 +127,7 @@ function Transactions() {
     setError(null);
 
     try {
-      const { error: deleteError } = await deleteAllTransactions(organization.id);
+      const { error: deleteError } = await deleteAllTransactions(organization.id, getToken);
 
       if (deleteError) throw deleteError;
 

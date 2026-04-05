@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useUser, useAuth } from '@clerk/clerk-react';
 import Summary from '../components/Summary';
 import TransactionForm from '../components/TransactionForm';
 import TransactionList from '../components/TransactionList';
@@ -11,7 +11,7 @@ import {
   updateTransaction,
   deleteTransaction,
   deleteAllTransactions,
-} from '../lib/supabaseQueries';
+} from '../lib/apiClient';
 import { getClerkUserId } from '../lib/clerk';
 import { captureException } from '../lib/sentry';
 import {
@@ -23,6 +23,7 @@ import { useOrganization } from '../hooks/useOrganization';
 
 function Dashboard() {
   const { user } = useUser();
+  const { getToken } = useAuth();
   const { organization, transactions: initialTransactions, refetch } = useOrganization();
   const [transactions, setTransactions] = useState(initialTransactions || []);
   const [loading, setLoading] = useState(false);
@@ -88,7 +89,8 @@ function Dashboard() {
       const { data, error: createError } = await createTransaction(
         organization.id,
         userId,
-        newTransaction
+        newTransaction,
+        getToken
       );
 
       if (createError) throw createError;
@@ -112,7 +114,7 @@ function Dashboard() {
     setError(null);
 
     try {
-      const { error: deleteError } = await deleteTransaction(id);
+      const { error: deleteError } = await deleteTransaction(id, getToken);
 
       if (deleteError) throw deleteError;
 
@@ -137,7 +139,8 @@ function Dashboard() {
     try {
       const { data, error: updateError } = await updateTransaction(
         updatedTransaction.id,
-        updatedTransaction
+        updatedTransaction,
+        getToken
       );
 
       if (updateError) throw updateError;
@@ -169,7 +172,7 @@ function Dashboard() {
     setError(null);
 
     try {
-      const { error: deleteError } = await deleteAllTransactions(organization.id);
+      const { error: deleteError } = await deleteAllTransactions(organization.id, getToken);
 
       if (deleteError) throw deleteError;
 
