@@ -210,3 +210,59 @@ export async function revokeInvitation(invitationId, getToken) {
   });
   return { data, error };
 }
+
+/**
+ * Get recurring transactions for organization
+ */
+export async function getRecurringTransactions(organizationId, getToken) {
+  const { data, error } = await apiRequest(
+    `/api/recurring-transactions?organizationId=${organizationId}`,
+    getToken
+  );
+  return { data: data?.recurringTransactions, error };
+}
+
+/**
+ * Create recurring transaction
+ */
+export async function createRecurringTransaction(organizationId, recurringData, getToken) {
+  const { data, error } = await apiRequest('/api/recurring-transactions', getToken, {
+    method: 'POST',
+    body: JSON.stringify({
+      organizationId,
+      ...recurringData,
+    }),
+  });
+  return { data: data?.recurringTransaction, error };
+}
+
+/**
+ * Update recurring transaction
+ */
+export async function updateRecurringTransaction(recurringId, recurringData, getToken) {
+  const { data, error } = await apiRequest(`/api/recurring-transactions/${recurringId}`, getToken, {
+    method: 'PUT',
+    body: JSON.stringify(recurringData),
+  });
+  return { data: data?.recurringTransaction, error };
+}
+
+/**
+ * Delete recurring transaction
+ */
+export async function deleteRecurringTransaction(recurringId, getToken) {
+  const { data, error } = await apiRequest(`/api/recurring-transactions/${recurringId}`, getToken, {
+    method: 'DELETE',
+  });
+  return { data, error };
+}
+
+/**
+ * Toggle recurring transaction active status
+ */
+export async function toggleRecurringTransaction(recurringId, getToken) {
+  const { data, error } = await apiRequest(`/api/recurring-transactions/${recurringId}/toggle`, getToken, {
+    method: 'POST',
+  });
+  return { data: data?.recurringTransaction, error };
+}

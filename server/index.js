@@ -10,6 +10,8 @@ import organizationRoutes from './routes/organizations.js';
 import transactionRoutes from './routes/transactions.js';
 import memberRoutes from './routes/members.js';
 import invitationRoutes from './routes/invitations.js';
+import recurringTransactionRoutes from './routes/recurringTransactions.js';
+import { initializeScheduler } from './lib/scheduler.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -31,6 +33,7 @@ app.use('/api/organizations', clerkMiddleware, organizationRoutes);
 app.use('/api/transactions', clerkMiddleware, transactionRoutes);
 app.use('/api/members', clerkMiddleware, memberRoutes);
 app.use('/api/invitations', clerkMiddleware, invitationRoutes);
+app.use('/api/recurring-transactions', clerkMiddleware, recurringTransactionRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -42,4 +45,7 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   console.log(`✓ API server running on http://localhost:${PORT}`);
+
+  // Initialize scheduled tasks
+  initializeScheduler();
 });

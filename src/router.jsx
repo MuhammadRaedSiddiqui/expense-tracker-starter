@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Settings from './pages/Settings';
 import Team from './pages/Team';
+import RecurringTransactions from './pages/RecurringTransactions';
 import CreateOrganization from './components/CreateOrganization';
 import AcceptInvitation from './pages/AcceptInvitation';
 
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
       {
         path: 'transactions',
         element: <Transactions />,
+      },
+      {
+        path: 'recurring',
+        element: <RecurringTransactions />,
       },
       {
         path: 'team',
