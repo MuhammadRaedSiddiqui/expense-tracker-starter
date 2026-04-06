@@ -7,6 +7,7 @@ import SpendingByCategory from '../components/SpendingByCategory';
 import IncomeVsExpenses from '../components/IncomeVsExpenses';
 import Modal from '../components/Modal';
 import {
+  getTransactions,
   createTransaction,
   updateTransaction,
   deleteTransaction,
@@ -20,14 +21,27 @@ import {
   EXCHANGE_RATES as STATIC_RATES,
 } from '../constants';
 import { useOrganization } from '../hooks/useOrganization';
+import { useRealtimeTransactions } from '../hooks/useRealtime';
 
 function Dashboard() {
   const { user } = useUser();
   const { getToken } = useAuth();
-  const { organization, transactions: initialTransactions, refetch } = useOrganization();
-  const [transactions, setTransactions] = useState(initialTransactions || []);
+  const { organization, refetch } = useOrganization();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Real-time transactions with polling fallback
+  const fetchTransactions = async () => {
+    if (!organization) return [];
+    const { data } = await getTransactions(organization.id, getToken);
+    return data || [];
+  };
+
+  const { data: transactions, isRealtime } = useRealtimeTransactions(
+    organization?.id,
+    fetchTransactions,
+    !!organization
+  );
 
   const [filterType, setFilterType] = useState(FILTER_ALL);
   const [filterCategory, setFilterCategory] = useState(FILTER_ALL);
@@ -41,11 +55,6 @@ function Dashboard() {
   const [ratesLoading, setRatesLoading] = useState(false);
   const [ratesError, setRatesError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // Update local state when initialTransactions change
-  useEffect(() => {
-    setTransactions(initialTransactions || []);
-  }, [initialTransactions]);
 
   // Fetch exchange rates on mount
   useEffect(() => {
@@ -86,7 +95,7 @@ function Dashboard() {
 
     try {
       const userId = getClerkUserId(user);
-      const { data, error: createError } = await createTransaction(
+      const { error: createError } = await createTransaction(
         organization.id,
         userId,
         newTransaction,
@@ -95,8 +104,7 @@ function Dashboard() {
 
       if (createError) throw createError;
 
-      setTransactions([data, ...transactions]);
-
+      // Real-time will update the list automatically
       if (refetch) {
         refetch();
       }
@@ -118,8 +126,7 @@ function Dashboard() {
 
       if (deleteError) throw deleteError;
 
-      setTransactions(transactions.filter(t => t.id !== id));
-
+      // Real-time will update the list automatically
       if (refetch) {
         refetch();
       }
@@ -137,7 +144,7 @@ function Dashboard() {
     setError(null);
 
     try {
-      const { data, error: updateError } = await updateTransaction(
+      const { error: updateError } = await updateTransaction(
         updatedTransaction.id,
         updatedTransaction,
         getToken
@@ -145,10 +152,7 @@ function Dashboard() {
 
       if (updateError) throw updateError;
 
-      setTransactions(
-        transactions.map(t => (t.id === data.id ? data : t))
-      );
-
+      // Real-time will update the list automatically
       if (refetch) {
         refetch();
       }
@@ -176,8 +180,7 @@ function Dashboard() {
 
       if (deleteError) throw deleteError;
 
-      setTransactions([]);
-
+      // Real-time will update the list automatically
       if (refetch) {
         refetch();
       }
@@ -195,7 +198,15 @@ function Dashboard() {
       {/* Header */}
       <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 mb-1">Dashboard</h1>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-3xl font-semibold text-slate-900">Dashboard</h1>
+            {isRealtime && (
+              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-md flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Live
+              </span>
+            )}
+          </div>
           <p className="text-sm text-slate-500">Track your income and expenses</p>
           {ratesLastUpdated && (
             <p className="text-xs text-slate-400 mt-2 flex items-center gap-2">

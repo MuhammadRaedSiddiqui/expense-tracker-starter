@@ -9,40 +9,28 @@ import {
 import { captureException } from '../lib/sentry';
 import { CATEGORIES } from '../constants';
 import RecurringTransactionModal from '../components/RecurringTransactionModal';
+import { useRealtimeRecurring } from '../hooks/useRealtime';
 
 function RecurringTransactions() {
   const { getToken } = useAuth();
   const { organization } = useOrganization();
-  const [recurringTransactions, setRecurringTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
 
-  const loadData = async () => {
-    if (!organization) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { data, error: apiError } = await getRecurringTransactions(organization.id, getToken);
-
-      if (apiError) throw apiError;
-
-      setRecurringTransactions(data || []);
-    } catch (err) {
-      console.error('Error loading recurring transactions:', err);
-      captureException(err, { context: 'loadRecurringTransactions' });
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  // Real-time recurring transactions with polling fallback
+  const fetchRecurringTransactions = async () => {
+    if (!organization) return [];
+    const { data } = await getRecurringTransactions(organization.id, getToken);
+    return data || [];
   };
 
-  useEffect(() => {
-    loadData();
-  }, [organization]);
+  const { data: recurringTransactions, isRealtime } = useRealtimeRecurring(
+    organization?.id,
+    fetchRecurringTransactions,
+    !!organization
+  );
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this recurring transaction?')) {
@@ -52,7 +40,7 @@ function RecurringTransactions() {
     try {
       const { error } = await deleteRecurringTransaction(id, getToken);
       if (error) throw error;
-      loadData();
+      // Real-time will update the list automatically
     } catch (err) {
       console.error('Error deleting recurring transaction:', err);
       captureException(err, { context: 'deleteRecurringTransaction' });
@@ -64,7 +52,7 @@ function RecurringTransactions() {
     try {
       const { error } = await toggleRecurringTransaction(id, getToken);
       if (error) throw error;
-      loadData();
+      // Real-time will update the list automatically
     } catch (err) {
       console.error('Error toggling recurring transaction:', err);
       captureException(err, { context: 'toggleRecurringTransaction' });
@@ -88,7 +76,7 @@ function RecurringTransactions() {
   };
 
   const handleModalSuccess = () => {
-    loadData();
+    // Real-time will update the list automatically
     handleModalClose();
   };
 
@@ -107,7 +95,15 @@ function RecurringTransactions() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 mb-1">Recurring Transactions</h1>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-3xl font-semibold text-slate-900">Recurring Transactions</h1>
+            {isRealtime && (
+              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-md flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Live
+              </span>
+            )}
+          </div>
           <p className="text-sm text-slate-500">
             Automatically create transactions on a schedule
           </p>

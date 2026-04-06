@@ -4,6 +4,7 @@ import TransactionList from '../components/TransactionList';
 import TransactionForm from '../components/TransactionForm';
 import Modal from '../components/Modal';
 import {
+  getTransactions,
   createTransaction,
   updateTransaction,
   deleteTransaction,
@@ -13,14 +14,27 @@ import { getClerkUserId } from '../lib/clerk';
 import { captureException } from '../lib/sentry';
 import { CATEGORIES, FILTER_ALL } from '../constants';
 import { useOrganization } from '../hooks/useOrganization';
+import { useRealtimeTransactions } from '../hooks/useRealtime';
 
 function Transactions() {
   const { user } = useUser();
   const { getToken } = useAuth();
-  const { organization, transactions: initialTransactions, refetch } = useOrganization();
-  const [transactions, setTransactions] = useState(initialTransactions || []);
+  const { organization, refetch } = useOrganization();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Real-time transactions with polling fallback
+  const fetchTransactions = async () => {
+    if (!organization) return [];
+    const { data } = await getTransactions(organization.id, getToken);
+    return data || [];
+  };
+
+  const { data: transactions, isRealtime } = useRealtimeTransactions(
+    organization?.id,
+    fetchTransactions,
+    !!organization
+  );
 
   const [filterType, setFilterType] = useState(FILTER_ALL);
   const [filterCategory, setFilterCategory] = useState(FILTER_ALL);
@@ -31,17 +45,13 @@ function Transactions() {
   const [sortOrder, setSortOrder] = useState('desc');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    setTransactions(initialTransactions || []);
-  }, [initialTransactions]);
-
   const handleAddTransaction = async (newTransaction) => {
     setLoading(true);
     setError(null);
 
     try {
       const userId = getClerkUserId(user);
-      const { data, error: createError } = await createTransaction(
+      const { error: createError } = await createTransaction(
         organization.id,
         userId,
         newTransaction,
@@ -50,8 +60,7 @@ function Transactions() {
 
       if (createError) throw createError;
 
-      setTransactions([data, ...transactions]);
-
+      // Real-time will update the list automatically
       if (refetch) {
         refetch();
       }
@@ -73,8 +82,7 @@ function Transactions() {
 
       if (deleteError) throw deleteError;
 
-      setTransactions(transactions.filter(t => t.id !== id));
-
+      // Real-time will update the list automatically
       if (refetch) {
         refetch();
       }
@@ -92,7 +100,7 @@ function Transactions() {
     setError(null);
 
     try {
-      const { data, error: updateError } = await updateTransaction(
+      const { error: updateError } = await updateTransaction(
         updatedTransaction.id,
         updatedTransaction,
         getToken
@@ -100,10 +108,7 @@ function Transactions() {
 
       if (updateError) throw updateError;
 
-      setTransactions(
-        transactions.map(t => (t.id === data.id ? data : t))
-      );
-
+      // Real-time will update the list automatically
       if (refetch) {
         refetch();
       }
@@ -131,8 +136,7 @@ function Transactions() {
 
       if (deleteError) throw deleteError;
 
-      setTransactions([]);
-
+      // Real-time will update the list automatically
       if (refetch) {
         refetch();
       }
@@ -149,7 +153,15 @@ function Transactions() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 mb-1">Transactions</h1>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-3xl font-semibold text-slate-900">Transactions</h1>
+            {isRealtime && (
+              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-md flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Live
+              </span>
+            )}
+          </div>
           <p className="text-sm text-slate-500">
             Manage all your income and expense transactions
           </p>

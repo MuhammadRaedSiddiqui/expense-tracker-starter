@@ -4,45 +4,34 @@ import { useOrganization } from '../hooks/useOrganization';
 import { getMembers, getInvitations, revokeInvitation, updateMemberRole, removeMember } from '../lib/apiClient';
 import { captureException } from '../lib/sentry';
 import InviteMemberModal from '../components/InviteMemberModal';
+import { useRealtimeTeam } from '../hooks/useRealtime';
 
 function Team() {
   const { getToken } = useAuth();
   const { organization } = useOrganization();
-  const [members, setMembers] = useState([]);
-  const [invitations, setInvitations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
-  const loadData = async () => {
-    if (!organization) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const [membersRes, invitationsRes] = await Promise.all([
-        getMembers(organization.id, getToken),
-        getInvitations(organization.id, getToken),
-      ]);
-
-      if (membersRes.error) throw membersRes.error;
-      if (invitationsRes.error) throw invitationsRes.error;
-
-      setMembers(membersRes.data || []);
-      setInvitations(invitationsRes.data || []);
-    } catch (err) {
-      console.error('Error loading team data:', err);
-      captureException(err, { context: 'loadTeamData' });
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  // Real-time team updates with polling fallback
+  const fetchMembers = async () => {
+    if (!organization) return [];
+    const { data } = await getMembers(organization.id, getToken);
+    return data || [];
   };
 
-  useEffect(() => {
-    loadData();
-  }, [organization]);
+  const fetchInvitations = async () => {
+    if (!organization) return [];
+    const { data } = await getInvitations(organization.id, getToken);
+    return data || [];
+  };
+
+  const { members, invitations, isRealtime } = useRealtimeTeam(
+    organization?.id,
+    fetchMembers,
+    fetchInvitations,
+    !!organization
+  );
 
   const handleRevokeInvitation = async (invitationId) => {
     if (!window.confirm('Are you sure you want to revoke this invitation?')) {
@@ -52,7 +41,7 @@ function Team() {
     try {
       const { error } = await revokeInvitation(invitationId, getToken);
       if (error) throw error;
-      loadData();
+      // Real-time will update the list automatically
     } catch (err) {
       console.error('Error revoking invitation:', err);
       captureException(err, { context: 'revokeInvitation' });
@@ -64,7 +53,7 @@ function Team() {
     try {
       const { error } = await updateMemberRole(memberId, newRole, getToken);
       if (error) throw error;
-      loadData();
+      // Real-time will update the list automatically
     } catch (err) {
       console.error('Error updating role:', err);
       captureException(err, { context: 'updateMemberRole' });
@@ -80,7 +69,7 @@ function Team() {
     try {
       const { error } = await removeMember(memberId, getToken);
       if (error) throw error;
-      loadData();
+      // Real-time will update the list automatically
     } catch (err) {
       console.error('Error removing member:', err);
       captureException(err, { context: 'removeMember' });
@@ -92,7 +81,15 @@ function Team() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900 mb-1">Team</h1>
+          <div className="flex items-center gap-3 mb-1">
+            <h1 className="text-3xl font-semibold text-slate-900">Team</h1>
+            {isRealtime && (
+              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-md flex items-center gap-1">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Live
+              </span>
+            )}
+          </div>
           <p className="text-sm text-slate-500">Manage your organization members</p>
         </div>
         <button
