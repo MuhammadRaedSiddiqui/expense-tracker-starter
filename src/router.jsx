@@ -8,6 +8,7 @@ import Settings from './pages/Settings';
 import Team from './pages/Team';
 import RecurringTransactions from './pages/RecurringTransactions';
 import Budgets from './pages/Budgets';
+import Reports from './pages/Reports';
 import CreateOrganization from './components/CreateOrganization';
 import AcceptInvitation from './pages/AcceptInvitation';
 
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
       {
         path: 'budgets',
         element: <Budgets />,
+      },
+      {
+        path: 'reports',
+        element: <Reports />,
       },
       {
         path: 'team',
