@@ -1,3 +1,6 @@
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 /**
  * Convert transactions to CSV format and trigger download
  */
@@ -45,10 +48,70 @@ export function exportTransactionsToCSV(transactions, filename = 'transactions.c
 }
 
 /**
+ * Export report as PDF
+ */
+export async function exportReportToPDF(elementId, filename = 'report.pdf', title = 'Financial Report') {
+  try {
+    const element = document.getElementById(elementId);
+
+    if (!element) {
+      throw new Error('Report element not found');
+    }
+
+    // Show loading state
+    const originalContent = element.innerHTML;
+
+    // Capture the element as canvas
+    const canvas = await html2canvas(element, {
+      scale: 2, // Higher quality
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+    });
+
+    // Calculate PDF dimensions
+    const imgWidth = 210; // A4 width in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    // Create PDF
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    // Add title
+    pdf.setFontSize(16);
+    pdf.text(title, 15, 15);
+
+    // Add date
+    pdf.setFontSize(10);
+    pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 15, 22);
+
+    // Add image
+    const imgData = canvas.toDataURL('image/png');
+    pdf.addImage(imgData, 'PNG', 0, 30, imgWidth, imgHeight);
+
+    // Save PDF
+    pdf.save(filename);
+
+    return true;
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    throw error;
+  }
+}
+
+/**
  * Format date for filename
  */
 export function getExportFilename(prefix, startDate, endDate) {
   const start = new Date(startDate).toISOString().split('T')[0];
   const end = new Date(endDate).toISOString().split('T')[0];
   return `${prefix}_${start}_to_${end}.csv`;
+}
+
+/**
+ * Get PDF filename with date range
+ */
+export function getPDFFilename(startDate, endDate) {
+  const start = new Date(startDate).toISOString().split('T')[0];
+  const end = new Date(endDate).toISOString().split('T')[0];
+  return `financial_report_${start}_to_${end}.pdf`;
 }

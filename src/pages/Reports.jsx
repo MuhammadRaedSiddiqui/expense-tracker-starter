@@ -3,7 +3,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { useOrganization } from '../hooks/useOrganization';
 import { getTransactions } from '../lib/apiClient';
 import { captureException } from '../lib/sentry';
-import { exportTransactionsToCSV, getExportFilename } from '../lib/exportUtils';
+import { exportTransactionsToCSV, getExportFilename, exportReportToPDF, getPDFFilename } from '../lib/exportUtils';
 import SpendingTrends from '../components/SpendingTrends';
 import CategoryBreakdown from '../components/CategoryBreakdown';
 import PeriodComparison from '../components/PeriodComparison';
@@ -14,6 +14,7 @@ function Reports() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [exportingPDF, setExportingPDF] = useState(false);
 
   // Date range state
   const [startDate, setStartDate] = useState(() => {
@@ -87,8 +88,19 @@ function Reports() {
     exportTransactionsToCSV(filteredTransactions, filename);
   };
 
-  const handleExportPDF = () => {
-    alert('PDF export coming soon! Use CSV export for now.');
+  const handleExportPDF = async () => {
+    try {
+      setExportingPDF(true);
+      const filename = getPDFFilename(startDate, endDate);
+      const title = `Financial Report (${startDate} to ${endDate})`;
+      await exportReportToPDF('report-content', filename, title);
+    } catch (err) {
+      console.error('Error exporting PDF:', err);
+      captureException(err, { context: 'exportPDF' });
+      alert('Failed to export PDF. Please try again.');
+    } finally {
+      setExportingPDF(false);
+    }
   };
 
   return (
@@ -171,8 +183,10 @@ function Reports() {
         </div>
       ) : (
         <>
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          {/* Report Content - Wrapped for PDF Export */}
+          <div id="report-content">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <p className="text-sm text-slate-500 mb-1">Total Income</p>
               <p className="text-2xl font-semibold text-green-600">{formatCurrency(totalIncome)}</p>
@@ -203,6 +217,8 @@ function Reports() {
             <SpendingTrends transactions={filteredTransactions} />
             <CategoryBreakdown transactions={filteredTransactions} />
           </div>
+          </div>
+          {/* End Report Content */}
 
           {/* Export Actions */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -210,9 +226,10 @@ function Reports() {
             <div className="flex gap-3">
               <button
                 onClick={handleExportPDF}
-                className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors"
+                disabled={exportingPDF}
+                className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                Export as PDF
+                {exportingPDF ? 'Exporting PDF...' : 'Export as PDF'}
               </button>
               <button
                 onClick={handleExportCSV}
