@@ -8,10 +8,13 @@ import {
 } from '../lib/apiClient';
 import { captureException } from '../lib/sentry';
 import BudgetModal from '../components/BudgetModal';
+import { useToast } from '../components/ToastContainer';
+import { SkeletonBudgetCard } from '../components/Skeleton';
 
 function Budgets() {
   const { getToken } = useAuth();
   const { organization } = useOrganization();
+  const toast = useToast();
   const [budgets, setBudgets] = useState([]);
   const [budgetStatuses, setBudgetStatuses] = useState({});
   const [loading, setLoading] = useState(true);
@@ -67,10 +70,11 @@ function Budgets() {
       const { error } = await deleteBudget(id, getToken);
       if (error) throw error;
       loadData();
+      toast.success('Budget deleted successfully');
     } catch (err) {
       console.error('Error deleting budget:', err);
       captureException(err, { context: 'deleteBudget' });
-      alert('Failed to delete budget');
+      toast.error('Failed to delete budget');
     }
   };
 
@@ -128,8 +132,10 @@ function Budgets() {
       )}
 
       {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonBudgetCard key={i} />
+          ))}
         </div>
       ) : budgets.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">

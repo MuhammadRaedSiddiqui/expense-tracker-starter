@@ -9,19 +9,77 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
   const [type, setType] = useState(TRANSACTION_TYPES.EXPENSE);
   const [category, setCategory] = useState('food');
   const [currency, setCurrency] = useState(BASE_CURRENCY);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const validateDescription = (value) => {
+    if (!value.trim()) {
+      return 'Description is required';
+    }
+    if (value.trim().length < 3) {
+      return 'Description must be at least 3 characters';
+    }
+    return '';
+  };
+
+  const validateAmount = (value) => {
+    if (!value) {
+      return 'Amount is required';
+    }
+    if (isNaN(value)) {
+      return 'Amount must be a number';
+    }
+    if (parseFloat(value) <= 0) {
+      return 'Amount must be greater than 0';
+    }
+    return '';
+  };
+
+  const handleDescriptionChange = (e) => {
+    const value = e.target.value;
+    setDescription(value);
+    if (touched.description) {
+      const error = validateDescription(value);
+      setErrors(prev => ({ ...prev, description: error }));
+    }
+  };
+
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+    setAmount(value);
+    if (touched.amount) {
+      const error = validateAmount(value);
+      setErrors(prev => ({ ...prev, amount: error }));
+    }
+  };
+
+  const handleBlur = (field) => {
+    setTouched(prev => ({ ...prev, [field]: true }));
+    if (field === 'description') {
+      const error = validateDescription(description);
+      setErrors(prev => ({ ...prev, description: error }));
+    } else if (field === 'amount') {
+      const error = validateAmount(amount);
+      setErrors(prev => ({ ...prev, amount: error }));
+    }
+  };
 
   const handleSubmit = e => {
     e.preventDefault();
-    setError('');
 
-    if (!description.trim()) {
-      setError('Description is required');
-      return;
-    }
+    // Validate all fields
+    const descError = validateDescription(description);
+    const amountError = validateAmount(amount);
 
-    if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
-      setError('Amount must be a positive number');
+    if (descError || amountError) {
+      setErrors({
+        description: descError,
+        amount: amountError,
+      });
+      setTouched({
+        description: true,
+        amount: true,
+      });
       return;
     }
 
@@ -40,6 +98,8 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
     setType(TRANSACTION_TYPES.EXPENSE);
     setCategory('food');
     setCurrency(BASE_CURRENCY);
+    setErrors({});
+    setTouched({});
     if (onClose) onClose();
   };
 
@@ -58,31 +118,43 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
     label: `${curr.code} (${curr.symbol})`,
   }));
 
+  const getInputClassName = (field) => {
+    const baseClass = "w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 transition-all";
+    if (touched[field] && errors[field]) {
+      return `${baseClass} border-rose-500 focus:ring-rose-500 focus:border-rose-500`;
+    }
+    if (touched[field] && !errors[field]) {
+      return `${baseClass} border-green-500 focus:ring-green-500 focus:border-green-500`;
+    }
+    return `${baseClass} border-gray-300 focus:ring-blue-500 focus:border-transparent`;
+  };
+
   return (
     <div>
-      {error && (
-        <div
-          className="mb-4 text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-md px-4 py-3"
-          role="alert"
-          aria-live="polite"
-        >
-          {error}
-        </div>
-      )}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-1">
             Description
           </label>
-          <input
-            id="description"
-            type="text"
-            placeholder="e.g., Grocery shopping"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            aria-label="Transaction description"
-          />
+          <div className="relative">
+            <input
+              id="description"
+              type="text"
+              placeholder="e.g., Grocery shopping"
+              value={description}
+              onChange={handleDescriptionChange}
+              onBlur={() => handleBlur('description')}
+              className={getInputClassName('description')}
+              aria-label="Transaction description"
+              aria-invalid={touched.description && errors.description ? 'true' : 'false'}
+            />
+            {touched.description && !errors.description && description && (
+              <span className="absolute right-3 top-2.5 text-green-500">✓</span>
+            )}
+          </div>
+          {touched.description && errors.description && (
+            <p className="mt-1 text-xs text-rose-600 animate-shake">{errors.description}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -90,16 +162,26 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
             <label htmlFor="amount" className="block text-sm font-medium text-slate-700 mb-1">
               Amount
             </label>
-            <input
-              id="amount"
-              type="number"
-              placeholder="0.00"
-              value={amount}
-              onChange={e => setAmount(e.target.value)}
-              step="0.01"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              aria-label="Transaction amount"
-            />
+            <div className="relative">
+              <input
+                id="amount"
+                type="number"
+                placeholder="0.00"
+                value={amount}
+                onChange={handleAmountChange}
+                onBlur={() => handleBlur('amount')}
+                step="0.01"
+                className={getInputClassName('amount')}
+                aria-label="Transaction amount"
+                aria-invalid={touched.amount && errors.amount ? 'true' : 'false'}
+              />
+              {touched.amount && !errors.amount && amount && (
+                <span className="absolute right-3 top-2.5 text-green-500">✓</span>
+              )}
+            </div>
+            {touched.amount && errors.amount && (
+              <p className="mt-1 text-xs text-rose-600 animate-shake">{errors.amount}</p>
+            )}
           </div>
 
           <div>
@@ -165,7 +247,7 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
         <div className="flex gap-3 pt-2">
           <button
             type="submit"
-            className="flex-1 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors"
+            className="flex-1 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Add transaction"
           >
             Add Transaction

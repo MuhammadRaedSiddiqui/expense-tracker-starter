@@ -8,7 +8,13 @@
       "WebFetch(domain:marketplace.visualstudio.com)",
       "Bash(code:*)",
       "Bash(npm list:*)",
-      "Bash(pkill -f \"vite\")"
+      "Bash(pkill -f \"vite\")",
+      "Bash(npm install:*)",
+      "Bash(python3 scripts/mcp-client.py call -u http://localhost:8808 -t browser_navigate -p '{\"url\": \"http://localhost:5180\"}')",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3001)",
+      "Bash(taskkill:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

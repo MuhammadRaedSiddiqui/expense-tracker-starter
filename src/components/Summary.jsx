@@ -1,30 +1,37 @@
+import { useMemo, memo } from 'react';
 import { TRANSACTION_TYPES, BASE_CURRENCY } from '../constants';
 import { formatCurrency, convertToBaseCurrency } from '../utils';
 
 function Summary({ transactions, exchangeRates }) {
-  const totalIncome = transactions
-    .filter(t => t.type === TRANSACTION_TYPES.INCOME)
-    .reduce((sum, t) => {
-      const amountInBase = convertToBaseCurrency(
-        parseFloat(t.amount),
-        t.currency || BASE_CURRENCY,
-        exchangeRates
-      );
-      return sum + amountInBase;
-    }, 0);
+  const totalIncome = useMemo(() => {
+    return transactions
+      .filter(t => t.type === TRANSACTION_TYPES.INCOME)
+      .reduce((sum, t) => {
+        const amountInBase = convertToBaseCurrency(
+          parseFloat(t.amount),
+          t.currency || BASE_CURRENCY,
+          exchangeRates
+        );
+        return sum + amountInBase;
+      }, 0);
+  }, [transactions, exchangeRates]);
 
-  const totalExpenses = transactions
-    .filter(t => t.type === TRANSACTION_TYPES.EXPENSE)
-    .reduce((sum, t) => {
-      const amountInBase = convertToBaseCurrency(
-        parseFloat(t.amount),
-        t.currency || BASE_CURRENCY,
-        exchangeRates
-      );
-      return sum + amountInBase;
-    }, 0);
+  const totalExpenses = useMemo(() => {
+    return transactions
+      .filter(t => t.type === TRANSACTION_TYPES.EXPENSE)
+      .reduce((sum, t) => {
+        const amountInBase = convertToBaseCurrency(
+          parseFloat(t.amount),
+          t.currency || BASE_CURRENCY,
+          exchangeRates
+        );
+        return sum + amountInBase;
+      }, 0);
+  }, [transactions, exchangeRates]);
 
-  const balance = totalIncome - totalExpenses;
+  const balance = useMemo(() => {
+    return totalIncome - totalExpenses;
+  }, [totalIncome, totalExpenses]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -56,4 +63,4 @@ function Summary({ transactions, exchangeRates }) {
   );
 }
 
-export default Summary;
+export default memo(Summary);

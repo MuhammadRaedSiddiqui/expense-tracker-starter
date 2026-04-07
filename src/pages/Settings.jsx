@@ -1,9 +1,11 @@
 import { useUser } from '@clerk/clerk-react';
 import { useOrganization } from '../hooks/useOrganization';
+import { useToast } from '../components/ToastContainer';
 
 function Settings() {
   const { user } = useUser();
   const { organization } = useOrganization();
+  const toast = useToast();
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -76,7 +78,7 @@ function Settings() {
             These actions are permanent and cannot be undone.
           </p>
           <button
-            onClick={() => alert('Account deletion will be implemented in a future update')}
+            onClick={() => toast.info('Account deletion will be implemented in a future update')}
             className="px-4 py-2 bg-rose-600 text-white text-sm font-semibold rounded-md hover:bg-rose-700 transition-colors"
           >
             Delete Account

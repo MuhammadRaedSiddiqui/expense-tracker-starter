@@ -8,6 +8,7 @@ import IncomeVsExpenses from '../components/IncomeVsExpenses';
 import BudgetOverview from '../components/BudgetOverview';
 import BudgetAlerts from '../components/BudgetAlerts';
 import Modal from '../components/Modal';
+import { SkeletonCard, SkeletonTable, SkeletonChart } from '../components/Skeleton';
 import {
   getTransactions,
   createTransaction,
@@ -252,34 +253,52 @@ function Dashboard() {
 
       <BudgetAlerts organizationId={organization?.id} />
 
-      <Summary transactions={transactions} exchangeRates={exchangeRates} />
+      {!transactions ? (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            <SkeletonChart />
+            <SkeletonChart />
+            <SkeletonChart />
+          </div>
+          <SkeletonTable rows={5} />
+        </>
+      ) : (
+        <>
+          <Summary transactions={transactions} exchangeRates={exchangeRates} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        <SpendingByCategory transactions={transactions} exchangeRates={exchangeRates} />
-        <IncomeVsExpenses transactions={transactions} exchangeRates={exchangeRates} />
-        <BudgetOverview organizationId={organization?.id} />
-      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+            <SpendingByCategory transactions={transactions} exchangeRates={exchangeRates} />
+            <IncomeVsExpenses transactions={transactions} exchangeRates={exchangeRates} />
+            <BudgetOverview organizationId={organization?.id} />
+          </div>
 
-      <TransactionList
-        transactions={transactions}
-        categories={CATEGORIES}
-        filterType={filterType}
-        setFilterType={setFilterType}
-        filterCategory={filterCategory}
-        setFilterCategory={setFilterCategory}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-        sortOrder={sortOrder}
-        setSortOrder={setSortOrder}
-        onDeleteTransaction={handleDeleteTransaction}
-        onEditTransaction={handleEditTransaction}
-      />
+          <TransactionList
+            transactions={transactions}
+            categories={CATEGORIES}
+            filterType={filterType}
+            setFilterType={setFilterType}
+            filterCategory={filterCategory}
+            setFilterCategory={setFilterCategory}
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            endDate={endDate}
+            setEndDate={setEndDate}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+            onDeleteTransaction={handleDeleteTransaction}
+            onEditTransaction={handleEditTransaction}
+          />
+        </>
+      )}
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Transaction">
         <TransactionForm

@@ -7,10 +7,13 @@ import { exportTransactionsToCSV, getExportFilename, exportReportToPDF, getPDFFi
 import SpendingTrends from '../components/SpendingTrends';
 import CategoryBreakdown from '../components/CategoryBreakdown';
 import PeriodComparison from '../components/PeriodComparison';
+import { useToast } from '../components/ToastContainer';
+import { SkeletonCard, SkeletonChart } from '../components/Skeleton';
 
 function Reports() {
   const { getToken } = useAuth();
   const { organization } = useOrganization();
+  const toast = useToast();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -85,7 +88,12 @@ function Reports() {
 
   const handleExportCSV = () => {
     const filename = getExportFilename('transactions', startDate, endDate);
-    exportTransactionsToCSV(filteredTransactions, filename);
+    const success = exportTransactionsToCSV(filteredTransactions, filename);
+    if (success) {
+      toast.success('CSV exported successfully');
+    } else {
+      toast.warning('No transactions to export');
+    }
   };
 
   const handleExportPDF = async () => {
@@ -94,10 +102,11 @@ function Reports() {
       const filename = getPDFFilename(startDate, endDate);
       const title = `Financial Report (${startDate} to ${endDate})`;
       await exportReportToPDF('report-content', filename, title);
+      toast.success('PDF exported successfully');
     } catch (err) {
       console.error('Error exporting PDF:', err);
       captureException(err, { context: 'exportPDF' });
-      alert('Failed to export PDF. Please try again.');
+      toast.error('Failed to export PDF. Please try again.');
     } finally {
       setExportingPDF(false);
     }
@@ -178,9 +187,21 @@ function Reports() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+          <div className="mb-6">
+            <SkeletonCard />
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <SkeletonChart />
+            <SkeletonChart />
+          </div>
+        </>
       ) : (
         <>
           {/* Report Content - Wrapped for PDF Export */}

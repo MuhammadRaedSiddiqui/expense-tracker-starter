@@ -1,16 +1,29 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { SignIn, SignUp } from '@clerk/clerk-react';
-import Layout from './components/Layout';
-import ProtectedRoute from './components/ProtectedRoute';
-import Dashboard from './pages/Dashboard';
-import Transactions from './pages/Transactions';
-import Settings from './pages/Settings';
-import Team from './pages/Team';
-import RecurringTransactions from './pages/RecurringTransactions';
-import Budgets from './pages/Budgets';
-import Reports from './pages/Reports';
-import CreateOrganization from './components/CreateOrganization';
-import AcceptInvitation from './pages/AcceptInvitation';
+
+// Lazy load components
+const Layout = lazy(() => import('./components/Layout'));
+const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Transactions = lazy(() => import('./pages/Transactions'));
+const Settings = lazy(() => import('./pages/Settings'));
+const Team = lazy(() => import('./pages/Team'));
+const RecurringTransactions = lazy(() => import('./pages/RecurringTransactions'));
+const Budgets = lazy(() => import('./pages/Budgets'));
+const Reports = lazy(() => import('./pages/Reports'));
+const CreateOrganization = lazy(() => import('./components/CreateOrganization'));
+const AcceptInvitation = lazy(() => import('./pages/AcceptInvitation'));
+
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+      <p className="mt-4 text-sm text-gray-600">Loading...</p>
+    </div>
+  </div>
+);
 
 export const router = createBrowserRouter([
   {
@@ -24,9 +37,11 @@ export const router = createBrowserRouter([
   {
     path: '/',
     element: (
-      <ProtectedRoute>
-        <Layout />
-      </ProtectedRoute>
+      <Suspense fallback={<PageLoader />}>
+        <ProtectedRoute>
+          <Layout />
+        </ProtectedRoute>
+      </Suspense>
     ),
     children: [
       {
@@ -35,48 +50,80 @@ export const router = createBrowserRouter([
       },
       {
         path: 'dashboard',
-        element: <Dashboard />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Dashboard />
+          </Suspense>
+        ),
       },
       {
         path: 'transactions',
-        element: <Transactions />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Transactions />
+          </Suspense>
+        ),
       },
       {
         path: 'recurring',
-        element: <RecurringTransactions />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <RecurringTransactions />
+          </Suspense>
+        ),
       },
       {
         path: 'budgets',
-        element: <Budgets />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Budgets />
+          </Suspense>
+        ),
       },
       {
         path: 'reports',
-        element: <Reports />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Reports />
+          </Suspense>
+        ),
       },
       {
         path: 'team',
-        element: <Team />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Team />
+          </Suspense>
+        ),
       },
       {
         path: 'settings',
-        element: <Settings />,
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <Settings />
+          </Suspense>
+        ),
       },
     ],
   },
   {
     path: '/organization/create',
     element: (
-      <ProtectedRoute>
-        <CreateOrganization />
-      </ProtectedRoute>
+      <Suspense fallback={<PageLoader />}>
+        <ProtectedRoute>
+          <CreateOrganization />
+        </ProtectedRoute>
+      </Suspense>
     ),
   },
   {
     path: '/invitation/:token',
     element: (
-      <ProtectedRoute>
-        <AcceptInvitation />
-      </ProtectedRoute>
+      <Suspense fallback={<PageLoader />}>
+        <ProtectedRoute>
+          <AcceptInvitation />
+        </ProtectedRoute>
+      </Suspense>
     ),
   },
 ]);

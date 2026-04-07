@@ -1,3 +1,5 @@
+import { withCache, invalidateCache } from './cache';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 /**
@@ -40,11 +42,17 @@ async function apiRequest(endpoint, getToken, options = {}) {
 }
 
 /**
- * Get user's organization
+ * Get user's organization (cached for 5 minutes)
  */
 export async function getUserOrganization(getToken) {
-  const { data, error } = await apiRequest('/api/organizations/me', getToken);
-  return { data: data?.organization, error };
+  const cachedFn = withCache(
+    async () => {
+      const { data, error } = await apiRequest('/api/organizations/me', getToken);
+      return { data: data?.organization, error };
+    },
+    { ttl: 300000, key: 'organization:me' }
+  );
+  return cachedFn();
 }
 
 /**
@@ -55,6 +63,8 @@ export async function createOrganization(name, getToken) {
     method: 'POST',
     body: JSON.stringify({ name }),
   });
+  // Invalidate organization cache
+  invalidateCache('organization');
   return { data: data?.organization, error };
 }
 
@@ -80,6 +90,8 @@ export async function createTransaction(organizationId, userId, transactionData,
       ...transactionData,
     }),
   });
+  // Invalidate transaction cache
+  invalidateCache('transactions');
   return { data: data?.transaction, error };
 }
 
@@ -91,6 +103,8 @@ export async function updateTransaction(transactionId, transactionData, getToken
     method: 'PUT',
     body: JSON.stringify(transactionData),
   });
+  // Invalidate transaction cache
+  invalidateCache('transactions');
   return { data: data?.transaction, error };
 }
 
@@ -101,6 +115,8 @@ export async function deleteTransaction(transactionId, getToken) {
   const { data, error } = await apiRequest(`/api/transactions/${transactionId}`, getToken, {
     method: 'DELETE',
   });
+  // Invalidate transaction cache
+  invalidateCache('transactions');
   return { data, error };
 }
 
@@ -115,6 +131,8 @@ export async function deleteAllTransactions(organizationId, getToken) {
       method: 'DELETE',
     }
   );
+  // Invalidate transaction cache
+  invalidateCache('transactions');
   return { data, error };
 }
 
@@ -156,6 +174,8 @@ export async function updateMemberRole(memberId, role, getToken) {
     method: 'PUT',
     body: JSON.stringify({ role }),
   });
+  // Invalidate members cache
+  invalidateCache('members');
   return { data: data?.member, error };
 }
 
@@ -166,6 +186,8 @@ export async function removeMember(memberId, getToken) {
   const { data, error } = await apiRequest(`/api/members/${memberId}`, getToken, {
     method: 'DELETE',
   });
+  // Invalidate members cache
+  invalidateCache('members');
   return { data, error };
 }
 
@@ -177,6 +199,8 @@ export async function createInvitation(organizationId, email, role, getToken) {
     method: 'POST',
     body: JSON.stringify({ organizationId, email, role }),
   });
+  // Invalidate invitations cache
+  invalidateCache('invitations');
   return { data: data?.invitation, error };
 }
 
@@ -198,6 +222,9 @@ export async function acceptInvitation(token, getToken) {
   const { data, error } = await apiRequest(`/api/invitations/${token}/accept`, getToken, {
     method: 'POST',
   });
+  // Invalidate both invitations and members cache
+  invalidateCache('invitations');
+  invalidateCache('members');
   return { data, error };
 }
 
@@ -208,6 +235,8 @@ export async function revokeInvitation(invitationId, getToken) {
   const { data, error } = await apiRequest(`/api/invitations/${invitationId}`, getToken, {
     method: 'DELETE',
   });
+  // Invalidate invitations cache
+  invalidateCache('invitations');
   return { data, error };
 }
 
@@ -233,6 +262,8 @@ export async function createRecurringTransaction(organizationId, recurringData, 
       ...recurringData,
     }),
   });
+  // Invalidate recurring transactions cache
+  invalidateCache('recurring');
   return { data: data?.recurringTransaction, error };
 }
 
@@ -244,6 +275,8 @@ export async function updateRecurringTransaction(recurringId, recurringData, get
     method: 'PUT',
     body: JSON.stringify(recurringData),
   });
+  // Invalidate recurring transactions cache
+  invalidateCache('recurring');
   return { data: data?.recurringTransaction, error };
 }
 
@@ -254,6 +287,8 @@ export async function deleteRecurringTransaction(recurringId, getToken) {
   const { data, error } = await apiRequest(`/api/recurring-transactions/${recurringId}`, getToken, {
     method: 'DELETE',
   });
+  // Invalidate recurring transactions cache
+  invalidateCache('recurring');
   return { data, error };
 }
 
@@ -264,6 +299,8 @@ export async function toggleRecurringTransaction(recurringId, getToken) {
   const { data, error } = await apiRequest(`/api/recurring-transactions/${recurringId}/toggle`, getToken, {
     method: 'POST',
   });
+  // Invalidate recurring transactions cache
+  invalidateCache('recurring');
   return { data: data?.recurringTransaction, error };
 }
 
@@ -297,6 +334,8 @@ export async function createBudget(organizationId, budgetData, getToken) {
       ...budgetData,
     }),
   });
+  // Invalidate budgets cache
+  invalidateCache('budgets');
   return { data: data?.budget, error };
 }
 
@@ -308,6 +347,8 @@ export async function updateBudget(budgetId, budgetData, getToken) {
     method: 'PUT',
     body: JSON.stringify(budgetData),
   });
+  // Invalidate budgets cache
+  invalidateCache('budgets');
   return { data: data?.budget, error };
 }
 
@@ -318,5 +359,7 @@ export async function deleteBudget(budgetId, getToken) {
   const { data, error } = await apiRequest(`/api/budgets/${budgetId}`, getToken, {
     method: 'DELETE',
   });
+  // Invalidate budgets cache
+  invalidateCache('budgets');
   return { data, error };
 }

@@ -10,10 +10,13 @@ import { captureException } from '../lib/sentry';
 import { CATEGORIES } from '../constants';
 import RecurringTransactionModal from '../components/RecurringTransactionModal';
 import { useRealtimeRecurring } from '../hooks/useRealtime';
+import { useToast } from '../components/ToastContainer';
+import { SkeletonTable } from '../components/Skeleton';
 
 function RecurringTransactions() {
   const { getToken } = useAuth();
   const { organization } = useOrganization();
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,11 +43,12 @@ function RecurringTransactions() {
     try {
       const { error } = await deleteRecurringTransaction(id, getToken);
       if (error) throw error;
+      toast.success('Recurring transaction deleted successfully');
       // Real-time will update the list automatically
     } catch (err) {
       console.error('Error deleting recurring transaction:', err);
       captureException(err, { context: 'deleteRecurringTransaction' });
-      alert('Failed to delete recurring transaction');
+      toast.error('Failed to delete recurring transaction');
     }
   };
 
@@ -52,11 +56,12 @@ function RecurringTransactions() {
     try {
       const { error } = await toggleRecurringTransaction(id, getToken);
       if (error) throw error;
+      toast.success('Recurring transaction updated successfully');
       // Real-time will update the list automatically
     } catch (err) {
       console.error('Error toggling recurring transaction:', err);
       captureException(err, { context: 'toggleRecurringTransaction' });
-      alert('Failed to toggle recurring transaction');
+      toast.error('Failed to toggle recurring transaction');
     }
   };
 
@@ -123,9 +128,7 @@ function RecurringTransactions() {
       )}
 
       {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        </div>
+        <SkeletonTable rows={5} />
       ) : recurringTransactions.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
           <p className="text-gray-500 mb-4">No recurring transactions yet</p>

@@ -1,3 +1,4 @@
+import { useMemo, memo } from 'react';
 import {
   LineChart,
   Line,
@@ -14,37 +15,41 @@ import { TRANSACTION_TYPES, BASE_CURRENCY } from '../constants';
 import { convertToBaseCurrency } from '../utils';
 
 function IncomeVsExpenses({ transactions, exchangeRates }) {
-  // Group transactions by month
-  const monthlyData = transactions.reduce((acc, t) => {
-    const date = new Date(t.date);
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+  // Group transactions by month (memoized)
+  const monthlyData = useMemo(() => {
+    return transactions.reduce((acc, t) => {
+      const date = new Date(t.date);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
-    if (!acc[monthKey]) {
-      acc[monthKey] = { month: monthKey, income: 0, expenses: 0 };
-    }
+      if (!acc[monthKey]) {
+        acc[monthKey] = { month: monthKey, income: 0, expenses: 0 };
+      }
 
-    const amountInBase = convertToBaseCurrency(
-      parseFloat(t.amount),
-      t.currency || BASE_CURRENCY,
-      exchangeRates
-    );
+      const amountInBase = convertToBaseCurrency(
+        parseFloat(t.amount),
+        t.currency || BASE_CURRENCY,
+        exchangeRates
+      );
 
-    if (t.type === TRANSACTION_TYPES.INCOME) {
-      acc[monthKey].income += amountInBase;
-    } else {
-      acc[monthKey].expenses += amountInBase;
-    }
+      if (t.type === TRANSACTION_TYPES.INCOME) {
+        acc[monthKey].income += amountInBase;
+      } else {
+        acc[monthKey].expenses += amountInBase;
+      }
 
-    return acc;
-  }, {});
+      return acc;
+    }, {});
+  }, [transactions, exchangeRates]);
 
-  const chartData = Object.values(monthlyData)
-    .map(item => ({
-      month: item.month,
-      Income: parseFloat(item.income.toFixed(2)),
-      Expenses: parseFloat(item.expenses.toFixed(2)),
-    }))
-    .sort((a, b) => a.month.localeCompare(b.month));
+  const chartData = useMemo(() => {
+    return Object.values(monthlyData)
+      .map(item => ({
+        month: item.month,
+        Income: parseFloat(item.income.toFixed(2)),
+        Expenses: parseFloat(item.expenses.toFixed(2)),
+      }))
+      .sort((a, b) => a.month.localeCompare(b.month));
+  }, [monthlyData]);
 
   if (chartData.length === 0) {
     return (
@@ -129,4 +134,4 @@ function IncomeVsExpenses({ transactions, exchangeRates }) {
   );
 }
 
-export default IncomeVsExpenses;
+export default memo(IncomeVsExpenses);

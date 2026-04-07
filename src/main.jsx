@@ -6,6 +6,7 @@ import { router } from './router';
 import { initSentry } from './lib/sentry';
 import { PostHogProvider } from '@posthog/react';
 import { ClerkProvider } from '@clerk/clerk-react';
+import { ToastProvider } from './components/ToastContainer';
 
 // Initialize Sentry
 initSentry();
@@ -30,7 +31,9 @@ createRoot(document.getElementById('root')).render(
         apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_PROJECT_TOKEN}
         options={posthogOptions}
       >
-        <RouterProvider router={router} />
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
       </PostHogProvider>
     </ClerkProvider>
   </StrictMode>

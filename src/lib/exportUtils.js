@@ -6,8 +6,7 @@ import html2canvas from 'html2canvas';
  */
 export function exportTransactionsToCSV(transactions, filename = 'transactions.csv') {
   if (!transactions || transactions.length === 0) {
-    alert('No transactions to export');
-    return;
+    return false;
   }
 
   // Define CSV headers
@@ -45,6 +44,8 @@ export function exportTransactionsToCSV(transactions, filename = 'transactions.c
   document.body.removeChild(link);
 
   URL.revokeObjectURL(url);
+
+  return true;
 }
 
 /**

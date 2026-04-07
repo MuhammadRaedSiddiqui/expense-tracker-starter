@@ -5,10 +5,13 @@ import { getMembers, getInvitations, revokeInvitation, updateMemberRole, removeM
 import { captureException } from '../lib/sentry';
 import InviteMemberModal from '../components/InviteMemberModal';
 import { useRealtimeTeam } from '../hooks/useRealtime';
+import { useToast } from '../components/ToastContainer';
+import { SkeletonMemberCard } from '../components/Skeleton';
 
 function Team() {
   const { getToken } = useAuth();
   const { organization } = useOrganization();
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
@@ -41,11 +44,12 @@ function Team() {
     try {
       const { error } = await revokeInvitation(invitationId, getToken);
       if (error) throw error;
+      toast.success('Invitation revoked successfully');
       // Real-time will update the list automatically
     } catch (err) {
       console.error('Error revoking invitation:', err);
       captureException(err, { context: 'revokeInvitation' });
-      alert('Failed to revoke invitation');
+      toast.error('Failed to revoke invitation');
     }
   };
 
@@ -53,11 +57,12 @@ function Team() {
     try {
       const { error } = await updateMemberRole(memberId, newRole, getToken);
       if (error) throw error;
+      toast.success('Member role updated successfully');
       // Real-time will update the list automatically
     } catch (err) {
       console.error('Error updating role:', err);
       captureException(err, { context: 'updateMemberRole' });
-      alert('Failed to update member role');
+      toast.error('Failed to update member role');
     }
   };
 
@@ -69,11 +74,12 @@ function Team() {
     try {
       const { error } = await removeMember(memberId, getToken);
       if (error) throw error;
+      toast.success('Member removed successfully');
       // Real-time will update the list automatically
     } catch (err) {
       console.error('Error removing member:', err);
       captureException(err, { context: 'removeMember' });
-      alert('Failed to remove member');
+      toast.error('Failed to remove member');
     }
   };
 
@@ -107,8 +113,23 @@ function Team() {
       )}
 
       {loading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="h-6 w-32 bg-gray-200 animate-pulse rounded"></div>
+            </div>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <SkeletonMemberCard key={i} />
+            ))}
+          </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="h-6 w-32 bg-gray-200 animate-pulse rounded"></div>
+            </div>
+            {Array.from({ length: 2 }).map((_, i) => (
+              <SkeletonMemberCard key={i} />
+            ))}
+          </div>
         </div>
       ) : (
         <div className="space-y-6">

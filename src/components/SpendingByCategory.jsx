@@ -1,3 +1,4 @@
+import { useMemo, memo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 import { TRANSACTION_TYPES, BASE_CURRENCY } from '../constants';
 import { convertToBaseCurrency } from '../utils';
@@ -16,29 +17,33 @@ const COLORS = [
 ];
 
 function SpendingByCategory({ transactions, exchangeRates }) {
-  // Calculate spending by category
-  const categoryData = transactions
-    .filter(t => t.type === TRANSACTION_TYPES.EXPENSE)
-    .reduce((acc, t) => {
-      const amountInBase = convertToBaseCurrency(
-        parseFloat(t.amount),
-        t.currency || BASE_CURRENCY,
-        exchangeRates
-      );
+  // Calculate spending by category (memoized)
+  const categoryData = useMemo(() => {
+    return transactions
+      .filter(t => t.type === TRANSACTION_TYPES.EXPENSE)
+      .reduce((acc, t) => {
+        const amountInBase = convertToBaseCurrency(
+          parseFloat(t.amount),
+          t.currency || BASE_CURRENCY,
+          exchangeRates
+        );
 
-      if (!acc[t.category]) {
-        acc[t.category] = 0;
-      }
-      acc[t.category] += amountInBase;
-      return acc;
-    }, {});
+        if (!acc[t.category]) {
+          acc[t.category] = 0;
+        }
+        acc[t.category] += amountInBase;
+        return acc;
+      }, {});
+  }, [transactions, exchangeRates]);
 
-  const chartData = Object.entries(categoryData)
-    .map(([category, amount]) => ({
-      name: category.charAt(0).toUpperCase() + category.slice(1),
-      value: parseFloat(amount.toFixed(2)),
-    }))
-    .sort((a, b) => b.value - a.value);
+  const chartData = useMemo(() => {
+    return Object.entries(categoryData)
+      .map(([category, amount]) => ({
+        name: category.charAt(0).toUpperCase() + category.slice(1),
+        value: parseFloat(amount.toFixed(2)),
+      }))
+      .sort((a, b) => b.value - a.value);
+  }, [categoryData]);
 
   if (chartData.length === 0) {
     return (
@@ -91,4 +96,4 @@ function SpendingByCategory({ transactions, exchangeRates }) {
   );
 }
 
-export default SpendingByCategory;
+export default memo(SpendingByCategory);
