@@ -5,6 +5,8 @@ import TransactionForm from '../components/TransactionForm';
 import TransactionList from '../components/TransactionList';
 import SpendingByCategory from '../components/SpendingByCategory';
 import IncomeVsExpenses from '../components/IncomeVsExpenses';
+import BudgetOverview from '../components/BudgetOverview';
+import BudgetAlerts from '../components/BudgetAlerts';
 import Modal from '../components/Modal';
 import {
   getTransactions,
@@ -248,11 +250,14 @@ function Dashboard() {
         </div>
       )}
 
+      <BudgetAlerts organizationId={organization?.id} />
+
       <Summary transactions={transactions} exchangeRates={exchangeRates} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         <SpendingByCategory transactions={transactions} exchangeRates={exchangeRates} />
         <IncomeVsExpenses transactions={transactions} exchangeRates={exchangeRates} />
+        <BudgetOverview organizationId={organization?.id} />
       </div>
 
       <TransactionList

@@ -266,3 +266,57 @@ export async function toggleRecurringTransaction(recurringId, getToken) {
   });
   return { data: data?.recurringTransaction, error };
 }
+
+/**
+ * Get budgets for organization
+ */
+export async function getBudgets(organizationId, getToken) {
+  const { data, error } = await apiRequest(
+    `/api/budgets?organizationId=${organizationId}`,
+    getToken
+  );
+  return { data: data?.budgets, error };
+}
+
+/**
+ * Get budget status with spending comparison
+ */
+export async function getBudgetStatus(budgetId, getToken) {
+  const { data, error } = await apiRequest(`/api/budgets/${budgetId}/status`, getToken);
+  return { data, error };
+}
+
+/**
+ * Create budget
+ */
+export async function createBudget(organizationId, budgetData, getToken) {
+  const { data, error } = await apiRequest('/api/budgets', getToken, {
+    method: 'POST',
+    body: JSON.stringify({
+      organizationId,
+      ...budgetData,
+    }),
+  });
+  return { data: data?.budget, error };
+}
+
+/**
+ * Update budget
+ */
+export async function updateBudget(budgetId, budgetData, getToken) {
+  const { data, error } = await apiRequest(`/api/budgets/${budgetId}`, getToken, {
+    method: 'PUT',
+    body: JSON.stringify(budgetData),
+  });
+  return { data: data?.budget, error };
+}
+
+/**
+ * Delete budget
+ */
+export async function deleteBudget(budgetId, getToken) {
+  const { data, error } = await apiRequest(`/api/budgets/${budgetId}`, getToken, {
+    method: 'DELETE',
+  });
+  return { data, error };
+}

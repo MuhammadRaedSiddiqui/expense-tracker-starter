@@ -11,6 +11,7 @@ import transactionRoutes from './routes/transactions.js';
 import memberRoutes from './routes/members.js';
 import invitationRoutes from './routes/invitations.js';
 import recurringTransactionRoutes from './routes/recurringTransactions.js';
+import budgetRoutes from './routes/budgets.js';
 import { initializeScheduler } from './lib/scheduler.js';
 
 const app = express();
@@ -34,6 +35,7 @@ app.use('/api/transactions', clerkMiddleware, transactionRoutes);
 app.use('/api/members', clerkMiddleware, memberRoutes);
 app.use('/api/invitations', clerkMiddleware, invitationRoutes);
 app.use('/api/recurring-transactions', clerkMiddleware, recurringTransactionRoutes);
+app.use('/api/budgets', clerkMiddleware, budgetRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
