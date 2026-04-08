@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
+import { useToast } from '../components/ToastContainer';
 import Summary from '../components/Summary';
 import TransactionForm from '../components/TransactionForm';
 import TransactionList from '../components/TransactionList';
@@ -29,6 +30,7 @@ import { useRealtimeTransactions } from '../hooks/useRealtime';
 function Dashboard() {
   const { user } = useUser();
   const { getToken } = useAuth();
+  const toast = useToast();
   const { organization, refetch } = useOrganization();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -111,16 +113,25 @@ function Dashboard() {
       if (refetchTransactions) {
         refetchTransactions();
       }
+
+      // Show success toast
+      toast.success('Transaction added successfully');
+      setIsModalOpen(false);
     } catch (err) {
       console.error('Error adding transaction:', err);
       captureException(err, { context: 'handleAddTransaction' });
-      setError('Failed to add transaction. Please try again.');
+      toast.error('Failed to add transaction. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteTransaction = async (id) => {
+    // Show confirmation dialog
+    if (!window.confirm('Are you sure you want to delete this transaction?')) {
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -133,10 +144,13 @@ function Dashboard() {
       if (refetchTransactions) {
         refetchTransactions();
       }
+
+      // Show success toast
+      toast.success('Transaction deleted successfully');
     } catch (err) {
       console.error('Error deleting transaction:', err);
       captureException(err, { context: 'handleDeleteTransaction' });
-      setError('Failed to delete transaction. Please try again.');
+      toast.error('Failed to delete transaction. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -159,10 +173,13 @@ function Dashboard() {
       if (refetchTransactions) {
         refetchTransactions();
       }
+
+      // Show success toast
+      toast.success('Transaction updated successfully');
     } catch (err) {
       console.error('Error updating transaction:', err);
       captureException(err, { context: 'handleEditTransaction' });
-      setError('Failed to update transaction. Please try again.');
+      toast.error('Failed to update transaction. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -187,10 +204,13 @@ function Dashboard() {
       if (refetchTransactions) {
         refetchTransactions();
       }
+
+      // Show success toast
+      toast.success('All transactions deleted successfully');
     } catch (err) {
       console.error('Error clearing transactions:', err);
       captureException(err, { context: 'handleClearAll' });
-      setError('Failed to clear transactions. Please try again.');
+      toast.error('Failed to clear transactions. Please try again.');
     } finally {
       setLoading(false);
     }
