@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
 /**
@@ -12,6 +12,14 @@ export function useRealtimeTransactions(organizationId, fetchFunction, enabled =
   const [isRealtime, setIsRealtime] = useState(false);
   const subscriptionRef = useRef(null);
   const pollingIntervalRef = useRef(null);
+
+  // Expose refetch method for manual updates
+  const refetch = useCallback(() => {
+    if (!enabled || !organizationId) return;
+    fetchFunction().then((result) => {
+      setData(result);
+    });
+  }, [fetchFunction, enabled, organizationId]);
 
   useEffect(() => {
     if (!enabled || !organizationId) return;
@@ -80,7 +88,7 @@ export function useRealtimeTransactions(organizationId, fetchFunction, enabled =
     };
   }, [organizationId, enabled]);
 
-  return { data, isRealtime };
+  return { data, isRealtime, refetch };
 }
 
 /**

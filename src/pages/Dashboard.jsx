@@ -40,7 +40,7 @@ function Dashboard() {
     return data || [];
   };
 
-  const { data: transactions, isRealtime } = useRealtimeTransactions(
+  const { data: transactions, isRealtime, refetch: refetchTransactions } = useRealtimeTransactions(
     organization?.id,
     fetchTransactions,
     !!organization
@@ -107,9 +107,9 @@ function Dashboard() {
 
       if (createError) throw createError;
 
-      // Real-time will update the list automatically
-      if (refetch) {
-        refetch();
+      // Immediately refetch transactions to update UI
+      if (refetchTransactions) {
+        refetchTransactions();
       }
     } catch (err) {
       console.error('Error adding transaction:', err);
@@ -129,9 +129,9 @@ function Dashboard() {
 
       if (deleteError) throw deleteError;
 
-      // Real-time will update the list automatically
-      if (refetch) {
-        refetch();
+      // Immediately refetch transactions to update UI
+      if (refetchTransactions) {
+        refetchTransactions();
       }
     } catch (err) {
       console.error('Error deleting transaction:', err);
@@ -155,9 +155,9 @@ function Dashboard() {
 
       if (updateError) throw updateError;
 
-      // Real-time will update the list automatically
-      if (refetch) {
-        refetch();
+      // Immediately refetch transactions to update UI
+      if (refetchTransactions) {
+        refetchTransactions();
       }
     } catch (err) {
       console.error('Error updating transaction:', err);
@@ -183,9 +183,9 @@ function Dashboard() {
 
       if (deleteError) throw deleteError;
 
-      // Real-time will update the list automatically
-      if (refetch) {
-        refetch();
+      // Immediately refetch transactions to update UI
+      if (refetchTransactions) {
+        refetchTransactions();
       }
     } catch (err) {
       console.error('Error clearing transactions:', err);
