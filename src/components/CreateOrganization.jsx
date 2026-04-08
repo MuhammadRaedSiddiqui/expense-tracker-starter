@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 import { createOrganization, migrateLocalStorageData } from '../lib/apiClient';
 import { getClerkUserId, getUserName } from '../lib/clerk';
 import { STORAGE_KEY } from '../constants';
@@ -7,6 +8,7 @@ import { STORAGE_KEY } from '../constants';
 function CreateOrganization({ onComplete }) {
   const { user } = useUser();
   const { getToken } = useAuth();
+  const navigate = useNavigate();
   const [orgName, setOrgName] = useState(`${getUserName(user)}'s Finances`);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -53,6 +55,11 @@ function CreateOrganization({ onComplete }) {
       if (onComplete) {
         onComplete(org);
       }
+
+      // Navigate to dashboard after brief delay
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
     } catch (err) {
       console.error('Error creating organization:', err);
       setError(err.message || 'Failed to create organization. Please try again.');
