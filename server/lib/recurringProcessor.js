@@ -41,7 +41,7 @@ export async function processRecurringTransactions() {
       .from('recurring_transactions')
       .select('*')
       .eq('is_active', true)
-      .lte('next_execution_date', today);
+      .lte('next_occurrence', today);
 
     if (fetchError) {
       console.error('[Recurring] Error fetching recurring transactions:', fetchError);
@@ -59,7 +59,7 @@ export async function processRecurringTransactions() {
     for (const recurring of recurringTransactions) {
       try {
         // Check if end_date has been reached
-        if (recurring.end_date && recurring.next_execution_date > recurring.end_date) {
+        if (recurring.end_date && recurring.next_occurrence > recurring.end_date) {
           console.log(`[Recurring] Deactivating recurring transaction ${recurring.id} - end date reached`);
 
           await supabase
@@ -80,7 +80,7 @@ export async function processRecurringTransactions() {
             currency: recurring.currency,
             type: recurring.type,
             category: recurring.category,
-            date: recurring.next_execution_date,
+            date: recurring.next_occurrence,
             created_by: recurring.created_by,
           });
 
@@ -92,7 +92,7 @@ export async function processRecurringTransactions() {
 
         // Calculate next execution date
         const nextExecutionDate = calculateNextExecutionDate(
-          recurring.next_execution_date,
+          recurring.next_occurrence,
           recurring.frequency,
           recurring.interval
         );
@@ -104,8 +104,7 @@ export async function processRecurringTransactions() {
         const { error: updateError } = await supabase
           .from('recurring_transactions')
           .update({
-            last_execution_date: recurring.next_execution_date,
-            next_execution_date: nextExecutionDate,
+            next_occurrence: nextExecutionDate,
             is_active: !shouldDeactivate,
           })
           .eq('id', recurring.id);
@@ -152,7 +151,7 @@ export async function processRecurringTransactionsForOrganization(organizationId
       .select('*')
       .eq('organization_id', organizationId)
       .eq('is_active', true)
-      .lte('next_execution_date', today);
+      .lte('next_occurrence', today);
 
     if (fetchError) throw fetchError;
 
@@ -162,7 +161,7 @@ export async function processRecurringTransactionsForOrganization(organizationId
 
     for (const recurring of recurringTransactions) {
       try {
-        if (recurring.end_date && recurring.next_execution_date > recurring.end_date) {
+        if (recurring.end_date && recurring.next_occurrence > recurring.end_date) {
           await supabase
             .from('recurring_transactions')
             .update({ is_active: false })
@@ -179,7 +178,7 @@ export async function processRecurringTransactionsForOrganization(organizationId
             currency: recurring.currency,
             type: recurring.type,
             category: recurring.category,
-            date: recurring.next_execution_date,
+            date: recurring.next_occurrence,
             created_by: recurring.created_by,
           });
 
@@ -189,7 +188,7 @@ export async function processRecurringTransactionsForOrganization(organizationId
         }
 
         const nextExecutionDate = calculateNextExecutionDate(
-          recurring.next_execution_date,
+          recurring.next_occurrence,
           recurring.frequency,
           recurring.interval
         );
@@ -199,8 +198,7 @@ export async function processRecurringTransactionsForOrganization(organizationId
         await supabase
           .from('recurring_transactions')
           .update({
-            last_execution_date: recurring.next_execution_date,
-            next_execution_date: nextExecutionDate,
+            next_occurrence: nextExecutionDate,
             is_active: !shouldDeactivate,
           })
           .eq('id', recurring.id);

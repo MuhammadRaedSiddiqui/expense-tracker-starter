@@ -4,6 +4,7 @@ import { useOrganization } from '../hooks/useOrganization';
 import { getMembers, getInvitations, revokeInvitation, updateMemberRole, removeMember } from '../lib/apiClient';
 import { captureException } from '../lib/sentry';
 import InviteMemberModal from '../components/InviteMemberModal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useRealtimeTeam } from '../hooks/useRealtime';
 import { useToast } from '../components/ToastContainer';
 import { SkeletonMemberCard } from '../components/Skeleton';
@@ -15,6 +16,10 @@ function Team() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [invitationToRevoke, setInvitationToRevoke] = useState(null);
+  const [removeMemberDialogOpen, setRemoveMemberDialogOpen] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState(null);
 
   // Real-time team updates with polling fallback
   const fetchMembers = async () => {
@@ -29,7 +34,7 @@ function Team() {
     return data || [];
   };
 
-  const { members, invitations, isRealtime } = useRealtimeTeam(
+  const { members, invitations, isRealtime, refetch } = useRealtimeTeam(
     organization?.id,
     fetchMembers,
     fetchInvitations,
@@ -37,19 +42,25 @@ function Team() {
   );
 
   const handleRevokeInvitation = async (invitationId) => {
-    if (!window.confirm('Are you sure you want to revoke this invitation?')) {
-      return;
-    }
+    setInvitationToRevoke(invitationId);
+    setRevokeDialogOpen(true);
+  };
+
+  const confirmRevokeInvitation = async () => {
+    if (!invitationToRevoke) return;
 
     try {
-      const { error } = await revokeInvitation(invitationId, getToken);
+      const { error } = await revokeInvitation(invitationToRevoke, getToken);
       if (error) throw error;
+      refetch();
       toast.success('Invitation revoked successfully');
-      // Real-time will update the list automatically
     } catch (err) {
       console.error('Error revoking invitation:', err);
       captureException(err, { context: 'revokeInvitation' });
       toast.error('Failed to revoke invitation');
+    } finally {
+      setRevokeDialogOpen(false);
+      setInvitationToRevoke(null);
     }
   };
 
@@ -57,8 +68,8 @@ function Team() {
     try {
       const { error } = await updateMemberRole(memberId, newRole, getToken);
       if (error) throw error;
+      refetch();
       toast.success('Member role updated successfully');
-      // Real-time will update the list automatically
     } catch (err) {
       console.error('Error updating role:', err);
       captureException(err, { context: 'updateMemberRole' });
@@ -67,19 +78,25 @@ function Team() {
   };
 
   const handleRemoveMember = async (memberId) => {
-    if (!window.confirm('Are you sure you want to remove this member?')) {
-      return;
-    }
+    setMemberToRemove(memberId);
+    setRemoveMemberDialogOpen(true);
+  };
+
+  const confirmRemoveMember = async () => {
+    if (!memberToRemove) return;
 
     try {
-      const { error } = await removeMember(memberId, getToken);
+      const { error } = await removeMember(memberToRemove, getToken);
       if (error) throw error;
+      refetch();
       toast.success('Member removed successfully');
-      // Real-time will update the list automatically
     } catch (err) {
       console.error('Error removing member:', err);
       captureException(err, { context: 'removeMember' });
       toast.error('Failed to remove member');
+    } finally {
+      setRemoveMemberDialogOpen(false);
+      setMemberToRemove(null);
     }
   };
 
@@ -100,7 +117,7 @@ function Team() {
         </div>
         <button
           onClick={() => setIsInviteModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+          className="px-6 py-3 bg-slate-700 text-white text-sm font-semibold rounded-md hover:bg-slate-800 transition-colors shadow-md hover:shadow-lg"
         >
           Invite Member
         </button>
@@ -137,11 +154,11 @@ function Team() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-slate-900">
-                Members ({members.length})
+                Members ({members?.length || 0})
               </h2>
             </div>
             <div className="divide-y divide-gray-200">
-              {members.map((member) => (
+              {(members || []).map((member) => (
                 <div key={member.id} className="px-6 py-4 flex justify-between items-center">
                   <div>
                     <p className="text-sm font-medium text-slate-900">{member.user_id}</p>
@@ -176,7 +193,7 @@ function Team() {
           </div>
 
           {/* Pending Invitations */}
-          {invitations.length > 0 && (
+          {invitations && invitations.length > 0 && (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="px-6 py-4 border-b border-gray-200">
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -210,7 +227,36 @@ function Team() {
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
         organizationId={organization?.id}
-        onInvite={loadData}
+        onInvite={() => {
+          refetch();
+          toast.success('Invitation created successfully');
+        }}
+      />
+
+      <ConfirmDialog
+        isOpen={revokeDialogOpen}
+        onClose={() => {
+          setRevokeDialogOpen(false);
+          setInvitationToRevoke(null);
+        }}
+        onConfirm={confirmRevokeInvitation}
+        title="Revoke Invitation"
+        message="Are you sure you want to revoke this invitation? The recipient will no longer be able to join using this invitation."
+        confirmText="Revoke"
+        confirmStyle="danger"
+      />
+
+      <ConfirmDialog
+        isOpen={removeMemberDialogOpen}
+        onClose={() => {
+          setRemoveMemberDialogOpen(false);
+          setMemberToRemove(null);
+        }}
+        onConfirm={confirmRemoveMember}
+        title="Remove Member"
+        message="Are you sure you want to remove this member from the organization? They will lose access to all organization data."
+        confirmText="Remove"
+        confirmStyle="danger"
       />
     </div>
   );

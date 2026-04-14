@@ -56,19 +56,19 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
               type="date"
               value={date}
               onChange={e => setDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
             />
             <input
               type="text"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               placeholder="Description"
             />
             <select
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
             >
               {categories.map(cat => (
                 <option key={cat} value={cat}>
@@ -81,14 +81,14 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
                 type="number"
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                 placeholder="Amount"
                 step="0.01"
               />
               <select
                 value={currency}
                 onChange={e => setCurrency(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               >
                 {CURRENCIES.map(curr => (
                   <option key={curr.code} value={curr.code}>
@@ -101,7 +101,7 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
               <select
                 value={type}
                 onChange={e => setType(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               >
                 <option value={TRANSACTION_TYPES.INCOME}>Income</option>
                 <option value={TRANSACTION_TYPES.EXPENSE}>Expense</option>

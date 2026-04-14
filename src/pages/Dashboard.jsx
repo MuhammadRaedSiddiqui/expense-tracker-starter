@@ -9,6 +9,7 @@ import IncomeVsExpenses from '../components/IncomeVsExpenses';
 import BudgetOverview from '../components/BudgetOverview';
 import BudgetAlerts from '../components/BudgetAlerts';
 import Modal from '../components/Modal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { SkeletonCard, SkeletonTable, SkeletonChart } from '../components/Skeleton';
 import {
   getTransactions,
@@ -60,6 +61,9 @@ function Dashboard() {
   const [ratesLoading, setRatesLoading] = useState(false);
   const [ratesError, setRatesError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState(null);
+  const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
 
   // Fetch exchange rates on mount
   useEffect(() => {
@@ -127,16 +131,19 @@ function Dashboard() {
   };
 
   const handleDeleteTransaction = async (id) => {
-    // Show confirmation dialog
-    if (!window.confirm('Are you sure you want to delete this transaction?')) {
-      return;
-    }
+    // Open confirmation dialog
+    setTransactionToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteTransaction = async () => {
+    if (!transactionToDelete) return;
 
     setLoading(true);
     setError(null);
 
     try {
-      const { error: deleteError } = await deleteTransaction(id, getToken);
+      const { error: deleteError } = await deleteTransaction(transactionToDelete, getToken);
 
       if (deleteError) throw deleteError;
 
@@ -153,6 +160,8 @@ function Dashboard() {
       toast.error('Failed to delete transaction. Please try again.');
     } finally {
       setLoading(false);
+      setDeleteDialogOpen(false);
+      setTransactionToDelete(null);
     }
   };
 
@@ -186,12 +195,11 @@ function Dashboard() {
   };
 
   const handleClearAll = async () => {
-    if (
-      !window.confirm('Are you sure you want to delete all transactions? This cannot be undone.')
-    ) {
-      return;
-    }
+    // Open confirmation dialog
+    setClearAllDialogOpen(true);
+  };
 
+  const confirmClearAll = async () => {
     setLoading(true);
     setError(null);
 
@@ -248,13 +256,13 @@ function Dashboard() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+            className="px-6 py-3 bg-slate-700 text-white text-sm font-semibold rounded-md hover:bg-slate-800 transition-colors shadow-md hover:shadow-lg"
           >
             Add Transaction
           </button>
           <button
             onClick={handleClearAll}
-            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors shadow-sm"
             aria-label="Clear all transactions"
           >
             Clear All
@@ -299,7 +307,7 @@ function Dashboard() {
 
           <TransactionList
             transactions={transactions}
-            categories={CATEGORIES}
+            categories={[...CATEGORIES.income, ...CATEGORIES.expense]}
             filterType={filterType}
             setFilterType={setFilterType}
             filterCategory={filterCategory}
@@ -323,10 +331,33 @@ function Dashboard() {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Transaction">
         <TransactionForm
           onAddTransaction={handleAddTransaction}
-          categories={CATEGORIES}
+          categories={[...CATEGORIES.income, ...CATEGORIES.expense]}
           onClose={() => setIsModalOpen(false)}
         />
       </Modal>
+
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setTransactionToDelete(null);
+        }}
+        onConfirm={confirmDeleteTransaction}
+        title="Delete Transaction"
+        message="Are you sure you want to delete this transaction? This action cannot be undone."
+        confirmText="Delete"
+        confirmStyle="danger"
+      />
+
+      <ConfirmDialog
+        isOpen={clearAllDialogOpen}
+        onClose={() => setClearAllDialogOpen(false)}
+        onConfirm={confirmClearAll}
+        title="Clear All Transactions"
+        message="Are you sure you want to delete all transactions? This action cannot be undone."
+        confirmText="Clear All"
+        confirmStyle="danger"
+      />
     </div>
   );
 }

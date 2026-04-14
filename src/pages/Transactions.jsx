@@ -3,6 +3,7 @@ import { useUser, useAuth } from '@clerk/clerk-react';
 import TransactionList from '../components/TransactionList';
 import TransactionForm from '../components/TransactionForm';
 import Modal from '../components/Modal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { SkeletonTable } from '../components/Skeleton';
 import {
   getTransactions,
@@ -16,13 +17,16 @@ import { captureException } from '../lib/sentry';
 import { CATEGORIES, FILTER_ALL } from '../constants';
 import { useOrganization } from '../hooks/useOrganization';
 import { useRealtimeTransactions } from '../hooks/useRealtime';
+import { useToast } from '../components/ToastContainer';
 
 function Transactions() {
   const { user } = useUser();
   const { getToken } = useAuth();
+  const toast = useToast();
   const { organization, refetch } = useOrganization();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
 
   // Real-time transactions with polling fallback
   const fetchTransactions = async () => {
@@ -31,7 +35,7 @@ function Transactions() {
     return data || [];
   };
 
-  const { data: transactions, isRealtime } = useRealtimeTransactions(
+  const { data: transactions, isRealtime, refetch: refetchTransactions } = useRealtimeTransactions(
     organization?.id,
     fetchTransactions,
     !!organization
@@ -61,14 +65,17 @@ function Transactions() {
 
       if (createError) throw createError;
 
-      // Real-time will update the list automatically
-      if (refetch) {
-        refetch();
+      // Immediately refetch transactions to update UI
+      if (refetchTransactions) {
+        refetchTransactions();
       }
+
+      toast.success('Transaction added successfully');
+      setIsModalOpen(false);
     } catch (err) {
       console.error('Error adding transaction:', err);
       captureException(err, { context: 'handleAddTransaction' });
-      setError('Failed to add transaction. Please try again.');
+      toast.error('Failed to add transaction. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -83,14 +90,16 @@ function Transactions() {
 
       if (deleteError) throw deleteError;
 
-      // Real-time will update the list automatically
-      if (refetch) {
-        refetch();
+      // Immediately refetch transactions to update UI
+      if (refetchTransactions) {
+        refetchTransactions();
       }
+
+      toast.success('Transaction deleted successfully');
     } catch (err) {
       console.error('Error deleting transaction:', err);
       captureException(err, { context: 'handleDeleteTransaction' });
-      setError('Failed to delete transaction. Please try again.');
+      toast.error('Failed to delete transaction. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -109,26 +118,26 @@ function Transactions() {
 
       if (updateError) throw updateError;
 
-      // Real-time will update the list automatically
-      if (refetch) {
-        refetch();
+      // Immediately refetch transactions to update UI
+      if (refetchTransactions) {
+        refetchTransactions();
       }
+
+      toast.success('Transaction updated successfully');
     } catch (err) {
       console.error('Error updating transaction:', err);
       captureException(err, { context: 'handleEditTransaction' });
-      setError('Failed to update transaction. Please try again.');
+      toast.error('Failed to update transaction. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleClearAll = async () => {
-    if (
-      !window.confirm('Are you sure you want to delete all transactions? This cannot be undone.')
-    ) {
-      return;
-    }
+    setClearAllDialogOpen(true);
+  };
 
+  const confirmClearAll = async () => {
     setLoading(true);
     setError(null);
 
@@ -137,16 +146,19 @@ function Transactions() {
 
       if (deleteError) throw deleteError;
 
-      // Real-time will update the list automatically
-      if (refetch) {
-        refetch();
+      // Immediately refetch transactions to update UI
+      if (refetchTransactions) {
+        refetchTransactions();
       }
+
+      toast.success('All transactions deleted successfully');
     } catch (err) {
       console.error('Error clearing transactions:', err);
       captureException(err, { context: 'handleClearAll' });
-      setError('Failed to clear transactions. Please try again.');
+      toast.error('Failed to clear transactions. Please try again.');
     } finally {
       setLoading(false);
+      setClearAllDialogOpen(false);
     }
   };
 
@@ -170,13 +182,13 @@ function Transactions() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+            className="px-6 py-3 bg-slate-700 text-white text-sm font-semibold rounded-md hover:bg-slate-800 transition-colors shadow-md hover:shadow-lg"
           >
             Add Transaction
           </button>
           <button
             onClick={handleClearAll}
-            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors shadow-sm"
             aria-label="Clear all transactions"
           >
             Clear All
@@ -198,7 +210,7 @@ function Transactions() {
       ) : (
         <TransactionList
           transactions={transactions}
-          categories={CATEGORIES}
+          categories={[...CATEGORIES.income, ...CATEGORIES.expense]}
           filterType={filterType}
           setFilterType={setFilterType}
           filterCategory={filterCategory}
@@ -221,10 +233,20 @@ function Transactions() {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Transaction">
         <TransactionForm
           onAddTransaction={handleAddTransaction}
-          categories={CATEGORIES}
+          categories={[...CATEGORIES.income, ...CATEGORIES.expense]}
           onClose={() => setIsModalOpen(false)}
         />
       </Modal>
+
+      <ConfirmDialog
+        isOpen={clearAllDialogOpen}
+        onClose={() => setClearAllDialogOpen(false)}
+        onConfirm={confirmClearAll}
+        title="Clear All Transactions"
+        message="Are you sure you want to delete all transactions? This action cannot be undone."
+        confirmText="Clear All"
+        confirmStyle="danger"
+      />
     </div>
   );
 }

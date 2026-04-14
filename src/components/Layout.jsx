@@ -9,7 +9,7 @@ function Layout() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-700 mx-auto"></div>
           <p className="mt-4 text-sm text-gray-600">Loading organization...</p>
         </div>
       </div>
@@ -27,7 +27,7 @@ function Layout() {
           <div className="flex justify-between h-16">
             <div className="flex items-center space-x-8">
               <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-semibold text-slate-900">Finance Tracker</h1>
+                <div className="text-xl font-semibold text-slate-900">Finance Tracker</div>
               </div>
               <div className="flex space-x-4">
                 <NavLink
@@ -35,7 +35,7 @@ function Layout() {
                   className={({ isActive }) =>
                     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-50 text-blue-700'
+                        ? 'bg-slate-100 text-slate-900'
                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                     }`
                   }
@@ -47,7 +47,7 @@ function Layout() {
                   className={({ isActive }) =>
                     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-50 text-blue-700'
+                        ? 'bg-slate-100 text-slate-900'
                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                     }`
                   }
@@ -59,7 +59,7 @@ function Layout() {
                   className={({ isActive }) =>
                     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-50 text-blue-700'
+                        ? 'bg-slate-100 text-slate-900'
                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                     }`
                   }
@@ -71,7 +71,7 @@ function Layout() {
                   className={({ isActive }) =>
                     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-50 text-blue-700'
+                        ? 'bg-slate-100 text-slate-900'
                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                     }`
                   }
@@ -83,7 +83,7 @@ function Layout() {
                   className={({ isActive }) =>
                     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-50 text-blue-700'
+                        ? 'bg-slate-100 text-slate-900'
                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                     }`
                   }
@@ -95,7 +95,7 @@ function Layout() {
                   className={({ isActive }) =>
                     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-50 text-blue-700'
+                        ? 'bg-slate-100 text-slate-900'
                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                     }`
                   }
@@ -107,7 +107,7 @@ function Layout() {
                   className={({ isActive }) =>
                     `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-blue-50 text-blue-700'
+                        ? 'bg-slate-100 text-slate-900'
                         : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
                     }`
                   }

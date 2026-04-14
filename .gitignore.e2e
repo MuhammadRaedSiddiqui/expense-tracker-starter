@@ -1,0 +1,19 @@
+# Playwright Test Results
+playwright-report/
+test-results/
+playwright/.cache/
+
+# Test artifacts
+*.trace.zip
+*.webm
+*.png
+screenshots/
+videos/
+
+# Test environment
+.env.test
+.env.local
+
+# Coverage
+coverage/
+.nyc_output/

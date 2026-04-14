@@ -1,12 +1,7 @@
-export const CATEGORIES = [
-  'food',
-  'housing',
-  'utilities',
-  'transport',
-  'entertainment',
-  'salary',
-  'other',
-];
+export const CATEGORIES = {
+  income: ['salary', 'freelance', 'investment', 'gift', 'other'],
+  expense: ['food', 'housing', 'utilities', 'transport', 'entertainment', 'healthcare', 'shopping', 'other'],
+};
 
 export const TRANSACTION_TYPES = {
   INCOME: 'income',

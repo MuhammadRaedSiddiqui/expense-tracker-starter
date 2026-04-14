@@ -8,6 +8,7 @@ import {
 } from '../lib/apiClient';
 import { captureException } from '../lib/sentry';
 import BudgetModal from '../components/BudgetModal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useToast } from '../components/ToastContainer';
 import { SkeletonBudgetCard } from '../components/Skeleton';
 
@@ -21,6 +22,8 @@ function Budgets() {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [budgetToDelete, setBudgetToDelete] = useState(null);
 
   const loadData = async () => {
     if (!organization) return;
@@ -62,12 +65,15 @@ function Budgets() {
   }, [organization]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this budget?')) {
-      return;
-    }
+    setBudgetToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!budgetToDelete) return;
 
     try {
-      const { error } = await deleteBudget(id, getToken);
+      const { error } = await deleteBudget(budgetToDelete, getToken);
       if (error) throw error;
       loadData();
       toast.success('Budget deleted successfully');
@@ -75,6 +81,9 @@ function Budgets() {
       console.error('Error deleting budget:', err);
       captureException(err, { context: 'deleteBudget' });
       toast.error('Failed to delete budget');
+    } finally {
+      setDeleteDialogOpen(false);
+      setBudgetToDelete(null);
     }
   };
 
@@ -119,7 +128,7 @@ function Budgets() {
         </div>
         <button
           onClick={handleCreate}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+          className="px-6 py-3 bg-slate-700 text-white text-sm font-semibold rounded-md hover:bg-slate-800 transition-colors shadow-md hover:shadow-lg"
         >
           Create Budget
         </button>
@@ -252,6 +261,19 @@ function Budgets() {
         onSuccess={handleModalSuccess}
         organizationId={organization?.id}
         editingBudget={editingBudget}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setBudgetToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Budget"
+        message="Are you sure you want to delete this budget? This action cannot be undone."
+        confirmText="Delete"
+        confirmStyle="danger"
       />
     </div>
   );

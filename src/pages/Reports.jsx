@@ -56,9 +56,11 @@ function Reports() {
 
   // Filter transactions by date range
   const filteredTransactions = transactions.filter((t) => {
-    const transactionDate = new Date(t.date);
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Normalize dates to avoid timezone issues - handle both YYYY-MM-DD and ISO formats
+    const dateStr = typeof t.date === 'string' ? t.date.split('T')[0] : t.date;
+    const transactionDate = new Date(dateStr + 'T00:00:00');
+    const start = new Date(startDate + 'T00:00:00');
+    const end = new Date(endDate + 'T23:59:59');
     return transactionDate >= start && transactionDate <= end;
   });
 

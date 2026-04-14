@@ -8,7 +8,7 @@ function Summary({ transactions, exchangeRates }) {
       .filter(t => t.type === TRANSACTION_TYPES.INCOME)
       .reduce((sum, t) => {
         const amountInBase = convertToBaseCurrency(
-          parseFloat(t.amount),
+          parseFloat(t.amount) || 0,
           t.currency || BASE_CURRENCY,
           exchangeRates
         );
@@ -21,7 +21,7 @@ function Summary({ transactions, exchangeRates }) {
       .filter(t => t.type === TRANSACTION_TYPES.EXPENSE)
       .reduce((sum, t) => {
         const amountInBase = convertToBaseCurrency(
-          parseFloat(t.amount),
+          parseFloat(t.amount) || 0,
           t.currency || BASE_CURRENCY,
           exchangeRates
         );
@@ -34,7 +34,7 @@ function Summary({ transactions, exchangeRates }) {
   }, [totalIncome, totalExpenses]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
         <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">
           Total Income
@@ -51,10 +51,10 @@ function Summary({ transactions, exchangeRates }) {
           {formatCurrency(totalExpenses, BASE_CURRENCY)}
         </p>
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">Balance</p>
+      <div className="bg-gradient-to-br from-slate-50 to-white border-2 border-slate-300 rounded-lg p-8 shadow-md hover:shadow-lg transition-all">
+        <p className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-3">Balance</p>
         <p
-          className={`text-2xl font-semibold ${balance >= 0 ? 'text-slate-900' : 'text-rose-600'}`}
+          className={`text-3xl font-bold ${balance >= 0 ? 'text-slate-900' : 'text-rose-600'}`}
         >
           {formatCurrency(balance, BASE_CURRENCY)}
         </p>

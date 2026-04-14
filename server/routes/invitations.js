@@ -104,11 +104,22 @@ router.post('/', async (req, res) => {
         inviterEmail,
         role,
       });
-      console.log(`Invitation email sent to ${email}`);
+      console.log(`✓ Invitation email sent to ${email}`);
     } catch (emailError) {
-      console.error('Failed to send invitation email:', emailError);
+      console.error('✗ Failed to send invitation email:', emailError.message);
+
+      // Check if it's a Resend testing mode restriction
+      if (emailError.message && emailError.message.includes('testing emails')) {
+        console.warn('⚠️  RESEND TESTING MODE RESTRICTION:');
+        console.warn('   Emails can only be sent to your verified email address.');
+        console.warn('   To send to other recipients:');
+        console.warn('   1. Verify a domain at https://resend.com/domains');
+        console.warn('   2. Update the "from" address in server/lib/email.js');
+        console.warn(`   3. Or test with your verified email: bhairaed636@gmail.com`);
+      }
+
       // Don't fail the invitation creation if email fails
-      // The invitation is still created and can be shared manually
+      // The invitation is still created and can be shared manually via the token
     }
 
     res.status(201).json({ invitation: data });

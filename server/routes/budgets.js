@@ -263,11 +263,25 @@ router.put('/:id', async (req, res) => {
     }
 
     // Build update object
-    const updates = {
-      updated_by: userId,
-    };
+    const updates = {};
 
-    if (category !== undefined) updates.category = category;
+    if (category !== undefined) {
+      // Check if another active budget exists for this category
+      const { data: existingBudget } = await supabase
+        .from('budgets')
+        .select('id')
+        .eq('organization_id', existing.organization_id)
+        .eq('category', category)
+        .eq('is_active', true)
+        .neq('id', id)
+        .single();
+
+      if (existingBudget) {
+        return res.status(400).json({ error: 'An active budget already exists for this category' });
+      }
+
+      updates.category = category;
+    }
     if (amount !== undefined) updates.amount = parseFloat(amount);
     if (currency !== undefined) updates.currency = currency;
     if (period !== undefined) updates.period = period;

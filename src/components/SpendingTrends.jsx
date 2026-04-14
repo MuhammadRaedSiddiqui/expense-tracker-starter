@@ -6,7 +6,9 @@ function SpendingTrends({ transactions }) {
     const grouped = {};
 
     transactions.forEach((t) => {
-      const date = new Date(t.date);
+      // Parse date - handle both YYYY-MM-DD and ISO formats
+      const dateStr = typeof t.date === 'string' ? t.date.split('T')[0] : t.date;
+      const date = new Date(dateStr + 'T00:00:00');
       const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
 
       if (!grouped[monthKey]) {

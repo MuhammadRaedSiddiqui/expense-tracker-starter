@@ -12,7 +12,7 @@ function TransactionFilters({
       <select
         value={filterType}
         onChange={e => setFilterType(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
       >
         <option value={FILTER_ALL}>All Types</option>
         <option value={TRANSACTION_TYPES.INCOME}>Income</option>
@@ -21,7 +21,7 @@ function TransactionFilters({
       <select
         value={filterCategory}
         onChange={e => setFilterCategory(e.target.value)}
-        className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
       >
         <option value={FILTER_ALL}>All Categories</option>
         {categories.map(cat => (

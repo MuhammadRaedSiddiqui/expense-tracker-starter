@@ -6,6 +6,8 @@ import TransactionList from './components/TransactionList';
 import SpendingByCategory from './components/SpendingByCategory';
 import IncomeVsExpenses from './components/IncomeVsExpenses';
 import Modal from './components/Modal';
+import ConfirmDialog from './components/ConfirmDialog';
+import { useToast } from './components/ToastContainer';
 import {
   createTransaction,
   updateTransaction,
@@ -22,9 +24,11 @@ import {
 
 function App({ organization, initialTransactions, onDataChange }) {
   const { user } = useUser();
+  const toast = useToast();
   const [transactions, setTransactions] = useState(initialTransactions || []);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
 
   const [filterType, setFilterType] = useState(FILTER_ALL);
   const [filterCategory, setFilterCategory] = useState(FILTER_ALL);
@@ -48,6 +52,26 @@ function App({ organization, initialTransactions, onDataChange }) {
   useEffect(() => {
     fetchExchangeRates();
   }, []);
+
+  // Check for stale exchange rates periodically
+  useEffect(() => {
+    const RATE_EXPIRY_MS = 3600000; // 1 hour
+    const CHECK_INTERVAL_MS = 60000; // Check every minute
+
+    const checkRateExpiry = () => {
+      if (ratesLastUpdated) {
+        const age = Date.now() - ratesLastUpdated.getTime();
+        if (age > RATE_EXPIRY_MS && !ratesLoading) {
+          console.log('Exchange rates expired, refreshing...');
+          fetchExchangeRates();
+        }
+      }
+    };
+
+    const intervalId = setInterval(checkRateExpiry, CHECK_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+  }, [ratesLastUpdated, ratesLoading]);
 
   const fetchExchangeRates = async () => {
     setRatesLoading(true);
@@ -81,8 +105,8 @@ function App({ organization, initialTransactions, onDataChange }) {
   };
 
   const handleAddTransaction = async (newTransaction) => {
-    setLoading(true);
     setError(null);
+    setLoading(true);
 
     try {
       const userId = getClerkUserId(user);
@@ -92,52 +116,85 @@ function App({ organization, initialTransactions, onDataChange }) {
         newTransaction
       );
 
-      if (createError) throw createError;
+      if (createError) {
+        // Check for duplicate idempotency key (constraint violation)
+        if (createError.code === '23505' && createError.message?.includes('idempotency_key')) {
+          // Duplicate submission detected - silently ignore
+          toast.info('Transaction already added');
+          setIsModalOpen(false);
+          setLoading(false);
+          return;
+        }
+        throw createError;
+      }
 
-      // Update local state optimistically
-      setTransactions([data, ...transactions]);
+      // Store previous state for potential rollback
+      const previousTransactions = transactions;
 
-      // Notify parent to refetch (ensures sync)
-      if (onDataChange) {
-        onDataChange();
+      try {
+        // Update local state optimistically
+        setTransactions([data, ...transactions]);
+
+        // Notify parent to refetch (ensures sync)
+        if (onDataChange) {
+          await onDataChange();
+        }
+
+        toast.success('Transaction added successfully');
+        setIsModalOpen(false);
+      } catch (refetchError) {
+        // Rollback on refetch failure
+        setTransactions(previousTransactions);
+        throw refetchError;
       }
     } catch (err) {
       console.error('Error adding transaction:', err);
       captureException(err, { context: 'handleAddTransaction' });
-      setError('Failed to add transaction. Please try again.');
+      toast.error('Failed to add transaction. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleDeleteTransaction = async (id) => {
-    setLoading(true);
     setError(null);
+    setLoading(true);
 
     try {
       const { error: deleteError } = await deleteTransaction(id);
 
       if (deleteError) throw deleteError;
 
-      // Update local state
-      setTransactions(transactions.filter(t => t.id !== id));
+      // Store previous state for potential rollback
+      const previousTransactions = transactions;
 
-      // Notify parent
-      if (onDataChange) {
-        onDataChange();
+      try {
+        // Update local state
+        setTransactions(transactions.filter(t => t.id !== id));
+
+        // Notify parent
+        if (onDataChange) {
+          await onDataChange();
+        }
+
+        toast.success('Transaction deleted successfully');
+      } catch (refetchError) {
+        // Rollback on refetch failure
+        setTransactions(previousTransactions);
+        throw refetchError;
       }
     } catch (err) {
       console.error('Error deleting transaction:', err);
       captureException(err, { context: 'handleDeleteTransaction' });
-      setError('Failed to delete transaction. Please try again.');
+      toast.error('Failed to delete transaction. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleEditTransaction = async (updatedTransaction) => {
-    setLoading(true);
     setError(null);
+    setLoading(true);
 
     try {
       const { data, error: updateError } = await updateTransaction(
@@ -147,31 +204,40 @@ function App({ organization, initialTransactions, onDataChange }) {
 
       if (updateError) throw updateError;
 
-      // Update local state
-      setTransactions(
-        transactions.map(t => (t.id === data.id ? data : t))
-      );
+      // Store previous state for potential rollback
+      const previousTransactions = transactions;
 
-      // Notify parent
-      if (onDataChange) {
-        onDataChange();
+      try {
+        // Update local state
+        setTransactions(
+          transactions.map(t => (t.id === data.id ? data : t))
+        );
+
+        // Notify parent
+        if (onDataChange) {
+          await onDataChange();
+        }
+
+        toast.success('Transaction updated successfully');
+      } catch (refetchError) {
+        // Rollback on refetch failure
+        setTransactions(previousTransactions);
+        throw refetchError;
       }
     } catch (err) {
       console.error('Error updating transaction:', err);
       captureException(err, { context: 'handleEditTransaction' });
-      setError('Failed to update transaction. Please try again.');
+      toast.error('Failed to update transaction. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleClearAll = async () => {
-    if (
-      !window.confirm('Are you sure you want to delete all transactions? This cannot be undone.')
-    ) {
-      return;
-    }
+    setClearAllDialogOpen(true);
+  };
 
+  const confirmClearAll = async () => {
     setLoading(true);
     setError(null);
 
@@ -187,12 +253,15 @@ function App({ organization, initialTransactions, onDataChange }) {
       if (onDataChange) {
         onDataChange();
       }
+
+      toast.success('All transactions deleted successfully');
     } catch (err) {
       console.error('Error clearing transactions:', err);
       captureException(err, { context: 'handleClearAll' });
-      setError('Failed to clear transactions. Please try again.');
+      toast.error('Failed to clear transactions. Please try again.');
     } finally {
       setLoading(false);
+      setClearAllDialogOpen(false);
     }
   };
 
@@ -221,13 +290,13 @@ function App({ organization, initialTransactions, onDataChange }) {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+              className="px-6 py-3 bg-slate-700 text-white text-sm font-semibold rounded-md hover:bg-slate-800 transition-colors shadow-md hover:shadow-lg"
             >
               Add Transaction
             </button>
             <button
               onClick={handleClearAll}
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors shadow-sm"
               aria-label="Clear all transactions"
             >
               Clear All
@@ -244,7 +313,7 @@ function App({ organization, initialTransactions, onDataChange }) {
 
         <TransactionList
           transactions={transactions}
-          categories={CATEGORIES}
+          categories={[...CATEGORIES.income, ...CATEGORIES.expense]}
           filterType={filterType}
           setFilterType={setFilterType}
           filterCategory={filterCategory}
@@ -266,10 +335,21 @@ function App({ organization, initialTransactions, onDataChange }) {
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Transaction">
           <TransactionForm
             onAddTransaction={handleAddTransaction}
-            categories={CATEGORIES}
+            categories={[...CATEGORIES.income, ...CATEGORIES.expense]}
             onClose={() => setIsModalOpen(false)}
+            loading={loading}
           />
         </Modal>
+
+        <ConfirmDialog
+          isOpen={clearAllDialogOpen}
+          onClose={() => setClearAllDialogOpen(false)}
+          onConfirm={confirmClearAll}
+          title="Clear All Transactions"
+          message="Are you sure you want to delete all transactions? This action cannot be undone."
+          confirmText="Clear All"
+          confirmStyle="danger"
+        />
       </div>
     </div>
   );

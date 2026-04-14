@@ -18,8 +18,11 @@ function BudgetModal({ isOpen, onClose, onSuccess, organizationId, editingBudget
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Get all categories (income + expense)
-  const allCategories = [...CATEGORIES.income, ...CATEGORIES.expense];
+  // Get all categories (income + expense) with unique keys
+  const allCategories = [
+    ...CATEGORIES.income.map(cat => ({ value: cat, label: cat, type: 'income' })),
+    ...CATEGORIES.expense.map(cat => ({ value: cat, label: cat, type: 'expense' }))
+  ];
 
   useEffect(() => {
     if (editingBudget) {
@@ -110,8 +113,8 @@ function BudgetModal({ isOpen, onClose, onSuccess, organizationId, editingBudget
           >
             <option value="">Select category</option>
             {allCategories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
+              <option key={`${cat.type}-${cat.value}`} value={cat.value}>
+                {cat.label}
               </option>
             ))}
           </select>

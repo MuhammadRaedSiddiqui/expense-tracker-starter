@@ -2,32 +2,21 @@ import { supabase } from './supabase';
 
 /**
  * Create a new organization and add the user as owner
+ * Uses atomic RPC function to ensure both operations succeed or fail together
  */
 export async function createOrganization(userId, orgName) {
   try {
-    // Create organization
-    const { data: org, error: orgError } = await supabase
-      .from('organizations')
-      .insert({
-        name: orgName,
-        slug: orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-      })
-      .select()
-      .single();
+    const slug = orgName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-    if (orgError) throw orgError;
-
-    // Add user as owner
-    const { error: memberError } = await supabase
-      .from('organization_members')
-      .insert({
-        organization_id: org.id,
+    // Call RPC function for atomic creation
+    const { data: org, error: rpcError } = await supabase
+      .rpc('create_organization_with_member', {
+        org_name: orgName,
+        org_slug: slug,
         user_id: userId,
-        role: 'owner',
-        joined_at: new Date().toISOString(),
       });
 
-    if (memberError) throw memberError;
+    if (rpcError) throw rpcError;
 
     return { data: org, error: null };
   } catch (error) {
@@ -97,6 +86,7 @@ export async function createTransaction(organizationId, userId, transactionData)
         type: transactionData.type,
         category: transactionData.category,
         date: transactionData.date,
+        idempotency_key: transactionData.idempotencyKey,
       })
       .select()
       .single();

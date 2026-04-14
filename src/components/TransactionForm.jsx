@@ -3,7 +3,7 @@ import FormInput from './FormInput';
 import FormSelect from './FormSelect';
 import { TRANSACTION_TYPES, CURRENCIES, BASE_CURRENCY } from '../constants';
 
-function TransactionForm({ onAddTransaction, categories, onClose }) {
+function TransactionForm({ onAddTransaction, categories, onClose, loading = false }) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState(TRANSACTION_TYPES.EXPENSE);
@@ -90,6 +90,7 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
       category,
       currency,
       date: new Date().toISOString().split('T')[0],
+      idempotencyKey: crypto.randomUUID(), // Generate unique key to prevent duplicates
     };
 
     onAddTransaction(newTransaction);
@@ -126,7 +127,7 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
     if (touched[field] && !errors[field]) {
       return `${baseClass} border-green-500 focus:ring-green-500 focus:border-green-500`;
     }
-    return `${baseClass} border-gray-300 focus:ring-blue-500 focus:border-transparent`;
+    return `${baseClass} border-gray-300 focus:ring-slate-500 focus:border-transparent`;
   };
 
   return (
@@ -192,7 +193,7 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
               id="currency"
               value={currency}
               onChange={e => setCurrency(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               aria-label="Currency"
             >
               {currencyOptions.map(opt => (
@@ -213,7 +214,7 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
               id="type"
               value={type}
               onChange={e => setType(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               aria-label="Transaction type"
             >
               {typeOptions.map(opt => (
@@ -232,7 +233,7 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
               id="category"
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
               aria-label="Transaction category"
             >
               {categoryOptions.map(opt => (
@@ -247,16 +248,18 @@ function TransactionForm({ onAddTransaction, categories, onClose }) {
         <div className="flex gap-3 pt-2">
           <button
             type="submit"
-            className="flex-1 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={loading}
+            className="flex-1 px-6 py-3 bg-slate-700 text-white text-sm font-semibold rounded-md hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
             aria-label="Add transaction"
           >
-            Add Transaction
+            {loading ? 'Adding...' : 'Add Transaction'}
           </button>
           {onClose && (
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 bg-gray-100 text-gray-700 text-sm font-semibold rounded-md hover:bg-gray-200 transition-colors"
+              disabled={loading}
+              className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               Cancel
             </button>

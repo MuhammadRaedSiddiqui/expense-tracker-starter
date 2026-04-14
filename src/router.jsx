@@ -19,7 +19,7 @@ const AcceptInvitation = lazy(() => import('./pages/AcceptInvitation'));
 const PageLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-gray-50">
     <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-700 mx-auto"></div>
       <p className="mt-4 text-sm text-gray-600">Loading...</p>
     </div>
   </div>
@@ -28,11 +28,53 @@ const PageLoader = () => (
 export const router = createBrowserRouter([
   {
     path: '/sign-in/*',
-    element: <SignIn routing="path" path="/sign-in" />,
+    element: (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Finance Tracker</h1>
+            <p className="text-sm text-slate-600">
+              Track your income and expenses with ease
+            </p>
+          </div>
+          <SignIn
+            routing="path"
+            path="/sign-in"
+            appearance={{
+              elements: {
+                rootBox: 'mx-auto',
+                card: 'shadow-lg',
+              }
+            }}
+          />
+        </div>
+      </div>
+    ),
   },
   {
     path: '/sign-up/*',
-    element: <SignUp routing="path" path="/sign-up" />,
+    element: (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Finance Tracker</h1>
+            <p className="text-sm text-slate-600">
+              Track your income and expenses with ease
+            </p>
+          </div>
+          <SignUp
+            routing="path"
+            path="/sign-up"
+            appearance={{
+              elements: {
+                rootBox: 'mx-auto',
+                card: 'shadow-lg',
+              }
+            }}
+          />
+        </div>
+      </div>
+    ),
   },
   {
     path: '/',

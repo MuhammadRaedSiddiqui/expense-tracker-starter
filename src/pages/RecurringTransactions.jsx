@@ -9,6 +9,7 @@ import {
 import { captureException } from '../lib/sentry';
 import { CATEGORIES } from '../constants';
 import RecurringTransactionModal from '../components/RecurringTransactionModal';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useRealtimeRecurring } from '../hooks/useRealtime';
 import { useToast } from '../components/ToastContainer';
 import { SkeletonTable } from '../components/Skeleton';
@@ -21,6 +22,8 @@ function RecurringTransactions() {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState(null);
 
   // Real-time recurring transactions with polling fallback
   const fetchRecurringTransactions = async () => {
@@ -29,26 +32,37 @@ function RecurringTransactions() {
     return data || [];
   };
 
-  const { data: recurringTransactions, isRealtime } = useRealtimeRecurring(
+  const { data: recurringTransactions, isRealtime, refetch } = useRealtimeRecurring(
     organization?.id,
     fetchRecurringTransactions,
     !!organization
   );
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this recurring transaction?')) {
-      return;
-    }
+    setTransactionToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!transactionToDelete) return;
 
     try {
-      const { error } = await deleteRecurringTransaction(id, getToken);
+      const { error } = await deleteRecurringTransaction(transactionToDelete, getToken);
       if (error) throw error;
+
+      // Immediately refetch to update UI
+      if (refetch) {
+        refetch();
+      }
+
       toast.success('Recurring transaction deleted successfully');
-      // Real-time will update the list automatically
     } catch (err) {
       console.error('Error deleting recurring transaction:', err);
       captureException(err, { context: 'deleteRecurringTransaction' });
       toast.error('Failed to delete recurring transaction');
+    } finally {
+      setDeleteDialogOpen(false);
+      setTransactionToDelete(null);
     }
   };
 
@@ -56,8 +70,13 @@ function RecurringTransactions() {
     try {
       const { error } = await toggleRecurringTransaction(id, getToken);
       if (error) throw error;
+
+      // Immediately refetch to update UI
+      if (refetch) {
+        refetch();
+      }
+
       toast.success('Recurring transaction updated successfully');
-      // Real-time will update the list automatically
     } catch (err) {
       console.error('Error toggling recurring transaction:', err);
       captureException(err, { context: 'toggleRecurringTransaction' });
@@ -81,7 +100,10 @@ function RecurringTransactions() {
   };
 
   const handleModalSuccess = () => {
-    // Real-time will update the list automatically
+    // Immediately refetch to update UI
+    if (refetch) {
+      refetch();
+    }
     handleModalClose();
   };
 
@@ -115,7 +137,7 @@ function RecurringTransactions() {
         </div>
         <button
           onClick={handleCreate}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+          className="px-6 py-3 bg-slate-700 text-white text-sm font-semibold rounded-md hover:bg-slate-800 transition-colors shadow-md hover:shadow-lg"
         >
           Add Recurring Transaction
         </button>
@@ -127,7 +149,7 @@ function RecurringTransactions() {
         </div>
       )}
 
-      {loading ? (
+      {!recurringTransactions ? (
         <SkeletonTable rows={5} />
       ) : recurringTransactions.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
@@ -238,6 +260,19 @@ function RecurringTransactions() {
         onSuccess={handleModalSuccess}
         organizationId={organization?.id}
         editingTransaction={editingTransaction}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteDialogOpen}
+        onClose={() => {
+          setDeleteDialogOpen(false);
+          setTransactionToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Recurring Transaction"
+        message="Are you sure you want to delete this recurring transaction? This action cannot be undone."
+        confirmText="Delete"
+        confirmStyle="danger"
       />
     </div>
   );

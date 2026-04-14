@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 
 function PeriodComparison({ transactions, startDate, endDate }) {
   const comparison = useMemo(() => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Parse dates with explicit time to avoid timezone issues
+    const start = new Date(startDate + 'T00:00:00');
+    const end = new Date(endDate + 'T23:59:59');
 
     // Calculate period length in days
     const periodLength = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
@@ -16,13 +17,17 @@ function PeriodComparison({ transactions, startDate, endDate }) {
 
     // Filter transactions for current period
     const currentPeriod = transactions.filter((t) => {
-      const date = new Date(t.date);
+      // Handle both YYYY-MM-DD and ISO formats
+      const dateStr = typeof t.date === 'string' ? t.date.split('T')[0] : t.date;
+      const date = new Date(dateStr + 'T00:00:00');
       return date >= start && date <= end;
     });
 
     // Filter transactions for previous period
     const previousPeriod = transactions.filter((t) => {
-      const date = new Date(t.date);
+      // Handle both YYYY-MM-DD and ISO formats
+      const dateStr = typeof t.date === 'string' ? t.date.split('T')[0] : t.date;
+      const date = new Date(dateStr + 'T00:00:00');
       return date >= prevStart && date <= prevEnd;
     });
 

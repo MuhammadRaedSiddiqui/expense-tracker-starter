@@ -100,6 +100,14 @@ export function useRealtimeRecurring(organizationId, fetchFunction, enabled = tr
   const subscriptionRef = useRef(null);
   const pollingIntervalRef = useRef(null);
 
+  // Expose refetch method for manual updates
+  const refetch = useCallback(() => {
+    if (!enabled || !organizationId) return;
+    fetchFunction().then((result) => {
+      setData(result);
+    });
+  }, [fetchFunction, enabled, organizationId]);
+
   useEffect(() => {
     if (!enabled || !organizationId) return;
 
@@ -164,7 +172,7 @@ export function useRealtimeRecurring(organizationId, fetchFunction, enabled = tr
     };
   }, [organizationId, enabled]);
 
-  return { data, isRealtime };
+  return { data, isRealtime, refetch };
 }
 
 /**
@@ -176,6 +184,17 @@ export function useRealtimeTeam(organizationId, fetchMembersFunction, fetchInvit
   const [isRealtime, setIsRealtime] = useState(false);
   const subscriptionRef = useRef(null);
   const pollingIntervalRef = useRef(null);
+
+  // Expose refetch method for manual updates
+  const refetch = useCallback(() => {
+    if (!enabled || !organizationId) return;
+    Promise.all([fetchMembersFunction(), fetchInvitationsFunction()]).then(
+      ([membersResult, invitationsResult]) => {
+        setMembers(membersResult);
+        setInvitations(invitationsResult);
+      }
+    );
+  }, [fetchMembersFunction, fetchInvitationsFunction, enabled, organizationId]);
 
   useEffect(() => {
     if (!enabled || !organizationId) return;
@@ -266,5 +285,5 @@ export function useRealtimeTeam(organizationId, fetchMembersFunction, fetchInvit
     };
   }, [organizationId, enabled]);
 
-  return { members, invitations, isRealtime };
+  return { members, invitations, isRealtime, refetch };
 }

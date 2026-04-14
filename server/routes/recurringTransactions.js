@@ -120,8 +120,8 @@ router.post('/', async (req, res) => {
       return res.status(403).json({ error: 'Only members and above can create recurring transactions' });
     }
 
-    // Calculate next execution date
-    const nextExecutionDate = calculateNextExecutionDate(startDate, frequency, interval || 1);
+    // Calculate next occurrence date
+    const nextOccurrence = calculateNextExecutionDate(startDate, frequency, interval || 1);
 
     // Create recurring transaction
     const { data, error } = await supabase
@@ -137,7 +137,7 @@ router.post('/', async (req, res) => {
         interval: interval || 1,
         start_date: startDate,
         end_date: endDate || null,
-        next_execution_date: nextExecutionDate,
+        next_occurrence: nextOccurrence,
         created_by: userId,
         is_active: true,
       })
@@ -192,9 +192,7 @@ router.put('/:id', async (req, res) => {
     }
 
     // Build update object
-    const updates = {
-      updated_by: userId,
-    };
+    const updates = {};
 
     if (description !== undefined) updates.description = description;
     if (amount !== undefined) updates.amount = parseFloat(amount);
@@ -207,7 +205,7 @@ router.put('/:id', async (req, res) => {
     if (endDate !== undefined) updates.end_date = endDate;
     if (isActive !== undefined) updates.is_active = isActive;
 
-    // Recalculate next execution date if frequency/interval/startDate changed
+    // Recalculate next occurrence date if frequency/interval/startDate changed
     if (frequency !== undefined || interval !== undefined || startDate !== undefined) {
       const { data: current } = await supabase
         .from('recurring_transactions')
@@ -219,7 +217,7 @@ router.put('/:id', async (req, res) => {
       const newInterval = interval || current.interval;
       const newStartDate = startDate || current.start_date;
 
-      updates.next_execution_date = calculateNextExecutionDate(
+      updates.next_occurrence = calculateNextExecutionDate(
         newStartDate,
         newFrequency,
         newInterval
@@ -315,7 +313,6 @@ router.post('/:id/toggle', async (req, res) => {
       .from('recurring_transactions')
       .update({
         is_active: !existing.is_active,
-        updated_by: userId,
       })
       .eq('id', id)
       .select()
