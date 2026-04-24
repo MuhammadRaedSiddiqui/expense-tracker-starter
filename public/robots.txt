@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /sign-in
+Allow: /sign-up
+Disallow: /dashboard
+Disallow: /transactions
+Disallow: /budgets
+Disallow: /recurring
+Disallow: /team
+Disallow: /reports
+Disallow: /settings
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://your-domain.com/sitemap.xml
