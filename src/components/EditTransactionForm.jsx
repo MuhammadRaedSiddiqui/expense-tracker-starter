@@ -44,10 +44,10 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
 
   return (
     <tr className="bg-gray-50">
-      <td colSpan="5" className="p-4">
+      <td colSpan="5" className="p-6">
         <form onSubmit={handleSubmit} className="space-y-3">
           {error && (
-            <div className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-md px-3 py-2">
+            <div className="text-sm text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
               {error}
             </div>
           )}
@@ -56,19 +56,19 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
               type="date"
               value={date}
               onChange={e => setDate(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
             <input
               type="text"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               placeholder="Description"
             />
             <select
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               {categories.map(cat => (
                 <option key={cat} value={cat}>
@@ -81,14 +81,14 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
                 type="number"
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                 placeholder="Amount"
                 step="0.01"
               />
               <select
                 value={currency}
                 onChange={e => setCurrency(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 {CURRENCIES.map(curr => (
                   <option key={curr.code} value={curr.code}>
@@ -101,21 +101,21 @@ function EditTransactionForm({ transaction, onSave, onCancel, categories }) {
               <select
                 value={type}
                 onChange={e => setType(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               >
                 <option value={TRANSACTION_TYPES.INCOME}>Income</option>
                 <option value={TRANSACTION_TYPES.EXPENSE}>Expense</option>
               </select>
               <button
                 type="submit"
-                className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-md hover:bg-emerald-700 transition-colors"
+                className="px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent-hover transition-all shadow-md transform hover:scale-105"
               >
                 Save
               </button>
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors"
+                className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
               >
                 Cancel
               </button>

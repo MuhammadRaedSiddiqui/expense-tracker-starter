@@ -120,14 +120,14 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
   }));
 
   const getInputClassName = (field) => {
-    const baseClass = "w-full px-4 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 transition-all";
+    const baseClass = "w-full px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 transition-all";
     if (touched[field] && errors[field]) {
       return `${baseClass} border-rose-500 focus:ring-rose-500 focus:border-rose-500`;
     }
     if (touched[field] && !errors[field]) {
       return `${baseClass} border-green-500 focus:ring-green-500 focus:border-green-500`;
     }
-    return `${baseClass} border-gray-300 focus:ring-slate-500 focus:border-transparent`;
+    return `${baseClass} border-gray-300 focus:ring-primary focus:border-transparent`;
   };
 
   return (
@@ -193,7 +193,7 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
               id="currency"
               value={currency}
               onChange={e => setCurrency(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               aria-label="Currency"
             >
               {currencyOptions.map(opt => (
@@ -214,7 +214,7 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
               id="type"
               value={type}
               onChange={e => setType(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               aria-label="Transaction type"
             >
               {typeOptions.map(opt => (
@@ -233,7 +233,7 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
               id="category"
               value={category}
               onChange={e => setCategory(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               aria-label="Transaction category"
             >
               {categoryOptions.map(opt => (
@@ -249,7 +249,7 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 px-6 py-3 bg-slate-700 text-white text-sm font-semibold rounded-md hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+            className="flex-1 px-8 py-3 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transform hover:scale-105"
             aria-label="Add transaction"
           >
             {loading ? 'Adding...' : 'Add Transaction'}
@@ -259,7 +259,7 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-md hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="px-6 py-3 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               Cancel
             </button>

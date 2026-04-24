@@ -7,8 +7,8 @@ function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, confirmText
   };
 
   const confirmButtonClasses = confirmStyle === 'danger'
-    ? 'px-4 py-2 bg-rose-600 text-white font-semibold rounded-md hover:bg-rose-700 transition-colors'
-    : 'px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition-colors';
+    ? 'px-6 py-3 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700 transition-all shadow-lg transform hover:scale-105'
+    : 'px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary-hover transition-all shadow-lg transform hover:scale-105';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
@@ -18,7 +18,7 @@ function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, confirmText
         <div className="flex justify-end gap-3 pt-4">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+            className="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
           >
             Cancel
           </button>
