@@ -5,6 +5,8 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { clerkMiddleware } from './middleware/auth.js';
 import organizationRoutes from './routes/organizations.js';
 import transactionRoutes from './routes/transactions.js';
@@ -17,27 +19,70 @@ import { initializeScheduler } from './lib/scheduler.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+// Security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true,
+  },
+}));
+
+// Rate limiting - prevent abuse
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Apply rate limiting to all API routes
+app.use('/api/', limiter);
+
+// Stricter rate limiting for auth-related endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20, // More restrictive for auth operations
+  message: 'Too many authentication attempts, please try again later.',
+});
+
+// CORS configuration
 app.use(cors({
   origin: function(origin, callback) {
     const allowedOrigins = [
       'http://localhost:5173',
       'http://localhost:5174',
-      process.env.FRONTEND_URL
+      'http://localhost:5175',
+      'http://localhost:5176',
+      process.env.FRONTEND_URL,
+      process.env.PRODUCTION_URL
     ].filter(Boolean);
 
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
+    // Allow requests with no origin (like mobile apps or curl) only in development
+    if (!origin && process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
 
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.warn(`CORS blocked request from origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
 }));
-app.use(express.json());
+
+app.use(express.json({ limit: '10mb' })); // Limit payload size
 
 // Health check
 app.get('/health', (req, res) => {

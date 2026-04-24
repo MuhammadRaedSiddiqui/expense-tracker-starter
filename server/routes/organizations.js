@@ -69,4 +69,41 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Delete organization
+router.delete('/:id', async (req, res) => {
+  try {
+    const { userId } = req;
+    const { id } = req.params;
+
+    // Check if user is owner
+    const { data: member, error: memberError } = await supabase
+      .from('organization_members')
+      .select('role')
+      .eq('organization_id', id)
+      .eq('user_id', userId)
+      .single();
+
+    if (memberError || !member) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
+
+    if (member.role !== 'owner') {
+      return res.status(403).json({ error: 'Only owners can delete organizations' });
+    }
+
+    // Delete organization (cascade will handle related records)
+    const { error: deleteError } = await supabase
+      .from('organizations')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) throw deleteError;
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete organization error:', error);
+    res.status(500).json({ error: 'Failed to delete organization' });
+  }
+});
+
 export default router;

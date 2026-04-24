@@ -1,5 +1,6 @@
 import express from 'express';
 import { supabase } from '../lib/supabase.js';
+import { validateRequest, transactionSchema } from '../lib/validation.js';
 
 const router = express.Router();
 
@@ -51,24 +52,15 @@ router.get('/', async (req, res) => {
 });
 
 // Create transaction
-router.post('/', async (req, res) => {
+router.post('/', validateRequest(transactionSchema), async (req, res) => {
   try {
     const { userId } = req;
     const { organizationId, description, amount, type, category, currency, date } = req.body;
-
-    if (!organizationId) {
-      return res.status(400).json({ error: 'Organization ID is required' });
-    }
 
     // Verify user has access and is at least a member
     const role = await verifyOrganizationAccess(userId, organizationId);
     if (!role || !['owner', 'admin', 'member'].includes(role)) {
       return res.status(403).json({ error: 'Access denied' });
-    }
-
-    // Validate required fields
-    if (!description || !amount || !type || !category || !date) {
-      return res.status(400).json({ error: 'Missing required fields' });
     }
 
     const { data, error } = await supabase
