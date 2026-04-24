@@ -1,12 +1,38 @@
+import { Link } from 'react-router-dom';
+
 export default function PrivacyPolicy() {
   return (
-    <div className="min-h-screen bg-surface py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-surface-container rounded-lg shadow-sm p-8">
-          <h1 className="text-3xl font-bold text-on-surface mb-2">Privacy Policy</h1>
-          <p className="text-sm text-on-surface-variant mb-8">Last updated: April 21, 2026</p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Navigation */}
+      <nav className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+          <Link to="/" className="text-xl font-bold text-slate-800 tracking-tight flex items-center gap-2">
+            <span className="material-symbols-outlined text-primary-container text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+              account_balance_wallet
+            </span>
+            Finance Tracker
+          </Link>
+          <div className="flex items-center gap-6">
+            <Link to="/faq" className="text-slate-600 hover:text-slate-900 transition-colors text-sm font-medium">
+              FAQs
+            </Link>
+            <Link to="/terms" className="text-slate-600 hover:text-slate-900 transition-colors text-sm font-medium">
+              Terms
+            </Link>
+            <Link to="/" className="text-slate-700 hover:text-slate-900 transition-colors text-sm font-medium">
+              ← Back to Home
+            </Link>
+          </div>
+        </div>
+      </nav>
 
-          <div className="prose prose-slate max-w-none space-y-6 text-on-surface">
+      <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-lg shadow-sm p-8">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Privacy Policy</h1>
+          <p className="text-sm text-slate-500 mb-8">Last updated: April 21, 2026</p>
+
+          <div className="prose prose-slate max-w-none space-y-6 text-slate-700">
             <section>
               <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
               <p>
@@ -182,14 +208,15 @@ export default function PrivacyPolicy() {
             </section>
           </div>
 
-          <div className="mt-8 pt-6 border-t border-outline">
-            <p className="text-sm text-on-surface-variant">
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <p className="text-sm text-slate-500">
               ⚠️ <strong>Important:</strong> This is a template. Please consult with a lawyer to customize this policy
               for your specific business, jurisdiction, and data practices before using it in production.
             </p>
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

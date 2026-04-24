@@ -12,11 +12,14 @@ const Reports = lazy(() => import('./pages/reports/Reports'));
 const Settings = lazy(() => import('./pages/settings/Settings'));
 const LandingPage = lazy(() => import('./pages/landing/LandingPage'));
 const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
+const AuthRedirect = lazy(() => import('./components/AuthRedirect'));
 const CreateOrganization = lazy(() => import('./components/CreateOrganization'));
 
 // Legal pages
 const TermsOfService = lazy(() => import('./pages/legal/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/legal/PrivacyPolicy'));
+const FAQ = lazy(() => import('./pages/legal/FAQ'));
+const ContactUs = lazy(() => import('./pages/legal/ContactUs'));
 
 // Loading fallback component
 const PageLoader = () => (
@@ -32,75 +35,83 @@ export const router = createBrowserRouter([
   {
     path: '/sign-in/*',
     element: (
-      <div className="min-h-screen bg-surface flex items-center justify-center px-4">
-        <div className="max-w-md w-full">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-secondary flex items-center justify-center rounded-lg shadow-sm">
-                <span className="material-symbols-outlined text-on-secondary text-2xl" data-icon="account_balance">
-                  account_balance
-                </span>
+      <Suspense fallback={<PageLoader />}>
+        <AuthRedirect>
+          <div className="min-h-screen bg-surface flex items-center justify-center px-4">
+            <div className="max-w-md w-full">
+              <div className="text-center mb-8">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-secondary flex items-center justify-center rounded-lg shadow-sm">
+                    <span className="material-symbols-outlined text-on-secondary text-2xl" data-icon="account_balance">
+                      account_balance
+                    </span>
+                  </div>
+                  <span className="text-xl font-bold uppercase tracking-widest text-on-surface">
+                    Financial Architect
+                  </span>
+                </div>
+                <h1 className="text-4xl font-extrabold tracking-tighter leading-none text-on-surface mb-2">
+                  Sign In
+                </h1>
+                <p className="text-on-surface-variant font-medium">Welcome back to your financial dashboard</p>
               </div>
-              <span className="text-xl font-bold uppercase tracking-widest text-on-surface">
-                Financial Architect
-              </span>
+              <SignIn
+                routing="path"
+                path="/sign-in"
+                appearance={{
+                  elements: {
+                    rootBox: 'mx-auto',
+                    card: 'shadow-lg bg-surface-container-lowest',
+                    headerTitle: 'hidden',
+                    headerSubtitle: 'hidden',
+                  },
+                }}
+              />
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tighter leading-none text-on-surface mb-2">
-              Sign In
-            </h1>
-            <p className="text-on-surface-variant font-medium">Welcome back to your financial dashboard</p>
           </div>
-          <SignIn
-            routing="path"
-            path="/sign-in"
-            appearance={{
-              elements: {
-                rootBox: 'mx-auto',
-                card: 'shadow-lg bg-surface-container-lowest',
-                headerTitle: 'hidden',
-                headerSubtitle: 'hidden',
-              },
-            }}
-          />
-        </div>
-      </div>
+        </AuthRedirect>
+      </Suspense>
     ),
   },
   {
     path: '/sign-up/*',
     element: (
-      <div className="min-h-screen bg-surface flex items-center justify-center px-4">
-        <div className="max-w-md w-full">
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-secondary flex items-center justify-center rounded-lg shadow-sm">
-                <span className="material-symbols-outlined text-on-secondary text-2xl" data-icon="account_balance">
-                  account_balance
-                </span>
+      <Suspense fallback={<PageLoader />}>
+        <AuthRedirect>
+          <div className="min-h-screen bg-surface flex items-center justify-center px-4">
+            <div className="max-w-md w-full">
+              <div className="text-center mb-8">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-secondary flex items-center justify-center rounded-lg shadow-sm">
+                    <span className="material-symbols-outlined text-on-secondary text-2xl" data-icon="account_balance">
+                      account_balance
+                    </span>
+                  </div>
+                  <span className="text-xl font-bold uppercase tracking-widest text-on-surface">
+                    Financial Architect
+                  </span>
+                </div>
+                <h1 className="text-4xl font-extrabold tracking-tighter leading-none text-on-surface mb-2">
+                  Sign Up
+                </h1>
+                <p className="text-on-surface-variant font-medium">Create your account to get started</p>
               </div>
-              <span className="text-xl font-bold uppercase tracking-widest text-on-surface">
-                Financial Architect
-              </span>
+              <SignUp
+                routing="path"
+                path="/sign-up"
+                appearance={{
+                  elements: {
+                    rootBox: 'mx-auto',
+                    card: 'shadow-lg bg-surface-container-lowest',
+                    headerTitle: 'hidden',
+                    headerSubtitle: 'hidden',
+                  },
+                }}
+              />
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tighter leading-none text-on-surface mb-2">
-              Sign Up
-            </h1>
-            <p className="text-on-surface-variant font-medium">Create your account to get started</p>
           </div>
-          <SignUp
-            routing="path"
-            path="/sign-up"
-            appearance={{
-              elements: {
-                rootBox: 'mx-auto',
-                card: 'shadow-lg bg-surface-container-lowest',
-                headerTitle: 'hidden',
-                headerSubtitle: 'hidden',
-              },
-            }}
-          />
-        </div>
-      </div>
+        </AuthRedirect>
+      </Suspense>
     ),
   },
   {
@@ -204,6 +215,22 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<PageLoader />}>
         <PrivacyPolicy />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/faq',
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <FAQ />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/contact',
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <ContactUs />
       </Suspense>
     ),
   },
