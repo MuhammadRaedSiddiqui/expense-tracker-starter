@@ -58,6 +58,7 @@ export const router = createBrowserRouter([
               <SignIn
                 routing="path"
                 path="/sign-in"
+                afterSignInUrl="/dashboard"
                 appearance={{
                   elements: {
                     rootBox: 'mx-auto',
@@ -99,6 +100,7 @@ export const router = createBrowserRouter([
               <SignUp
                 routing="path"
                 path="/sign-up"
+                afterSignUpUrl="/dashboard"
                 appearance={{
                   elements: {
                     rootBox: 'mx-auto',
