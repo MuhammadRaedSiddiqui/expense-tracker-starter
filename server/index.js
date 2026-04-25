@@ -19,6 +19,11 @@ import { initializeScheduler } from './lib/scheduler.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Health check - first, before any middleware
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // Security headers
 app.use(helmet({
   contentSecurityPolicy: {
@@ -83,11 +88,6 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10mb' })); // Limit payload size
-
-// Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
 
 // Protected routes
 app.use('/api/organizations', clerkMiddleware, organizationRoutes);
