@@ -222,9 +222,11 @@ export async function acceptInvitation(token, getToken) {
   const { data, error } = await apiRequest(`/api/invitations/${token}/accept`, getToken, {
     method: 'POST',
   });
-  // Invalidate both invitations and members cache
+  // Invalidate invitations, members, AND organization cache
+  // Critical: organization cache must be cleared so new members can access the org
   invalidateCache('invitations');
   invalidateCache('members');
+  invalidateCache('organization');
   return { data, error };
 }
 
