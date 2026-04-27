@@ -14,6 +14,7 @@ const LandingPage = lazy(() => import('./pages/landing/LandingPage'));
 const ProtectedRoute = lazy(() => import('./components/ProtectedRoute'));
 const AuthRedirect = lazy(() => import('./components/AuthRedirect'));
 const CreateOrganization = lazy(() => import('./components/CreateOrganization'));
+const AcceptInvitation = lazy(() => import('./pages/AcceptInvitation'));
 
 // Legal pages
 const TermsOfService = lazy(() => import('./pages/legal/TermsOfService'));
@@ -201,6 +202,14 @@ export const router = createBrowserRouter([
         <ProtectedRoute>
           <Settings />
         </ProtectedRoute>
+      </Suspense>
+    ),
+  },
+  {
+    path: '/invitation/:token',
+    element: (
+      <Suspense fallback={<PageLoader />}>
+        <AcceptInvitation />
       </Suspense>
     ),
   },
