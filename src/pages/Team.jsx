@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useOrganization } from '../hooks/useOrganization';
-import { getMembers, getInvitations, revokeInvitation, updateMemberRole, removeMember } from '../lib/apiClient';
+import { getMembers, getInvitations, createInvitation, revokeInvitation, updateMemberRole, removeMember } from '../lib/apiClient';
 import { captureException } from '../lib/sentry';
 import InviteMemberModal from '../components/InviteMemberModal';
 import ConfirmDialog from '../components/ConfirmDialog';
@@ -226,10 +226,18 @@ function Team() {
       <InviteMemberModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
-        organizationId={organization?.id}
-        onInvite={() => {
-          refetch();
-          toast.success('Invitation created successfully');
+        onSubmit={async (data) => {
+          try {
+            const { error } = await createInvitation(organization?.id, data.email, data.role, getToken);
+            if (error) throw error;
+            refetch();
+            toast.success('Invitation sent successfully');
+            setIsInviteModalOpen(false);
+          } catch (err) {
+            console.error('Error creating invitation:', err);
+            captureException(err, { context: 'createInvitation' });
+            toast.error(err.message || 'Failed to send invitation');
+          }
         }}
       />
 
