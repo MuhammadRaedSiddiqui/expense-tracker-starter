@@ -96,7 +96,7 @@ The following issues have been resolved:
 
 ## Phase 0: Foundation & Setup - ✅ COMPLETE
 
-All infrastructure and monitoring systems are configured and operational. See `PHASE_0_COMPLETE.md` for detailed completion report.
+All infrastructure and monitoring systems are configured and operational. See `trash/PHASE_0_COMPLETE.md` for detailed completion report (archived).
 
 **Key Achievements:**
 - Supabase database deployed with 9 tables and RLS policies
@@ -105,3 +105,15 @@ All infrastructure and monitoring systems are configured and operational. See `P
 - Environment variables configured
 - API structure ready for Phase 1
 - Vercel deployment configuration complete
+
+## Documentation
+
+All project documentation is now organized in the `docs/` folder:
+- `docs/API_DOCUMENTATION.md` - API reference
+- `docs/USER_GUIDE.md` - User guide
+- `docs/DEPLOYMENT.md` - Full deployment guide
+- `docs/VERCEL_DEPLOYMENT.md` - Vercel specific deployment
+- `docs/MONITORING.md` - Monitoring setup
+- `docs/DESIGN.md` - Design system
+- `docs/CONTRIBUTING.md` - Contribution guidelines
+- `docs/PROJECT_DOCUMENTATION.md` - Full project docs

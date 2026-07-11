@@ -255,9 +255,11 @@ npm start            # Start backend (production)
 
 ## 📚 Documentation
 
-- **[User Guide](./USER_GUIDE.md)** - Complete user documentation
-- **[API Documentation](./API_DOCUMENTATION.md)** - API reference for developers
-- **[Deployment Guide](./DEPLOYMENT.md)** - Production deployment instructions
+- **[User Guide](./docs/USER_GUIDE.md)** - Complete user documentation
+- **[API Documentation](./docs/API_DOCUMENTATION.md)** - API reference for developers
+- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment instructions
+- **[Monitoring Guide](./docs/MONITORING.md)** - Sentry & PostHog setup
+- **[Vercel Guide](./docs/VERCEL_DEPLOYMENT.md)** - Vercel deployment steps
 
 ## 🎯 Key Features Explained
 
@@ -299,7 +301,7 @@ vercel --prod
 railway up
 ```
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions including:
+See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed instructions including:
 - Environment setup
 - Database migrations
 - Service configuration
@@ -382,7 +384,7 @@ npm install
 npm run build
 ```
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for more troubleshooting tips.
+See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for more troubleshooting tips.
 
 ## 📈 Roadmap
 
@@ -427,9 +429,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 📖 [User Guide](./USER_GUIDE.md)
-- 🔧 [API Documentation](./API_DOCUMENTATION.md)
-- 🚀 [Deployment Guide](./DEPLOYMENT.md)
+- 📖 [User Guide](./docs/USER_GUIDE.md)
+- 🔧 [API Documentation](./docs/API_DOCUMENTATION.md)
+- 🚀 [Deployment Guide](./docs/DEPLOYMENT.md)
 - 🐛 [Report Issues](https://github.com/MuhammadRaedSiddiqui/expense-tracker-starter/issues)
 
 ## 👨‍💻 Author

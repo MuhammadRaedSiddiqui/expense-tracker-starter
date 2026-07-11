@@ -35,6 +35,12 @@ dist-ssr
 # Testing
 coverage
 .nyc_output
+test-results
+playwright-report
+playwright/.cache/
+
+# Trash (refactored cleanup)
+trash/
 
 # OS
 Thumbs.db

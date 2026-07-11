@@ -1,89 +1,60 @@
 # Documentation Index
 
-Welcome to the expense tracker documentation. This index will help you find the information you need.
+Welcome to the Finance Tracker documentation. This folder contains all essential project documentation.
 
-## Getting Started
-
-- **[Development Guide](DEVELOPMENT.md)** - Set up your local development environment
-- **[Architecture Overview](ARCHITECTURE.md)** - Understand the system architecture
-
-## For Developers
+## 📚 Available Guides
 
 ### Core Documentation
-- **[API Reference](API_REFERENCE.md)** - Complete API endpoint documentation
-- **[Database Schema](DATABASE_SCHEMA.md)** - Database structure and relationships
-- **[Testing Guide](TESTING.md)** - Testing strategies and best practices
+- **[README.md](../README.md)** (root) - Project overview & quick start
+- **[PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md)** - Full project documentation, architecture, features
+
+### User & Developer Guides
+- **[USER_GUIDE.md](./USER_GUIDE.md)** - Complete user documentation, how to use the app
+- **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)** - Full API reference for backend development
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - How to contribute, code style, PR process
 
 ### Deployment & Operations
-- **[Deployment Guide](DEPLOYMENT.md)** - Deploy to production
-- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
-- **[Security Policy](SECURITY.md)** - Security practices and vulnerability reporting
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Complete deployment guide (Supabase, Clerk, Resend, Vercel, Railway, etc.)
+- **[VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)** - Vercel-specific deployment (quick frontend deploy)
+- **[MONITORING.md](./MONITORING.md)** - Sentry error tracking & PostHog analytics setup
 
-## Quick Links
+### Design
+- **[DESIGN.md](./DESIGN.md)** - Design system, UI principles, component library
 
-### Development
-```bash
-# Start development servers
-npm run dev                    # Frontend (http://localhost:5173)
-cd server && npm run dev       # Backend (http://localhost:3001)
-
-# Run tests
-npm test                       # Frontend tests
-cd server && npm test          # Backend tests
-
-# Lint code
-npm run lint
-```
-
-### Common Tasks
-- [Adding a new component](DEVELOPMENT.md#adding-a-new-component)
-- [Adding a new API endpoint](DEVELOPMENT.md#adding-a-new-api-endpoint)
-- [Creating a database migration](DEVELOPMENT.md#adding-a-database-table)
-- [Writing tests](TESTING.md)
-
-## Architecture at a Glance
+## 🗂️ Project Structure
 
 ```
-Frontend (React + Vite)
-    ↓ REST API + JWT
-Backend (Express)
-    ↓ SQL Queries
-Database (Supabase PostgreSQL)
+docs/
+├── README.md                    # This index
+├── API_DOCUMENTATION.md         # API reference
+├── USER_GUIDE.md                # User guide
+├── DEPLOYMENT.md                # Full deployment (all services)
+├── VERCEL_DEPLOYMENT.md         # Vercel quick deploy
+├── MONITORING.md                # Sentry + PostHog
+├── DESIGN.md                    # Design system
+├── CONTRIBUTING.md              # Contributing guide
+└── PROJECT_DOCUMENTATION.md     # Full project docs
 ```
 
-**Key Technologies:**
-- Frontend: React, Vite, TanStack Query, React Router 7
-- Backend: Node.js, Express, Node-Cron
-- Database: Supabase (PostgreSQL + Real-time)
-- Auth: Clerk
-- Email: Resend
-- Monitoring: Sentry, PostHog
+## 🗑️ Archived Files
 
-## Project Structure
+Historical reports, test logs, and temporary documentation have been moved to `trash/` folder for manual review and deletion:
 
-```
-expense-tracker-starter/
-├── docs/              # Documentation (you are here)
-├── server/            # Backend application
-├── src/               # Frontend application
-├── public/            # Static assets
-└── .claude/           # Claude Code configuration
-```
+- Bug reports (BUG-*.md)
+- E2E testing summaries (E2E_*.md)
+- QA test plans (QA_*.md)
+- Testing execution reports (TEST_*.md)
+- Stitch migration notes (STITCH_*.md)
+- Redesign notes (REDESIGN_*.md)
+- UI audit reports
+- Build artifacts (dist/, test-results/, playwright-report/)
+- Logs (test-run-full.log, etc.)
 
-## Need Help?
+The `trash/` folder can be safely deleted after review.
 
-- **Bug Reports**: Create an issue on GitHub
-- **Feature Requests**: Create an issue with the "enhancement" label
-- **Security Issues**: See [Security Policy](SECURITY.md)
-- **Questions**: Check existing issues or create a new discussion
+## 🔗 Related Files (Root)
 
-## Documentation Maintenance
-
-This documentation is maintained alongside the code. When making changes:
-
-1. Update relevant documentation files
-2. Keep code examples up to date
-3. Update the changelog for significant changes
-4. Review documentation in pull requests
-
-Last updated: 2026-04-29
+- `../README.md` - Main project README
+- `../CLAUDE.md` - Guidance for Claude Code
+- `../package.json` - Dependencies & scripts
+- `../vercel.json` - Vercel config
