@@ -54,8 +54,8 @@ function SpendingByCategory({ transactions, exchangeRates }) {
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-      <h3 className="text-base font-semibold text-slate-900 mb-4">Spending by Category</h3>
+    <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+      <h3 className="text-title-sm font-semibold text-slate-900 mb-4">Spending by Category</h3>
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie

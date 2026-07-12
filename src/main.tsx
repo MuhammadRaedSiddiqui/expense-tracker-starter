@@ -55,7 +55,11 @@ const posthogOptions = {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
-      <ClerkProvider publishableKey={clerkPubKey}>
+      <ClerkProvider
+        publishableKey={clerkPubKey}
+        signInForceRedirectUrl="/dashboard"
+        signUpForceRedirectUrl="/dashboard"
+      >
         <SentryUserSync />
         <PersistQueryClientProvider client={queryClient} persistOptions={{ persister }}>
           <PostHogProvider

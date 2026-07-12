@@ -44,7 +44,7 @@ function Modal({ isOpen, onClose, title, children }) {
         className={`relative bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto ${isClosing ? 'animate-scale-out' : 'animate-scale-in'}`}
       >
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-xl">
-          <h2 id="modal-title" className="text-lg font-semibold text-slate-900">{title}</h2>
+          <h2 id="modal-title" className="text-title-md font-semibold text-slate-900">{title}</h2>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 transition-colors rounded-lg p-1 hover:bg-gray-100"

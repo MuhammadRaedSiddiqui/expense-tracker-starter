@@ -228,27 +228,27 @@ function Dashboard() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
-      <div className="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
+      <div className="flex justify-between items-start mb-8">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-3xl font-semibold text-slate-900">Dashboard</h1>
+            <h1 className="text-headline-sm text-slate-900">Dashboard</h1>
             {isRealtime && (
-              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-md flex items-center gap-1">
+              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full flex items-center gap-1">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 Live
               </span>
             )}
           </div>
-          <p className="text-sm text-slate-500">Track your income and expenses</p>
+          <p className="text-body-md text-slate-500">Track your income and expenses</p>
           {ratesLastUpdated && (
-            <p className="text-xs text-slate-400 mt-2 flex items-center gap-2">
+            <p className="text-xs text-slate-500 mt-2 flex items-center gap-2">
               Exchange rates updated: {ratesLastUpdated.toLocaleTimeString()}
               <button
                 onClick={fetchExchangeRates}
                 disabled={ratesLoading}
-                className="text-slate-500 hover:text-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="text-slate-600 hover:text-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {ratesLoading ? '⟳' : '↻'}
+                {ratesLoading ? '...' : '↻'}
               </button>
             </p>
           )}
@@ -257,13 +257,13 @@ function Dashboard() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-6 py-3 bg-slate-700 text-white text-sm font-semibold rounded-md hover:bg-slate-800 transition-colors shadow-md hover:shadow-lg"
+            className="px-5 py-2.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-container"
           >
             Add Transaction
           </button>
           <button
             onClick={handleClearAll}
-            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors shadow-sm"
+            className="px-4 py-2.5 bg-white border border-gray-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-gray-50"
             aria-label="Clear all transactions"
           >
             Clear All
@@ -284,12 +284,12 @@ function Dashboard() {
 
       {!transactions ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <SkeletonChart />
             <SkeletonChart />
             <SkeletonChart />
@@ -300,7 +300,7 @@ function Dashboard() {
         <>
           <Summary transactions={transactions} exchangeRates={exchangeRates} />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <ErrorBoundary>
               <SpendingByCategory transactions={transactions} exchangeRates={exchangeRates} />
             </ErrorBoundary>

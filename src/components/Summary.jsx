@@ -34,27 +34,27 @@ function Summary({ transactions, exchangeRates }) {
   }, [totalIncome, totalExpenses]);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <p className="text-label-md font-medium text-slate-500 uppercase mb-2">
           Total Income
         </p>
-        <p className="text-2xl font-semibold text-emerald-600">
+        <p className="text-headline-sm text-emerald-600">
           {formatCurrency(totalIncome, BASE_CURRENCY)}
         </p>
       </div>
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
-        <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">
+      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <p className="text-label-md font-medium text-slate-500 uppercase mb-2">
           Total Expenses
         </p>
-        <p className="text-2xl font-semibold text-rose-600">
+        <p className="text-headline-sm text-rose-600">
           {formatCurrency(totalExpenses, BASE_CURRENCY)}
         </p>
       </div>
-      <div className="bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg p-8 shadow-2xl hover:shadow-3xl transition-all transform hover:scale-[1.02]">
-        <p className="text-sm font-semibold text-slate-300 uppercase tracking-wide mb-3">Balance</p>
+      <div className="bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl p-6 shadow-sm">
+        <p className="text-label-md font-medium text-slate-300 uppercase mb-2">Balance</p>
         <p
-          className={`text-5xl font-bold ${balance >= 0 ? 'text-white' : 'text-rose-400'}`}
+          className={`text-headline-sm ${balance >= 0 ? 'text-white' : 'text-rose-400'}`}
         >
           {formatCurrency(balance, BASE_CURRENCY)}
         </p>

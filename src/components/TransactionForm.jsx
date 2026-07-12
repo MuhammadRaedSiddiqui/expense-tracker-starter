@@ -134,7 +134,7 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
     <div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-1">
+          <label htmlFor="description" className="block text-label-lg font-medium text-slate-700 mb-1">
             Description
           </label>
           <div className="relative">
@@ -160,7 +160,7 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="amount" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="amount" className="block text-label-lg font-medium text-slate-700 mb-1">
               Amount
             </label>
             <div className="relative">
@@ -186,62 +186,77 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
           </div>
 
           <div>
-            <label htmlFor="currency" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="currency" className="block text-label-lg font-medium text-slate-700 mb-1">
               Currency
             </label>
-            <select
-              id="currency"
-              value={currency}
-              onChange={e => setCurrency(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              aria-label="Currency"
-            >
-              {currencyOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="currency"
+                value={currency}
+                onChange={e => setCurrency(e.target.value)}
+                className="w-full appearance-none px-4 py-2 pr-10 border border-gray-200 rounded-lg text-body-md bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                aria-label="Currency"
+              >
+                {currencyOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="type" className="block text-label-lg font-medium text-slate-700 mb-1">
               Type
             </label>
-            <select
-              id="type"
-              value={type}
-              onChange={e => setType(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              aria-label="Transaction type"
-            >
-              {typeOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="type"
+                value={type}
+                onChange={e => setType(e.target.value)}
+                className="w-full appearance-none px-4 py-2 pr-10 border border-gray-200 rounded-lg text-body-md bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                aria-label="Transaction type"
+              >
+                {typeOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
 
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-slate-700 mb-1">
+            <label htmlFor="category" className="block text-label-lg font-medium text-slate-700 mb-1">
               Category
             </label>
-            <select
-              id="category"
-              value={category}
-              onChange={e => setCategory(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-              aria-label="Transaction category"
-            >
-              {categoryOptions.map(opt => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                id="category"
+                value={category}
+                onChange={e => setCategory(e.target.value)}
+                className="w-full appearance-none px-4 py-2 pr-10 border border-gray-200 rounded-lg text-body-md bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                aria-label="Transaction category"
+              >
+                {categoryOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+              <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
           </div>
         </div>
 
@@ -249,7 +264,7 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 px-8 py-3 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-hover transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transform hover:scale-105"
+            className="flex-1 px-6 py-2.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-container disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="Add transaction"
           >
             {loading ? 'Adding...' : 'Add Transaction'}
@@ -259,7 +274,7 @@ function TransactionForm({ onAddTransaction, categories, onClose, loading = fals
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-6 py-3 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="px-5 py-2.5 bg-white border border-gray-200 text-slate-700 text-sm font-medium rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>

@@ -1,28 +1,42 @@
 import { useState } from 'react';
-import { UserButton, useUser } from '@clerk/clerk-react';
+import { useLocation } from 'react-router-dom';
 
 export default function TopNav() {
-  const { user } = useUser();
+  const { pathname } = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showLiveStatus, setShowLiveStatus] = useState(false);
 
+  const getBreadcrumb = () => {
+    const segments = pathname.split('/').filter(Boolean);
+    if (segments.length === 0) return [{ label: 'Dashboard' }];
+    return segments.map((seg) => ({
+      label: seg.charAt(0).toUpperCase() + seg.slice(1).replace(/-/g, ' '),
+    }));
+  };
+
+  const breadcrumbs = getBreadcrumb();
+
   return (
     <header className="flex justify-between items-center h-16 px-8 sticky top-0 z-40 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/15">
-      <div className="flex items-center gap-4">
-        <div className="relative">
-          <span
-            className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm"
-            data-icon="search"
-          >
-            search
+      <nav className="flex items-center gap-2 text-sm" aria-label="Breadcrumb">
+        <span className="material-symbols-outlined text-on-surface-variant text-base" data-icon="home">
+          home
+        </span>
+        {breadcrumbs.map((crumb, i) => (
+          <span key={i} className="flex items-center gap-2">
+            <span className="text-on-surface-variant/50">/</span>
+            <span
+              className={
+                i === breadcrumbs.length - 1
+                  ? 'font-semibold text-on-surface'
+                  : 'text-on-surface-variant'
+              }
+            >
+              {crumb.label}
+            </span>
           </span>
-          <input
-            className="pl-10 pr-4 py-1.5 bg-surface-container text-sm rounded-lg border-none focus:ring-1 focus:ring-primary w-64 transition-all"
-            placeholder="Search architecture..."
-            type="text"
-          />
-        </div>
-      </div>
+        ))}
+      </nav>
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-4 border-r border-outline-variant/30 pr-6">
           <button
@@ -43,24 +57,6 @@ export default function TopNav() {
             </span>
             <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-error rounded-full"></span>
           </button>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <p className="text-xs font-bold text-on-surface">
-              {user?.fullName || user?.firstName || 'User'}
-            </p>
-            <p className="text-[10px] text-on-surface-variant">
-              {user?.primaryEmailAddress?.emailAddress || 'Member'}
-            </p>
-          </div>
-          <UserButton
-            afterSignOutUrl="/sign-in"
-            appearance={{
-              elements: {
-                avatarBox: 'w-8 h-8 rounded-full border border-outline-variant/20',
-              },
-            }}
-          />
         </div>
       </div>
 

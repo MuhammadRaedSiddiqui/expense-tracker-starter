@@ -42,10 +42,10 @@ export default function PerformanceChart({ transactions }: PerformanceChartProps
       <div className="flex justify-between items-center mb-8">
         <div>
           <h3 className="text-sm font-bold text-on-surface uppercase tracking-tight">
-            Performance Delta
+            Income vs Expenses
           </h3>
           <p className="text-[10px] text-on-surface-variant">
-            Consolidated income vs expense flow (30D)
+            Daily totals over the last 30 days
           </p>
         </div>
         <div className="flex items-center gap-4">

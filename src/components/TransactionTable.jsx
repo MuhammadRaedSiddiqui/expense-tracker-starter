@@ -49,31 +49,31 @@ function TransactionTable({ transactions, onDeleteTransaction, onEditTransaction
             <tr className="border-b border-gray-200">
               <th
                 scope="col"
-                className="text-left py-4 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider"
+                className="text-left py-4 px-6 text-label-md font-medium text-slate-500 uppercase"
               >
                 Date
               </th>
               <th
                 scope="col"
-                className="text-left py-4 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider"
+                className="text-left py-4 px-6 text-label-md font-medium text-slate-500 uppercase"
               >
                 Description
               </th>
               <th
                 scope="col"
-                className="text-left py-4 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider"
+                className="text-left py-4 px-6 text-label-md font-medium text-slate-500 uppercase"
               >
                 Category
               </th>
               <th
                 scope="col"
-                className="text-right py-4 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider"
+                className="text-right py-4 px-6 text-label-md font-medium text-slate-500 uppercase"
               >
                 Amount
               </th>
               <th
                 scope="col"
-                className="text-right py-4 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider"
+                className="text-right py-4 px-6 text-label-md font-medium text-slate-500 uppercase"
               >
                 Actions
               </th>
@@ -82,15 +82,15 @@ function TransactionTable({ transactions, onDeleteTransaction, onEditTransaction
           <tbody className="divide-y divide-gray-100">
             {transactions.map(t => (
                 <tr key={t.id} className="hover:bg-gray-100 transition-colors">
-                  <td className="py-4 px-6 text-sm text-slate-600">{formatDate(t.date)}</td>
-                  <td className="py-4 px-6 text-sm font-medium text-slate-900">{t.description}</td>
-                  <td className="py-4 px-6 text-sm">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border ${getCategoryColors(t.category).bg} ${getCategoryColors(t.category).text} ${getCategoryColors(t.category).border}`}>
+                  <td className="py-4 px-6 text-body-md text-slate-600">{formatDate(t.date)}</td>
+                  <td className="py-4 px-6 text-body-md font-medium text-slate-900">{t.description}</td>
+                  <td className="py-4 px-6 text-body-md">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-label-sm font-medium border ${getCategoryColors(t.category).bg} ${getCategoryColors(t.category).text} ${getCategoryColors(t.category).border}`}>
                       {t.category}
                     </span>
                   </td>
                   <td
-                    className={`py-4 px-6 text-sm font-semibold text-right tabular-nums ${t.type === 'income' ? 'text-emerald-600' : 'text-slate-900'}`}
+                    className={`py-4 px-6 text-body-md font-semibold text-right tabular-nums ${t.type === 'income' ? 'text-emerald-600' : 'text-slate-900'}`}
                   >
                     {t.type === 'income' ? '+' : '-'}
                     {formatCurrency(Math.abs(t.amount), t.currency || BASE_CURRENCY)}

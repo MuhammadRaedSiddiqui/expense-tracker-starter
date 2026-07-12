@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -20,18 +20,18 @@ export default function TeamManagement() {
   const { organization, loading: orgLoading } = useOrganization();
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  // Real-time team updates
-  const fetchMembers = async () => {
+  // Real-time team updates — stable references prevent effect re-runs
+  const fetchMembers = useCallback(async () => {
     if (!organization) return [];
     const { data } = await getMembers(organization.id, getToken);
     return data || [];
-  };
+  }, [organization?.id, getToken]);
 
-  const fetchInvitations = async () => {
+  const fetchInvitations = useCallback(async () => {
     if (!organization) return [];
     const { data } = await getInvitations(organization.id, getToken);
     return data || [];
-  };
+  }, [organization?.id, getToken]);
 
   const { members, invitations, refetch } = useRealtimeTeam(
     organization?.id,

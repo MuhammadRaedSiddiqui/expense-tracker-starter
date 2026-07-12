@@ -131,7 +131,9 @@ export const router = createBrowserRouter([
     path: '/',
     element: (
       <Suspense fallback={<PageLoader />}>
-        <LandingPage />
+        <AuthRedirect>
+          <LandingPage />
+        </AuthRedirect>
       </Suspense>
     ),
   },

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { UserButton } from '@clerk/clerk-react';
+import { UserButton, useUser } from '@clerk/clerk-react';
 import { useOrganization } from '@/integration/hooks/useOrganization';
 
 const navItems = [
@@ -10,7 +10,6 @@ const navItems = [
   { to: '/reports', icon: 'bar_chart', label: 'Reports' },
   { to: '/team', icon: 'group', label: 'Team' },
   { to: '/settings', icon: 'settings', label: 'Settings' },
-  
 ];
 
 const inactiveClasses =
@@ -18,12 +17,9 @@ const inactiveClasses =
 const activeClasses =
   'flex items-center gap-3 px-4 py-2 bg-primary text-on-primary rounded-lg transition-all scale-[0.98] duration-150';
 
-interface SideNavProps {
-  onAddTransaction?: () => void;
-}
-
-export default function SideNav({ onAddTransaction }: SideNavProps) {
+export default function SideNav() {
   const { pathname } = useLocation();
+  const { user } = useUser();
   const { organization, loading } = useOrganization();
 
   return (
@@ -48,35 +44,26 @@ export default function SideNav({ onAddTransaction }: SideNavProps) {
         ))}
       </nav>
 
-      {/* <div className="mt-auto space-y-4">
-        <button
-          onClick={onAddTransaction}
-          className="w-full bg-secondary text-on-secondary py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2 text-sm hover:opacity-90 transition-opacity"
-        >
-          <span className="material-symbols-outlined text-sm" data-icon="add">
-            add
-          </span>
-          Add Transaction
-        </button>
-        <div className="pt-4 border-t border-outline-variant/20">
-          <div className="flex items-center gap-3 px-4">
-            <UserButton
-              afterSignOutUrl="/sign-in"
-              appearance={{
-                elements: {
-                  avatarBox: 'w-8 h-8',
-                },
-              }}
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold truncate text-on-surface">
-                {loading ? 'Loading...' : organization?.name || 'No Organization'}
-              </p>
-              <p className="text-[10px] text-outline truncate">HQ Terminal</p>
-            </div>
+      <div className="mt-auto pt-4 border-t border-outline-variant/20">
+        <div className="flex items-center gap-3 px-4">
+          <UserButton
+            afterSignOutUrl="/sign-in"
+            appearance={{
+              elements: {
+                avatarBox: 'w-8 h-8',
+              },
+            }}
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold truncate text-on-surface">
+              {user?.fullName || user?.firstName || 'User'}
+            </p>
+            <p className="text-[10px] text-outline truncate">
+              {loading ? '...' : organization?.name || 'No Organization'}
+            </p>
           </div>
         </div>
-      </div> */}
+      </div>
     </aside>
   );
 }

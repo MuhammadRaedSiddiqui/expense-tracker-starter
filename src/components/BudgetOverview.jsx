@@ -53,8 +53,8 @@ function BudgetOverview({ organizationId }) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Budget Overview</h2>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 className="text-title-sm font-semibold text-slate-900 mb-4">Budget Overview</h2>
         <div className="text-center py-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
         </div>
@@ -64,12 +64,12 @@ function BudgetOverview({ organizationId }) {
 
   if (budgets.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Budget Overview</h2>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 className="text-title-sm font-semibold text-slate-900 mb-4">Budget Overview</h2>
         <p className="text-sm text-slate-500 mb-4">No active budgets yet</p>
         <Link
           to="/budgets"
-          className="inline-block px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-md hover:bg-blue-700 transition-colors"
+          className="inline-block px-4 py-2 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-container"
         >
           Create Budget
         </Link>
@@ -80,10 +80,10 @@ function BudgetOverview({ organizationId }) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-slate-900">Budget Overview</h2>
+        <h2 className="text-title-sm font-semibold text-slate-900">Budget Overview</h2>
         <Link
           to="/budgets"
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          className="text-sm text-primary hover:text-primary-container font-medium"
         >
           View All
         </Link>
