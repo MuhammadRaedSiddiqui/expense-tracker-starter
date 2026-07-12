@@ -2,6 +2,7 @@ import express from 'express';
 import { supabase } from '../lib/supabase.js';
 import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
 import { logAuditEvent } from '../lib/auditLog.js';
+import { logger } from '../lib/logger.js';
 
 const router = express.Router();
 
@@ -31,7 +32,7 @@ router.get('/', async (req, res) => {
 
     res.json({ members: data || [] });
   } catch (error) {
-    console.error('Get members error:', error);
+    logger.error('Get members error', error);
     res.status(500).json({ error: 'Failed to fetch members' });
   }
 });
@@ -81,7 +82,7 @@ router.put('/:memberId', async (req, res) => {
 
     res.json({ member: data });
   } catch (error) {
-    console.error('Update member error:', error);
+    logger.error('Update member error', error);
     res.status(500).json({ error: 'Failed to update member' });
   }
 });
@@ -138,7 +139,7 @@ router.delete('/:memberId', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Remove member error:', error);
+    logger.error('Remove member error', error);
     res.status(500).json({ error: 'Failed to remove member' });
   }
 });

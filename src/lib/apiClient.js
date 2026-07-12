@@ -220,8 +220,9 @@ export async function getInvitations(organizationId, getToken) {
  * Accept invitation
  */
 export async function acceptInvitation(token, getToken) {
-  const { data, error } = await apiRequest(`/api/invitations/${token}/accept`, getToken, {
+  const { data, error } = await apiRequest(`/api/invitations/accept`, getToken, {
     method: 'POST',
+    body: JSON.stringify({ token }),
   });
   // Invalidate invitations, members, AND organization cache
   // Critical: organization cache must be cleared so new members can access the org

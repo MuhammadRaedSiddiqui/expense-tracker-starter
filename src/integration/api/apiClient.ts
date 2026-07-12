@@ -300,10 +300,11 @@ export async function acceptInvitation(
   getToken: () => Promise<string>
 ): Promise<ApiResponse<any>> {
   const { data, error } = await apiRequest<any>(
-    `/api/invitations/${token}/accept`,
+    `/api/invitations/accept`,
     getToken,
     {
       method: 'POST',
+      body: JSON.stringify({ token }),
     }
   );
   invalidateCache('invitations');

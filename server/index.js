@@ -15,6 +15,7 @@ import invitationRoutes from './routes/invitations.js';
 import recurringTransactionRoutes from './routes/recurringTransactions.js';
 import budgetRoutes from './routes/budgets.js';
 import { initializeScheduler } from './lib/scheduler.js';
+import { logger } from './lib/logger.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -83,14 +84,14 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.warn(`CORS blocked request from origin: ${origin}`);
+      logger.warn('CORS blocked request from origin', { origin });
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
 }));
 
-app.use(express.json({ limit: '10mb' })); // Limit payload size
+app.use(express.json({ limit: '16kb' }));
 
 // Apply write limiter to POST/PUT/DELETE
 app.use('/api/', (req, res, next) => {
@@ -110,14 +111,14 @@ app.use('/api/budgets', clerkMiddleware, budgetRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  logger.error('Error', err);
   res.status(err.status || 500).json({
     error: err.message || 'Internal server error',
   });
 });
 
 app.listen(PORT, () => {
-  console.log(`✓ API server running on http://localhost:${PORT}`);
+  logger.info(`✓ API server running on http://localhost:${PORT}`);
 
   // Initialize scheduled tasks
   initializeScheduler();

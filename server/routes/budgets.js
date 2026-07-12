@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase.js';
 import { validateRequest, budgetSchema } from '../lib/validation.js';
 import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
 import { logAuditEvent } from '../lib/auditLog.js';
+import { logger } from '../lib/logger.js';
 
 const router = express.Router();
 
@@ -90,7 +91,7 @@ router.get('/', async (req, res) => {
 
     res.json({ budgets: data || [] });
   } catch (error) {
-    console.error('Get budgets error:', error);
+    logger.error('Get budgets error', error);
     res.status(500).json({ error: 'Failed to fetch budgets' });
   }
 });
@@ -172,7 +173,7 @@ router.get('/:id/status', async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Get budget status error:', error);
+    logger.error('Get budget status error', error);
     res.status(500).json({ error: 'Failed to fetch budget status' });
   }
 });
@@ -231,7 +232,7 @@ router.post('/', validateRequest(budgetSchema), async (req, res) => {
 
     res.status(201).json({ budget: data });
   } catch (error) {
-    console.error('Create budget error:', error);
+    logger.error('Create budget error', error);
     res.status(500).json({ error: 'Failed to create budget' });
   }
 });
@@ -310,7 +311,7 @@ router.put('/:id', async (req, res) => {
 
     res.json({ budget: data });
   } catch (error) {
-    console.error('Update budget error:', error);
+    logger.error('Update budget error', error);
     res.status(500).json({ error: 'Failed to update budget' });
   }
 });
@@ -359,7 +360,7 @@ router.delete('/:id', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Delete budget error:', error);
+    logger.error('Delete budget error', error);
     res.status(500).json({ error: 'Failed to delete budget' });
   }
 });

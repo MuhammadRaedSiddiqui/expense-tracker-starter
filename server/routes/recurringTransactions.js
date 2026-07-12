@@ -2,6 +2,7 @@ import express from 'express';
 import { supabase } from '../lib/supabase.js';
 import { validateRequest, recurringTransactionSchema } from '../lib/validation.js';
 import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
+import { logger } from '../lib/logger.js';
 
 const router = express.Router();
 
@@ -63,7 +64,7 @@ router.get('/', async (req, res) => {
 
     res.json({ recurringTransactions: data || [] });
   } catch (error) {
-    console.error('Get recurring transactions error:', error);
+    logger.error('Get recurring transactions error', error);
     res.status(500).json({ error: 'Failed to fetch recurring transactions' });
   }
 });
@@ -119,7 +120,7 @@ router.post('/', validateRequest(recurringTransactionSchema), async (req, res) =
 
     res.status(201).json({ recurringTransaction: data });
   } catch (error) {
-    console.error('Create recurring transaction error:', error);
+    logger.error('Create recurring transaction error', error);
     res.status(500).json({ error: 'Failed to create recurring transaction' });
   }
 });
@@ -207,7 +208,7 @@ router.put('/:id', async (req, res) => {
 
     res.json({ recurringTransaction: data });
   } catch (error) {
-    console.error('Update recurring transaction error:', error);
+    logger.error('Update recurring transaction error', error);
     res.status(500).json({ error: 'Failed to update recurring transaction' });
   }
 });
@@ -248,7 +249,7 @@ router.delete('/:id', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Delete recurring transaction error:', error);
+    logger.error('Delete recurring transaction error', error);
     res.status(500).json({ error: 'Failed to delete recurring transaction' });
   }
 });
@@ -293,7 +294,7 @@ router.post('/:id/toggle', async (req, res) => {
 
     res.json({ recurringTransaction: data });
   } catch (error) {
-    console.error('Toggle recurring transaction error:', error);
+    logger.error('Toggle recurring transaction error', error);
     res.status(500).json({ error: 'Failed to toggle recurring transaction' });
   }
 });

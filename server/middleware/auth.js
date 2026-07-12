@@ -1,4 +1,5 @@
 import { verifyToken } from '@clerk/clerk-sdk-node';
+import { logger } from '../lib/logger.js';
 
 export async function clerkMiddleware(req, res, next) {
   try {
@@ -25,7 +26,7 @@ export async function clerkMiddleware(req, res, next) {
 
     next();
   } catch (error) {
-    console.error('Auth middleware error:', error);
+    logger.error('Auth middleware error', error);
     return res.status(401).json({ error: 'Authentication failed' });
   }
 }

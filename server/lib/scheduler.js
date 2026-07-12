@@ -1,5 +1,6 @@
 import cron from 'node-cron';
 import { processRecurringTransactions } from './recurringProcessor.js';
+import { logger } from './logger.js';
 
 /**
  * Initialize scheduled tasks
@@ -8,12 +9,12 @@ export function initializeScheduler() {
   // Run recurring transactions processor daily at 2 AM
   // Cron format: minute hour day month weekday
   cron.schedule('0 2 * * *', async () => {
-    console.log('[Scheduler] Running recurring transactions processor...');
+    logger.info('[Scheduler] Running recurring transactions processor...');
     try {
       const result = await processRecurringTransactions();
-      console.log(`[Scheduler] Recurring transactions processed: ${result.processedCount} successful, ${result.errorCount} errors`);
+      logger.info(`[Scheduler] Recurring transactions processed: ${result.processedCount} successful, ${result.errorCount} errors`);
     } catch (error) {
-      console.error('[Scheduler] Error running recurring transactions processor:', error);
+      logger.error('[Scheduler] Error running recurring transactions processor', error);
     }
   });
 

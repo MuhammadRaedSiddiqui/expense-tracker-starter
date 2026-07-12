@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { usePostHog } from '@posthog/react';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import TransactionTable from './TransactionTable';
 import TransactionStats from './TransactionStats';
 import { useOrganization } from '@/integration/hooks/useOrganization';
 import { useTransactions } from '@/hooks/useTransactions';
+import { useTransactionFilters } from '@/hooks/useTransactionFilters';
 import { updateTransaction, deleteTransaction } from '@/integration/api/apiClient';
 import { exportTransactionsToCSV } from '@/integration/utils/exportUtils';
 
@@ -36,51 +37,14 @@ export default function Transactions() {
     }
   }, [organization, posthog]);
 
-  // Filter state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
-  const [filterCategory, setFilterCategory] = useState('all');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-
   // Use React Query hook with realtime polling
   const { data: transactions, isLoading, refetch } = useTransactions(
     organization?.id,
     true // Enable realtime polling
   );
 
-  // Apply filters
-  const filteredTransactions = useMemo(() => {
-    if (!transactions) return [];
-
-    return transactions.filter((t) => {
-      // Search filter
-      if (searchTerm && !t.description.toLowerCase().includes(searchTerm.toLowerCase())) {
-        return false;
-      }
-
-      // Type filter
-      if (filterType !== 'all' && t.type !== filterType) {
-        return false;
-      }
-
-      // Category filter
-      if (filterCategory !== 'all' && t.category !== filterCategory) {
-        return false;
-      }
-
-      // Date range filter
-      const transactionDate = new Date(t.date);
-      if (startDate && transactionDate < new Date(startDate)) {
-        return false;
-      }
-      if (endDate && transactionDate > new Date(endDate)) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [transactions, searchTerm, filterType, filterCategory, startDate, endDate]);
+  // Filter state and logic extracted into hook
+  const { filters, actions, filteredTransactions } = useTransactionFilters(transactions);
 
   const handleExportCSV = useCallback(() => {
     if (!filteredTransactions || filteredTransactions.length === 0) {
@@ -255,16 +219,16 @@ export default function Transactions() {
       </p>
 
       <TransactionFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        filterType={filterType}
-        onTypeChange={setFilterType}
-        filterCategory={filterCategory}
-        onCategoryChange={setFilterCategory}
-        startDate={startDate}
-        onStartDateChange={setStartDate}
-        endDate={endDate}
-        onEndDateChange={setEndDate}
+        searchTerm={filters.searchTerm}
+        onSearchChange={actions.setSearchTerm}
+        filterType={filters.filterType}
+        onTypeChange={actions.setFilterType}
+        filterCategory={filters.filterCategory}
+        onCategoryChange={actions.setFilterCategory}
+        startDate={filters.startDate}
+        onStartDateChange={actions.setStartDate}
+        endDate={filters.endDate}
+        onEndDateChange={actions.setEndDate}
       />
 
       <TransactionTable

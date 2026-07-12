@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js';
+import { logger } from './logger.js';
 
 export async function logAuditEvent({
   userId,
@@ -20,6 +21,6 @@ export async function logAuditEvent({
     });
   } catch (error) {
     // Audit logging should never break the main flow
-    console.error('Audit log error:', error);
+    logger.error('Audit log error', error);
   }
 }

@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase.js';
 import { validateRequest, organizationSchema } from '../lib/validation.js';
 import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
 import { logAuditEvent } from '../lib/auditLog.js';
+import { logger } from '../lib/logger.js';
 
 const router = express.Router();
 
@@ -26,7 +27,7 @@ router.get('/me', async (req, res) => {
 
     res.json({ organization: data.organizations });
   } catch (error) {
-    console.error('Get organization error:', error);
+    logger.error('Get organization error', error);
     res.status(500).json({ error: 'Failed to fetch organization' });
   }
 });
@@ -63,7 +64,7 @@ router.post('/', validateRequest(organizationSchema), async (req, res) => {
 
     res.status(201).json({ organization: org });
   } catch (error) {
-    console.error('Create organization error:', error);
+    logger.error('Create organization error', error);
     res.status(500).json({ error: 'Failed to create organization' });
   }
 });
@@ -101,7 +102,7 @@ router.delete('/:id', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Delete organization error:', error);
+    logger.error('Delete organization error', error);
     res.status(500).json({ error: 'Failed to delete organization' });
   }
 });

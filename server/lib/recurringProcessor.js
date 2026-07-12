@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js';
+import { logger } from './logger.js';
 
 /**
  * Calculate the next execution date based on frequency and interval
@@ -34,7 +35,7 @@ export async function processRecurringTransactions() {
   let errorCount = 0;
 
   try {
-    console.log(`[Recurring] Processing recurring transactions for ${today}`);
+    logger.info(`[Recurring] Processing recurring transactions for ${today}`);
 
     // Get all active recurring transactions that are due
     const { data: recurringTransactions, error: fetchError } = await supabase
@@ -44,23 +45,23 @@ export async function processRecurringTransactions() {
       .lte('next_occurrence', today);
 
     if (fetchError) {
-      console.error('[Recurring] Error fetching recurring transactions:', fetchError);
+      logger.error('[Recurring] Error fetching recurring transactions', fetchError);
       throw fetchError;
     }
 
     if (!recurringTransactions || recurringTransactions.length === 0) {
-      console.log('[Recurring] No recurring transactions due for processing');
+      logger.info('[Recurring] No recurring transactions due for processing');
       return { processedCount: 0, errorCount: 0 };
     }
 
-    console.log(`[Recurring] Found ${recurringTransactions.length} recurring transactions to process`);
+    logger.info(`[Recurring] Found ${recurringTransactions.length} recurring transactions to process`);
 
     // Process each recurring transaction
     for (const recurring of recurringTransactions) {
       try {
         // Check if end_date has been reached
         if (recurring.end_date && recurring.next_occurrence > recurring.end_date) {
-          console.log(`[Recurring] Deactivating recurring transaction ${recurring.id} - end date reached`);
+          logger.info(`[Recurring] Deactivating recurring transaction ${recurring.id} - end date reached`);
 
           await supabase
             .from('recurring_transactions')
@@ -85,7 +86,7 @@ export async function processRecurringTransactions() {
           });
 
         if (createError) {
-          console.error(`[Recurring] Error creating transaction for ${recurring.id}:`, createError);
+          logger.error(`[Recurring] Error creating transaction for ${recurring.id}`, createError);
           errorCount++;
           continue;
         }
@@ -110,27 +111,27 @@ export async function processRecurringTransactions() {
           .eq('id', recurring.id);
 
         if (updateError) {
-          console.error(`[Recurring] Error updating recurring transaction ${recurring.id}:`, updateError);
+          logger.error(`[Recurring] Error updating recurring transaction ${recurring.id}`, updateError);
           errorCount++;
           continue;
         }
 
-        console.log(`[Recurring] ✓ Processed ${recurring.description} (${recurring.id})`);
+        logger.info(`[Recurring] ✓ Processed ${recurring.description} (${recurring.id})`);
         processedCount++;
 
         if (shouldDeactivate) {
-          console.log(`[Recurring] Deactivated ${recurring.id} - end date will be reached`);
+          logger.info(`[Recurring] Deactivated ${recurring.id} - end date will be reached`);
         }
       } catch (error) {
-        console.error(`[Recurring] Error processing recurring transaction ${recurring.id}:`, error);
+        logger.error(`[Recurring] Error processing recurring transaction ${recurring.id}`, error);
         errorCount++;
       }
     }
 
-    console.log(`[Recurring] Processing complete: ${processedCount} processed, ${errorCount} errors`);
+    logger.info(`[Recurring] Processing complete: ${processedCount} processed, ${errorCount} errors`);
     return { processedCount, errorCount };
   } catch (error) {
-    console.error('[Recurring] Fatal error processing recurring transactions:', error);
+    logger.error('[Recurring] Fatal error processing recurring transactions', error);
     throw error;
   }
 }
@@ -144,7 +145,7 @@ export async function processRecurringTransactionsForOrganization(organizationId
   let errorCount = 0;
 
   try {
-    console.log(`[Recurring] Processing recurring transactions for organization ${organizationId}`);
+    logger.info(`[Recurring] Processing recurring transactions for organization ${organizationId}`);
 
     const { data: recurringTransactions, error: fetchError } = await supabase
       .from('recurring_transactions')
@@ -211,7 +212,7 @@ export async function processRecurringTransactionsForOrganization(organizationId
 
     return { processedCount, errorCount };
   } catch (error) {
-    console.error('[Recurring] Error processing recurring transactions:', error);
+    logger.error('[Recurring] Error processing recurring transactions', error);
     throw error;
   }
 }

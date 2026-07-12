@@ -5,8 +5,62 @@ import { clerkClient } from '@clerk/clerk-sdk-node';
 import { sendInvitationEmail } from '../lib/email.js';
 import { validateRequest, invitationSchema } from '../lib/validation.js';
 import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
+import { logger } from '../lib/logger.js';
 
 const router = express.Router();
+
+async function handleAcceptInvitation(userId, token, res) {
+  const { data: invitation, error: invError } = await supabase
+    .from('invitations')
+    .select('*')
+    .eq('token', token)
+    .single();
+
+  if (invError || !invitation) {
+    return res.status(404).json({ error: 'Invitation not found' });
+  }
+
+  if (new Date(invitation.expires_at) < new Date()) {
+    return res.status(400).json({ error: 'Invitation has expired' });
+  }
+
+  if (invitation.accepted_at) {
+    return res.status(400).json({ error: 'Invitation already accepted' });
+  }
+
+  const { data: existingMember } = await supabase
+    .from('organization_members')
+    .select('id')
+    .eq('organization_id', invitation.organization_id)
+    .eq('user_id', userId)
+    .single();
+
+  if (existingMember) {
+    return res.status(400).json({ error: 'You are already a member of this organization' });
+  }
+
+  const { error: memberError } = await supabase
+    .from('organization_members')
+    .insert({
+      organization_id: invitation.organization_id,
+      user_id: userId,
+      role: invitation.role,
+      invited_by: invitation.invited_by,
+      invited_at: invitation.created_at,
+      joined_at: new Date().toISOString(),
+    });
+
+  if (memberError) throw memberError;
+
+  const { error: updateError } = await supabase
+    .from('invitations')
+    .update({ accepted_at: new Date().toISOString() })
+    .eq('id', invitation.id);
+
+  if (updateError) throw updateError;
+
+  return res.json({ success: true, organizationId: invitation.organization_id });
+}
 
 // Create invitation
 router.post('/', validateRequest(invitationSchema), async (req, res) => {
@@ -70,7 +124,7 @@ router.post('/', validateRequest(invitationSchema), async (req, res) => {
       const inviter = await clerkClient.users.getUser(userId);
       inviterEmail = inviter.emailAddresses[0]?.emailAddress || inviterEmail;
     } catch (clerkError) {
-      console.error('Failed to fetch inviter email from Clerk:', clerkError);
+      logger.error('Failed to fetch inviter email from Clerk', clerkError);
     }
 
     // Send invitation email
@@ -82,18 +136,15 @@ router.post('/', validateRequest(invitationSchema), async (req, res) => {
         inviterEmail,
         role,
       });
-      console.log(`✓ Invitation email sent to ${email}`);
+      logger.info(`✓ Invitation email sent to ${email}`);
     } catch (emailError) {
-      console.error('✗ Failed to send invitation email:', emailError.message);
+      logger.error('✗ Failed to send invitation email', emailError);
 
       // Check if it's a Resend testing mode restriction
       if (emailError.message && emailError.message.includes('testing emails')) {
-        console.warn('⚠️  RESEND TESTING MODE RESTRICTION:');
-        console.warn('   Emails can only be sent to your verified email address.');
-        console.warn('   To send to other recipients:');
-        console.warn('   1. Verify a domain at https://resend.com/domains');
-        console.warn('   2. Update the "from" address in server/lib/email.js');
-        console.warn(`   3. Or test with your verified email: bhairaed636@gmail.com`);
+        logger.warn('⚠️  RESEND TESTING MODE RESTRICTION: Emails can only be sent to your verified email address. To send to other recipients: 1. Verify a domain at https://resend.com/domains 2. Update the "from" address in server/lib/email.js 3. Or test with your verified email: bhairaed636@gmail.com', {
+          verifiedEmail: 'bhairaed636@gmail.com'
+        });
       }
 
       // Don't fail the invitation creation if email fails
@@ -102,7 +153,7 @@ router.post('/', validateRequest(invitationSchema), async (req, res) => {
 
     res.status(201).json({ invitation: data });
   } catch (error) {
-    console.error('Create invitation error:', error);
+    logger.error('Create invitation error', error);
     res.status(500).json({ error: 'Failed to create invitation' });
   }
 });
@@ -134,75 +185,37 @@ router.get('/', async (req, res) => {
 
     res.json({ invitations: data || [] });
   } catch (error) {
-    console.error('Get invitations error:', error);
+    logger.error('Get invitations error', error);
     res.status(500).json({ error: 'Failed to fetch invitations' });
   }
 });
 
-// Accept invitation
+// Accept invitation (POST body preferred — avoids token in URL/logs)
+router.post('/accept', async (req, res) => {
+  try {
+    const { userId } = req;
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: 'Invitation token is required' });
+    }
+
+    return await handleAcceptInvitation(userId, token, res);
+  } catch (error) {
+    logger.error('Accept invitation error', error);
+    res.status(500).json({ error: 'Failed to accept invitation' });
+  }
+});
+
+// Legacy: token in URL path (kept for backwards compatibility)
 router.post('/:token/accept', async (req, res) => {
   try {
     const { userId } = req;
     const { token } = req.params;
 
-    // Get invitation
-    const { data: invitation, error: invError } = await supabase
-      .from('invitations')
-      .select('*')
-      .eq('token', token)
-      .single();
-
-    if (invError || !invitation) {
-      return res.status(404).json({ error: 'Invitation not found' });
-    }
-
-    // Check if expired
-    if (new Date(invitation.expires_at) < new Date()) {
-      return res.status(400).json({ error: 'Invitation has expired' });
-    }
-
-    // Check if already accepted
-    if (invitation.accepted_at) {
-      return res.status(400).json({ error: 'Invitation already accepted' });
-    }
-
-    // Check if user is already a member
-    const { data: existingMember } = await supabase
-      .from('organization_members')
-      .select('id')
-      .eq('organization_id', invitation.organization_id)
-      .eq('user_id', userId)
-      .single();
-
-    if (existingMember) {
-      return res.status(400).json({ error: 'You are already a member of this organization' });
-    }
-
-    // Add user to organization
-    const { error: memberError } = await supabase
-      .from('organization_members')
-      .insert({
-        organization_id: invitation.organization_id,
-        user_id: userId,
-        role: invitation.role,
-        invited_by: invitation.invited_by,
-        invited_at: invitation.created_at,
-        joined_at: new Date().toISOString(),
-      });
-
-    if (memberError) throw memberError;
-
-    // Mark invitation as accepted
-    const { error: updateError } = await supabase
-      .from('invitations')
-      .update({ accepted_at: new Date().toISOString() })
-      .eq('id', invitation.id);
-
-    if (updateError) throw updateError;
-
-    res.json({ success: true, organizationId: invitation.organization_id });
+    return await handleAcceptInvitation(userId, token, res);
   } catch (error) {
-    console.error('Accept invitation error:', error);
+    logger.error('Accept invitation error', error);
     res.status(500).json({ error: 'Failed to accept invitation' });
   }
 });
@@ -240,7 +253,7 @@ router.delete('/:invitationId', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Revoke invitation error:', error);
+    logger.error('Revoke invitation error', error);
     res.status(500).json({ error: 'Failed to revoke invitation' });
   }
 });

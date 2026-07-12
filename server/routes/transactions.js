@@ -4,6 +4,7 @@ import { validateRequest, transactionSchema } from '../lib/validation.js';
 import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
 import { idempotent } from '../middleware/idempotency.js';
 import { logAuditEvent } from '../lib/auditLog.js';
+import { logger } from '../lib/logger.js';
 
 const router = express.Router();
 
@@ -52,7 +53,7 @@ router.get('/', async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Get transactions error:', error);
+    logger.error('Get transactions error', error);
     res.status(500).json({ error: 'Failed to fetch transactions' });
   }
 });
@@ -87,7 +88,7 @@ router.post('/', idempotent(), validateRequest(transactionSchema), async (req, r
 
     res.status(201).json({ transaction: data });
   } catch (error) {
-    console.error('Create transaction error:', error);
+    logger.error('Create transaction error', error);
     res.status(500).json({ error: 'Failed to create transaction' });
   }
 });
@@ -138,7 +139,7 @@ router.put('/:id', async (req, res) => {
 
     res.json({ transaction: data });
   } catch (error) {
-    console.error('Update transaction error:', error);
+    logger.error('Update transaction error', error);
     res.status(500).json({ error: 'Failed to update transaction' });
   }
 });
@@ -186,7 +187,7 @@ router.delete('/:id', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Delete transaction error:', error);
+    logger.error('Delete transaction error', error);
     res.status(500).json({ error: 'Failed to delete transaction' });
   }
 });
@@ -224,7 +225,7 @@ router.delete('/', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Delete all transactions error:', error);
+    logger.error('Delete all transactions error', error);
     res.status(500).json({ error: 'Failed to delete transactions' });
   }
 });
