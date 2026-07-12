@@ -16,9 +16,22 @@ import recurringTransactionRoutes from './routes/recurringTransactions.js';
 import budgetRoutes from './routes/budgets.js';
 import { initializeScheduler } from './lib/scheduler.js';
 import { logger } from './lib/logger.js';
+import swaggerUi from 'swagger-ui-express';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// API Documentation (dev only)
+if (process.env.NODE_ENV !== 'production') {
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  const openapiSpec = JSON.parse(readFileSync(join(__dirname, 'docs', 'openapi.json'), 'utf-8'));
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec, {
+    customSiteTitle: 'Finance Tracker API Docs',
+  }));
+}
 
 // Health check - first, before any middleware
 app.get('/health', (req, res) => {
