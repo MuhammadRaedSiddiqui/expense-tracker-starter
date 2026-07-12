@@ -62,6 +62,7 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { ipKeyGenerator: false },
 });
 
 // Apply rate limiting to all API routes
@@ -75,6 +76,7 @@ const writeLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => req.userId || req.ip,
+  validate: { ipKeyGenerator: false },
 });
 
 // CORS configuration
@@ -89,8 +91,8 @@ app.use(cors({
       process.env.PRODUCTION_URL
     ].filter(Boolean);
 
-    // Allow requests with no origin (like mobile apps or curl) only in development
-    if (!origin && process.env.NODE_ENV === 'development') {
+    // Allow requests with no origin (health checks, server-to-server, curl)
+    if (!origin) {
       return callback(null, true);
     }
 
