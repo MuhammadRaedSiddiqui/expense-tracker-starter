@@ -2,8 +2,30 @@ import express from 'express';
 import { supabase } from '../lib/supabase.js';
 import { validateRequest, budgetSchema } from '../lib/validation.js';
 import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
+import { logAuditEvent } from '../lib/auditLog.js';
 
 const router = express.Router();
+
+// Cache exchange rates server-side (1-hour TTL)
+let ratesCache = { data: null, fetchedAt: 0 };
+const RATES_TTL = 60 * 60 * 1000;
+
+async function getExchangeRates(baseCurrency) {
+  const now = Date.now();
+  if (ratesCache.data && ratesCache.data.base === baseCurrency && now - ratesCache.fetchedAt < RATES_TTL) {
+    return ratesCache.data.rates;
+  }
+
+  try {
+    const response = await fetch(`https://api.frankfurter.app/latest?from=${baseCurrency}`);
+    if (!response.ok) return null;
+    const data = await response.json();
+    ratesCache = { data: { base: baseCurrency, rates: data.rates }, fetchedAt: now };
+    return data.rates;
+  } catch {
+    return null;
+  }
+}
 
 // Helper function to calculate spending for a budget
 async function calculateBudgetSpending(organizationId, category, startDate, endDate, currency) {
@@ -23,10 +45,21 @@ async function calculateBudgetSpending(organizationId, category, startDate, endD
 
   if (error) throw error;
 
-  // Sum up spending (convert currencies if needed - for now assume same currency)
-  const totalSpent = transactions
-    .filter(t => t.currency === currency)
-    .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+  const hasForeignCurrency = transactions.some(t => t.currency !== currency);
+  let rates = null;
+  if (hasForeignCurrency) {
+    rates = await getExchangeRates(currency);
+  }
+
+  let totalSpent = 0;
+  for (const t of transactions) {
+    const amount = parseFloat(t.amount);
+    if (t.currency === currency) {
+      totalSpent += amount;
+    } else if (rates && rates[t.currency]) {
+      totalSpent += amount / rates[t.currency];
+    }
+  }
 
   return totalSpent;
 }
@@ -315,6 +348,14 @@ router.delete('/:id', async (req, res) => {
       .eq('id', id);
 
     if (error) throw error;
+
+    logAuditEvent({
+      userId,
+      organizationId: existing.organization_id,
+      action: 'delete',
+      resourceType: 'budget',
+      resourceId: id,
+    });
 
     res.json({ success: true });
   } catch (error) {

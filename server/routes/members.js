@@ -1,6 +1,7 @@
 import express from 'express';
 import { supabase } from '../lib/supabase.js';
 import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
+import { logAuditEvent } from '../lib/auditLog.js';
 
 const router = express.Router();
 
@@ -125,6 +126,15 @@ router.delete('/:memberId', async (req, res) => {
       .eq('id', memberId);
 
     if (error) throw error;
+
+    logAuditEvent({
+      userId,
+      organizationId: member.organization_id,
+      action: 'delete',
+      resourceType: 'member',
+      resourceId: memberId,
+      metadata: { removedUserId: member.user_id, removedRole: member.role },
+    });
 
     res.json({ success: true });
   } catch (error) {

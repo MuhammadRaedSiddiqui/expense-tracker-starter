@@ -2,6 +2,7 @@ import express from 'express';
 import { supabase } from '../lib/supabase.js';
 import { validateRequest, organizationSchema } from '../lib/validation.js';
 import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
+import { logAuditEvent } from '../lib/auditLog.js';
 
 const router = express.Router();
 
@@ -89,6 +90,14 @@ router.delete('/:id', async (req, res) => {
       .eq('id', id);
 
     if (deleteError) throw deleteError;
+
+    logAuditEvent({
+      userId,
+      organizationId: id,
+      action: 'delete',
+      resourceType: 'organization',
+      resourceId: id,
+    });
 
     res.json({ success: true });
   } catch (error) {

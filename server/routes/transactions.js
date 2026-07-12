@@ -2,6 +2,8 @@ import express from 'express';
 import { supabase } from '../lib/supabase.js';
 import { validateRequest, transactionSchema } from '../lib/validation.js';
 import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
+import { idempotent } from '../middleware/idempotency.js';
+import { logAuditEvent } from '../lib/auditLog.js';
 
 const router = express.Router();
 
@@ -24,7 +26,6 @@ router.get('/', async (req, res) => {
     const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 50));
     const offset = (pageNum - 1) * limitNum;
 
-    // Get total count
     const { count, error: countError } = await supabase
       .from('transactions')
       .select('*', { count: 'exact', head: true })
@@ -32,7 +33,6 @@ router.get('/', async (req, res) => {
 
     if (countError) throw countError;
 
-    // Get paginated data
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
@@ -57,8 +57,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Create transaction
-router.post('/', validateRequest(transactionSchema), async (req, res) => {
+// Create transaction (with idempotency support)
+router.post('/', idempotent(), validateRequest(transactionSchema), async (req, res) => {
   try {
     const { userId } = req;
     const { organizationId, description, amount, type, category, currency, date } = req.body;
@@ -176,6 +176,14 @@ router.delete('/:id', async (req, res) => {
 
     if (error) throw error;
 
+    logAuditEvent({
+      userId,
+      organizationId: transaction.organization_id,
+      action: 'delete',
+      resourceType: 'transaction',
+      resourceId: id,
+    });
+
     res.json({ success: true });
   } catch (error) {
     console.error('Delete transaction error:', error);
@@ -204,6 +212,15 @@ router.delete('/', async (req, res) => {
       .eq('organization_id', organizationId);
 
     if (error) throw error;
+
+    logAuditEvent({
+      userId,
+      organizationId,
+      action: 'bulk_delete',
+      resourceType: 'transaction',
+      resourceId: null,
+      metadata: { scope: 'all' },
+    });
 
     res.json({ success: true });
   } catch (error) {
