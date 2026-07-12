@@ -1,0 +1,364 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Finance Tracker API",
+    "version": "1.0.0",
+    "description": "Multi-tenant finance tracker API with Clerk authentication and Supabase storage"
+  },
+  "servers": [
+    { "url": "http://localhost:3001", "description": "Development" }
+  ],
+  "security": [{ "BearerAuth": [] }],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Clerk JWT token"
+      }
+    },
+    "schemas": {
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "organization_id": { "type": "string", "format": "uuid" },
+          "description": { "type": "string" },
+          "amount": { "type": "number" },
+          "type": { "type": "string", "enum": ["income", "expense"] },
+          "category": { "type": "string" },
+          "currency": { "type": "string", "default": "USD" },
+          "date": { "type": "string", "format": "date" },
+          "created_by": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Budget": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "organization_id": { "type": "string", "format": "uuid" },
+          "category": { "type": "string" },
+          "amount": { "type": "number" },
+          "currency": { "type": "string" },
+          "period": { "type": "string", "enum": ["monthly", "yearly"] },
+          "start_date": { "type": "string", "format": "date" },
+          "end_date": { "type": "string", "format": "date", "nullable": true },
+          "is_active": { "type": "boolean" }
+        }
+      },
+      "Organization": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Member": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "organization_id": { "type": "string", "format": "uuid" },
+          "user_id": { "type": "string" },
+          "role": { "type": "string", "enum": ["owner", "admin", "member", "viewer"] },
+          "joined_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "properties": {
+          "page": { "type": "integer" },
+          "limit": { "type": "integer" },
+          "total": { "type": "integer" },
+          "totalPages": { "type": "integer" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/transactions": {
+      "get": {
+        "summary": "List transactions (paginated)",
+        "parameters": [
+          { "name": "organizationId", "in": "query", "required": true, "schema": { "type": "string" } },
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50, "maximum": 100 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated transaction list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "transactions": { "type": "array", "items": { "$ref": "#/components/schemas/Transaction" } },
+                    "pagination": { "$ref": "#/components/schemas/Pagination" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Missing organizationId" },
+          "403": { "description": "Access denied" }
+        }
+      },
+      "post": {
+        "summary": "Create transaction",
+        "description": "Supports idempotency via Idempotency-Key header",
+        "parameters": [
+          { "name": "Idempotency-Key", "in": "header", "schema": { "type": "string" }, "description": "Unique key for request deduplication (24h TTL)" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["organizationId", "description", "amount", "type", "category", "date"],
+                "properties": {
+                  "organizationId": { "type": "string" },
+                  "description": { "type": "string", "minLength": 1, "maxLength": 200 },
+                  "amount": { "type": "number", "minimum": 0.01 },
+                  "type": { "type": "string", "enum": ["income", "expense"] },
+                  "category": { "type": "string" },
+                  "currency": { "type": "string", "default": "USD" },
+                  "date": { "type": "string", "format": "date" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Transaction created" },
+          "403": { "description": "Insufficient permissions (viewer cannot create)" }
+        }
+      },
+      "delete": {
+        "summary": "Delete all transactions for organization",
+        "parameters": [
+          { "name": "organizationId", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "All transactions deleted" },
+          "403": { "description": "Only owners/admins can bulk delete" }
+        }
+      }
+    },
+    "/api/transactions/{id}": {
+      "put": {
+        "summary": "Update transaction",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Transaction updated" },
+          "403": { "description": "Can only update own transactions (unless owner/admin)" },
+          "404": { "description": "Transaction not found" }
+        }
+      },
+      "delete": {
+        "summary": "Delete transaction",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Transaction deleted (audit logged)" },
+          "403": { "description": "Insufficient permissions" },
+          "404": { "description": "Transaction not found" }
+        }
+      }
+    },
+    "/api/organizations/me": {
+      "get": {
+        "summary": "Get current user's organization",
+        "responses": {
+          "200": { "description": "Organization details" },
+          "404": { "description": "No organization found" }
+        }
+      }
+    },
+    "/api/organizations": {
+      "post": {
+        "summary": "Create organization",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string", "minLength": 2, "maxLength": 50 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Organization created, user added as owner" }
+        }
+      }
+    },
+    "/api/organizations/{id}": {
+      "delete": {
+        "summary": "Delete organization (owner only, audit logged)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Organization deleted" },
+          "403": { "description": "Only owners can delete" }
+        }
+      }
+    },
+    "/api/budgets": {
+      "get": {
+        "summary": "List budgets for organization",
+        "parameters": [
+          { "name": "organizationId", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Budget list" }
+        }
+      },
+      "post": {
+        "summary": "Create budget",
+        "responses": {
+          "201": { "description": "Budget created" },
+          "400": { "description": "Active budget already exists for category" }
+        }
+      }
+    },
+    "/api/budgets/{id}/status": {
+      "get": {
+        "summary": "Get budget status with spending (supports multi-currency conversion)",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Budget with spending status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "budget": { "$ref": "#/components/schemas/Budget" },
+                    "status": {
+                      "type": "object",
+                      "properties": {
+                        "spent": { "type": "number" },
+                        "remaining": { "type": "number" },
+                        "percentageUsed": { "type": "number" },
+                        "isOverBudget": { "type": "boolean" },
+                        "periodStart": { "type": "string", "format": "date" },
+                        "periodEnd": { "type": "string", "format": "date" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/members": {
+      "get": {
+        "summary": "List organization members",
+        "parameters": [
+          { "name": "organizationId", "in": "query", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Member list" }
+        }
+      }
+    },
+    "/api/members/{memberId}": {
+      "put": {
+        "summary": "Update member role",
+        "responses": {
+          "200": { "description": "Role updated" },
+          "400": { "description": "Cannot change owner role" }
+        }
+      },
+      "delete": {
+        "summary": "Remove member (audit logged)",
+        "responses": {
+          "200": { "description": "Member removed" },
+          "400": { "description": "Cannot remove owner or yourself" }
+        }
+      }
+    },
+    "/api/invitations": {
+      "post": {
+        "summary": "Create invitation",
+        "responses": {
+          "201": { "description": "Invitation created, email sent" },
+          "400": { "description": "Duplicate invitation" }
+        }
+      },
+      "get": {
+        "summary": "List pending invitations",
+        "responses": {
+          "200": { "description": "Invitation list" }
+        }
+      }
+    },
+    "/api/invitations/accept": {
+      "post": {
+        "summary": "Accept invitation (preferred — token in body)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["token"],
+                "properties": {
+                  "token": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Invitation accepted, user added to org" },
+          "400": { "description": "Expired, already accepted, or already a member" },
+          "404": { "description": "Invitation not found" }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Server healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
