@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { useToast } from '../components/ToastContainer';
 import Summary from '../components/Summary';
@@ -8,6 +8,7 @@ import SpendingByCategory from '../components/SpendingByCategory';
 import IncomeVsExpenses from '../components/IncomeVsExpenses';
 import BudgetOverview from '../components/BudgetOverview';
 import BudgetAlerts from '../components/BudgetAlerts';
+import ErrorBoundary from '../components/ErrorBoundary';
 import Modal from '../components/Modal';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { SkeletonCard, SkeletonTable, SkeletonChart } from '../components/Skeleton';
@@ -37,11 +38,11 @@ function Dashboard() {
   const [error, setError] = useState(null);
 
   // Real-time transactions with polling fallback
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     if (!organization) return [];
     const { data } = await getTransactions(organization.id, getToken);
     return data || [];
-  };
+  }, [organization, getToken]);
 
   const { data: transactions, isRealtime, refetch: refetchTransactions } = useRealtimeTransactions(
     organization?.id,
@@ -300,9 +301,15 @@ function Dashboard() {
           <Summary transactions={transactions} exchangeRates={exchangeRates} />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-            <SpendingByCategory transactions={transactions} exchangeRates={exchangeRates} />
-            <IncomeVsExpenses transactions={transactions} exchangeRates={exchangeRates} />
-            <BudgetOverview organizationId={organization?.id} />
+            <ErrorBoundary>
+              <SpendingByCategory transactions={transactions} exchangeRates={exchangeRates} />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <IncomeVsExpenses transactions={transactions} exchangeRates={exchangeRates} />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <BudgetOverview organizationId={organization?.id} />
+            </ErrorBoundary>
           </div>
 
           <TransactionList

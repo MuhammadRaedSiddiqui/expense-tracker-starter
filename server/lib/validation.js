@@ -28,16 +28,20 @@ export const budgetSchema = z.object({
   category: z.string()
     .min(1, 'Category is required')
     .max(50, 'Category must be less than 50 characters'),
-  limit: z.number()
-    .positive('Limit must be positive')
-    .max(999999999, 'Limit is too large'),
+  amount: z.number()
+    .positive('Amount must be positive')
+    .max(999999999, 'Amount is too large'),
+  currency: z.string()
+    .length(3, 'Currency must be a 3-letter code')
+    .regex(/^[A-Z]{3}$/, 'Currency must be uppercase')
+    .default('USD'),
   period: z.enum(['monthly', 'yearly']),
   startDate: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Start date must be in YYYY-MM-DD format')
-    .optional(),
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Start date must be in YYYY-MM-DD format'),
   endDate: z.string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'End date must be in YYYY-MM-DD format')
-    .optional(),
+    .optional()
+    .nullable(),
 });
 
 // Organization validation schema
@@ -56,7 +60,7 @@ export const invitationSchema = z.object({
     .max(255, 'Email must be less than 255 characters')
     .toLowerCase()
     .trim(),
-  role: z.enum(['owner', 'admin', 'member']),
+  role: z.enum(['admin', 'member', 'viewer']),
 });
 
 // Recurring transaction validation schema

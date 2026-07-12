@@ -1,50 +1,56 @@
 import express from 'express';
 import { supabase } from '../lib/supabase.js';
 import { validateRequest, transactionSchema } from '../lib/validation.js';
+import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
 
 const router = express.Router();
 
-// Helper function to verify user has access to organization
-async function verifyOrganizationAccess(userId, organizationId) {
-  const { data, error } = await supabase
-    .from('organization_members')
-    .select('role')
-    .eq('user_id', userId)
-    .eq('organization_id', organizationId)
-    .single();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return data.role;
-}
-
-// Get all transactions for user's organization
+// Get all transactions for user's organization (paginated)
 router.get('/', async (req, res) => {
   try {
     const { userId } = req;
-    const { organizationId } = req.query;
+    const { organizationId, page = '1', limit = '50' } = req.query;
 
     if (!organizationId) {
       return res.status(400).json({ error: 'Organization ID is required' });
     }
 
-    // Verify user has access to this organization
     const role = await verifyOrganizationAccess(userId, organizationId);
     if (!role) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 50));
+    const offset = (pageNum - 1) * limitNum;
+
+    // Get total count
+    const { count, error: countError } = await supabase
+      .from('transactions')
+      .select('*', { count: 'exact', head: true })
+      .eq('organization_id', organizationId);
+
+    if (countError) throw countError;
+
+    // Get paginated data
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
       .eq('organization_id', organizationId)
-      .order('date', { ascending: false });
+      .order('date', { ascending: false })
+      .range(offset, offset + limitNum - 1);
 
     if (error) throw error;
 
-    res.json({ transactions: data || [] });
+    res.json({
+      transactions: data || [],
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limitNum),
+      },
+    });
   } catch (error) {
     console.error('Get transactions error:', error);
     res.status(500).json({ error: 'Failed to fetch transactions' });
@@ -57,7 +63,6 @@ router.post('/', validateRequest(transactionSchema), async (req, res) => {
     const { userId } = req;
     const { organizationId, description, amount, type, category, currency, date } = req.body;
 
-    // Verify user has access and is at least a member
     const role = await verifyOrganizationAccess(userId, organizationId);
     if (!role || !['owner', 'admin', 'member'].includes(role)) {
       return res.status(403).json({ error: 'Access denied' });
@@ -94,7 +99,6 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { description, amount, type, category, currency, date } = req.body;
 
-    // Get the transaction to verify ownership
     const { data: transaction, error: fetchError } = await supabase
       .from('transactions')
       .select('organization_id, created_by')
@@ -105,13 +109,11 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Transaction not found' });
     }
 
-    // Verify user has access to this organization
     const role = await verifyOrganizationAccess(userId, transaction.organization_id);
     if (!role) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    // Check if user can update (own transaction or admin/owner)
     const canUpdate = transaction.created_by === userId || ['owner', 'admin'].includes(role);
     if (!canUpdate) {
       return res.status(403).json({ error: 'You can only update your own transactions' });
@@ -147,7 +149,6 @@ router.delete('/:id', async (req, res) => {
     const { userId } = req;
     const { id } = req.params;
 
-    // Get the transaction to verify ownership
     const { data: transaction, error: fetchError } = await supabase
       .from('transactions')
       .select('organization_id, created_by')
@@ -158,13 +159,11 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Transaction not found' });
     }
 
-    // Verify user has access to this organization
     const role = await verifyOrganizationAccess(userId, transaction.organization_id);
     if (!role) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    // Check if user can delete (own transaction or admin/owner)
     const canDelete = transaction.created_by === userId || ['owner', 'admin'].includes(role);
     if (!canDelete) {
       return res.status(403).json({ error: 'You can only delete your own transactions' });
@@ -194,7 +193,6 @@ router.delete('/', async (req, res) => {
       return res.status(400).json({ error: 'Organization ID is required' });
     }
 
-    // Verify user is owner or admin
     const role = await verifyOrganizationAccess(userId, organizationId);
     if (!role || !['owner', 'admin'].includes(role)) {
       return res.status(403).json({ error: 'Only owners and admins can delete all transactions' });

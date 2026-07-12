@@ -53,11 +53,14 @@ const limiter = rateLimit({
 // Apply rate limiting to all API routes
 app.use('/api/', limiter);
 
-// Stricter rate limiting for auth-related endpoints
-const authLimiter = rateLimit({
+// Stricter rate limiting for write operations
+const writeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20, // More restrictive for auth operations
-  message: 'Too many authentication attempts, please try again later.',
+  max: 60,
+  message: 'Too many write requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.userId || req.ip,
 });
 
 // CORS configuration
@@ -88,6 +91,14 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10mb' })); // Limit payload size
+
+// Apply write limiter to POST/PUT/DELETE
+app.use('/api/', (req, res, next) => {
+  if (['POST', 'PUT', 'DELETE'].includes(req.method)) {
+    return writeLimiter(req, res, next);
+  }
+  next();
+});
 
 // Protected routes
 app.use('/api/organizations', clerkMiddleware, organizationRoutes);

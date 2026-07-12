@@ -3,38 +3,16 @@ import { supabase } from '../lib/supabase.js';
 import crypto from 'crypto';
 import { clerkClient } from '@clerk/clerk-sdk-node';
 import { sendInvitationEmail } from '../lib/email.js';
+import { validateRequest, invitationSchema } from '../lib/validation.js';
+import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
 
 const router = express.Router();
 
-// Helper function to verify user has access to organization
-async function verifyOrganizationAccess(userId, organizationId) {
-  const { data, error } = await supabase
-    .from('organization_members')
-    .select('role')
-    .eq('user_id', userId)
-    .eq('organization_id', organizationId)
-    .single();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return data.role;
-}
-
 // Create invitation
-router.post('/', async (req, res) => {
+router.post('/', validateRequest(invitationSchema), async (req, res) => {
   try {
     const { userId } = req;
     const { organizationId, email, role } = req.body;
-
-    if (!organizationId || !email || !role) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    if (!['admin', 'member', 'viewer'].includes(role)) {
-      return res.status(400).json({ error: 'Invalid role' });
-    }
 
     // Verify user is owner or admin
     const userRole = await verifyOrganizationAccess(userId, organizationId);

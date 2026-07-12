@@ -1,23 +1,9 @@
 import express from 'express';
 import { supabase } from '../lib/supabase.js';
+import { validateRequest, budgetSchema } from '../lib/validation.js';
+import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
 
 const router = express.Router();
-
-// Helper function to verify user has access to organization
-async function verifyOrganizationAccess(userId, organizationId) {
-  const { data, error } = await supabase
-    .from('organization_members')
-    .select('role')
-    .eq('user_id', userId)
-    .eq('organization_id', organizationId)
-    .single();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return data.role;
-}
 
 // Helper function to calculate spending for a budget
 async function calculateBudgetSpending(organizationId, category, startDate, endDate, currency) {
@@ -159,7 +145,7 @@ router.get('/:id/status', async (req, res) => {
 });
 
 // Create budget
-router.post('/', async (req, res) => {
+router.post('/', validateRequest(budgetSchema), async (req, res) => {
   try {
     const { userId } = req;
     const {
@@ -171,16 +157,6 @@ router.post('/', async (req, res) => {
       startDate,
       endDate,
     } = req.body;
-
-    // Validate required fields
-    if (!organizationId || !category || !amount || !period || !startDate) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Validate period
-    if (!['monthly', 'yearly'].includes(period)) {
-      return res.status(400).json({ error: 'Invalid period' });
-    }
 
     // Verify user is member or above
     const userRole = await verifyOrganizationAccess(userId, organizationId);

@@ -1,5 +1,7 @@
 import express from 'express';
 import { supabase } from '../lib/supabase.js';
+import { validateRequest, organizationSchema } from '../lib/validation.js';
+import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
 
 const router = express.Router();
 
@@ -29,14 +31,10 @@ router.get('/me', async (req, res) => {
 });
 
 // Create organization
-router.post('/', async (req, res) => {
+router.post('/', validateRequest(organizationSchema), async (req, res) => {
   try {
     const { userId } = req;
     const { name } = req.body;
-
-    if (!name) {
-      return res.status(400).json({ error: 'Organization name is required' });
-    }
 
     // Create organization
     const { data: org, error: orgError } = await supabase
@@ -75,23 +73,16 @@ router.delete('/:id', async (req, res) => {
     const { userId } = req;
     const { id } = req.params;
 
-    // Check if user is owner
-    const { data: member, error: memberError } = await supabase
-      .from('organization_members')
-      .select('role')
-      .eq('organization_id', id)
-      .eq('user_id', userId)
-      .single();
+    const role = await verifyOrganizationAccess(userId, id);
 
-    if (memberError || !member) {
+    if (!role) {
       return res.status(404).json({ error: 'Organization not found' });
     }
 
-    if (member.role !== 'owner') {
+    if (role !== 'owner') {
       return res.status(403).json({ error: 'Only owners can delete organizations' });
     }
 
-    // Delete organization (cascade will handle related records)
     const { error: deleteError } = await supabase
       .from('organizations')
       .delete()

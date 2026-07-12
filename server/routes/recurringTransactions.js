@@ -1,23 +1,9 @@
 import express from 'express';
 import { supabase } from '../lib/supabase.js';
+import { validateRequest, recurringTransactionSchema } from '../lib/validation.js';
+import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
 
 const router = express.Router();
-
-// Helper function to verify user has access to organization
-async function verifyOrganizationAccess(userId, organizationId) {
-  const { data, error } = await supabase
-    .from('organization_members')
-    .select('role')
-    .eq('user_id', userId)
-    .eq('organization_id', organizationId)
-    .single();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return data.role;
-}
 
 // Helper function to calculate next execution date
 function calculateNextExecutionDate(startDate, frequency, interval) {
@@ -83,7 +69,7 @@ router.get('/', async (req, res) => {
 });
 
 // Create recurring transaction
-router.post('/', async (req, res) => {
+router.post('/', validateRequest(recurringTransactionSchema), async (req, res) => {
   try {
     const { userId } = req;
     const {
@@ -98,21 +84,6 @@ router.post('/', async (req, res) => {
       startDate,
       endDate,
     } = req.body;
-
-    // Validate required fields
-    if (!organizationId || !description || !amount || !type || !category || !frequency || !startDate) {
-      return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    // Validate type
-    if (!['income', 'expense'].includes(type)) {
-      return res.status(400).json({ error: 'Invalid transaction type' });
-    }
-
-    // Validate frequency
-    if (!['daily', 'weekly', 'monthly', 'yearly'].includes(frequency)) {
-      return res.status(400).json({ error: 'Invalid frequency' });
-    }
 
     // Verify user is member or above
     const userRole = await verifyOrganizationAccess(userId, organizationId);

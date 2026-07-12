@@ -1,23 +1,8 @@
 import express from 'express';
 import { supabase } from '../lib/supabase.js';
+import { verifyOrganizationAccess } from '../middleware/orgAccess.js';
 
 const router = express.Router();
-
-// Helper function to verify user has access to organization
-async function verifyOrganizationAccess(userId, organizationId) {
-  const { data, error } = await supabase
-    .from('organization_members')
-    .select('role')
-    .eq('user_id', userId)
-    .eq('organization_id', organizationId)
-    .single();
-
-  if (error || !data) {
-    return null;
-  }
-
-  return data.role;
-}
 
 // Get all members for organization
 router.get('/', async (req, res) => {

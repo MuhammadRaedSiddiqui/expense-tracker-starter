@@ -69,14 +69,15 @@ export async function createOrganization(name, getToken) {
 }
 
 /**
- * Get transactions for organization
+ * Get transactions for organization (supports pagination)
  */
-export async function getTransactions(organizationId, getToken) {
-  const { data, error } = await apiRequest(
-    `/api/transactions?organizationId=${organizationId}`,
-    getToken
-  );
-  return { data: data?.transactions, error };
+export async function getTransactions(organizationId, getToken, { page, limit } = {}) {
+  let endpoint = `/api/transactions?organizationId=${organizationId}`;
+  if (page) endpoint += `&page=${page}`;
+  if (limit) endpoint += `&limit=${limit}`;
+
+  const { data, error } = await apiRequest(endpoint, getToken);
+  return { data: data?.transactions, pagination: data?.pagination, error };
 }
 
 /**

@@ -1,12 +1,10 @@
 import { defineConfig } from 'vite'
-import react, { reactCompilerPreset } from '@vitejs/plugin-react'
-import babel from '@rolldown/plugin-babel'
+import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
-    babel({ presets: [reactCompilerPreset()] })
   ],
   resolve: {
     alias: {
@@ -14,9 +12,7 @@ export default defineConfig({
     }
   },
   build: {
-    // Use esbuild for minification (faster than terser)
     minify: 'esbuild',
-    // Optimize chunk splitting
     rollupOptions: {
       output: {
         manualChunks: (id) => {
@@ -43,12 +39,9 @@ export default defineConfig({
         },
       },
     },
-    // Increase chunk size warning limit
     chunkSizeWarningLimit: 1000,
-    // Source maps for production debugging (can be disabled for smaller builds)
     sourcemap: false,
   },
-  // Optimize dependencies
   optimizeDeps: {
     include: [
       'react',
