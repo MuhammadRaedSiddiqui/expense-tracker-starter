@@ -28,7 +28,14 @@ async function apiRequest(endpoint, getToken, options = {}) {
     });
 
     // Parse response
-    const data = await response.json();
+    const contentType = response.headers.get('content-type');
+    let data;
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      data = { error: text || `Request failed with status ${response.status}` };
+    }
 
     if (!response.ok) {
       throw new Error(data.error || 'API request failed');

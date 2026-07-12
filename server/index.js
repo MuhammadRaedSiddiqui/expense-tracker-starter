@@ -88,8 +88,8 @@ app.use(helmet({
 // Rate limiting - prevent abuse
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: 'Too many requests from this IP, please try again later.',
+  max: 300,
+  message: { error: 'Too many requests from this IP, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
   validate: { ipKeyGenerator: false },
@@ -101,8 +101,8 @@ app.use('/api/', limiter);
 // Stricter rate limiting for write operations
 const writeLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 60,
-  message: 'Too many write requests, please try again later.',
+  max: 100,
+  message: { error: 'Too many write requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => req.userId || req.ip,
