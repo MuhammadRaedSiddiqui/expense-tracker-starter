@@ -2,6 +2,16 @@ import { withCache, invalidateCache } from './cache';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
+// Global error event bus for surfacing API errors to the UI
+const errorListeners = new Set();
+export function onApiError(listener) {
+  errorListeners.add(listener);
+  return () => errorListeners.delete(listener);
+}
+export function emitApiError(error) {
+  errorListeners.forEach((listener) => listener(error));
+}
+
 /**
  * Make an authenticated API request
  * @param {string} endpoint - API endpoint (e.g., '/api/organizations/me')
@@ -38,12 +48,25 @@ async function apiRequest(endpoint, getToken, options = {}) {
     }
 
     if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error('Too many requests. Please wait a moment and try again.');
+      }
+      if (response.status === 401) {
+        throw new Error('Your session has expired. Please sign in again.');
+      }
+      if (response.status === 403) {
+        throw new Error('You do not have permission to perform this action.');
+      }
+      if (response.status >= 500) {
+        throw new Error('Something went wrong on our end. Please try again shortly.');
+      }
       throw new Error(data.error || 'API request failed');
     }
 
     return { data, error: null };
   } catch (error) {
     console.error('API request error:', error);
+    emitApiError(error);
     return { data: null, error };
   }
 }

@@ -1,4 +1,5 @@
 import { invalidateCache } from '../cache/cache';
+import { emitApiError } from '@/lib/apiClient';
 import type {
   ApiResponse,
   Organization,
@@ -15,6 +16,7 @@ import type {
 } from '@/types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
 
 /**
  * Make an authenticated API request
@@ -40,15 +42,35 @@ async function apiRequest<T>(
       },
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get('content-type');
+    let data;
+    if (contentType && contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      data = { error: text || `Request failed with status ${response.status}` };
+    }
 
     if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error('Too many requests. Please wait a moment and try again.');
+      }
+      if (response.status === 401) {
+        throw new Error('Your session has expired. Please sign in again.');
+      }
+      if (response.status === 403) {
+        throw new Error('You do not have permission to perform this action.');
+      }
+      if (response.status >= 500) {
+        throw new Error('Something went wrong on our end. Please try again shortly.');
+      }
       throw new Error(data.error || 'API request failed');
     }
 
     return { data, error: null };
   } catch (error) {
     console.error('API request error:', error);
+    emitApiError(error as Error);
     return { data: null, error: error as Error };
   }
 }

@@ -9,6 +9,7 @@ import { PostHogProvider } from '@posthog/react';
 import { ClerkProvider, useUser } from '@clerk/clerk-react';
 import { ToastProvider } from './components/ToastContainer';
 import ErrorBoundary from './components/ErrorBoundary';
+import { QueryErrorHandler } from './components/QueryErrorHandler';
 import { setUser } from './integration/monitoring/sentry';
 import { queryClient, persister } from './lib/queryClient';
 import { useEffect } from 'react';
@@ -67,6 +68,7 @@ createRoot(document.getElementById('root')!).render(
             options={posthogOptions}
           >
             <ToastProvider>
+              <QueryErrorHandler />
               <RouterProvider router={router} />
             </ToastProvider>
           </PostHogProvider>

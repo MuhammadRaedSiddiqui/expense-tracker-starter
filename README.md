@@ -4,65 +4,68 @@ A full-stack, multi-tenant expense tracking application with team collaboration,
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
-![React](https://img.shields.io/badge/react-18.3.1-blue.svg)
+![React](https://img.shields.io/badge/react-19.2-blue.svg)
+![TypeScript](https://img.shields.io/badge/typescript-6.0-blue.svg)
 
-## ✨ Features
+## Features
 
-### 💰 Transaction Management
+### Transaction Management
 - Track income and expenses with detailed categorization
 - Multi-currency support (10 currencies with real-time exchange rates)
 - Advanced filtering (type, category, date range, search)
+- Sorting by date, amount, or description
 - Inline editing and bulk operations
 - CSV and PDF export
 
-### 🔄 Recurring Transactions
+### Recurring Transactions
 - Automate regular income and expenses
 - Flexible scheduling (daily, weekly, monthly, yearly)
 - Custom intervals (e.g., every 2 weeks)
 - Automatic transaction creation via cron jobs
 - Start/end date configuration
 
-### 📊 Budgets & Alerts
+### Budgets & Alerts
 - Set spending limits by category
 - Real-time spending tracking
 - Visual progress indicators (green/amber/red)
 - Automatic alerts at 80% and 100%
 - Monthly and yearly budget periods
 
-### 📈 Reports & Analytics
-- Interactive charts (spending trends, category breakdown)
+### Reports & Analytics
+- Interactive charts (spending trends, category donut, income vs. expenses)
 - Period-over-period comparison
 - Customizable date ranges
 - Export reports as PDF or CSV
-- Visual insights into spending patterns
 
-### 👥 Team Collaboration
+### Team Collaboration
 - Multi-user organizations
 - Role-based permissions (Owner, Admin, Member)
 - Email invitations with secure tokens
-- Real-time updates across team members
-- Activity tracking
+- Real-time updates across team members via Supabase realtime
 
-### ⚡ Performance & UX
-- Code splitting and lazy loading
-- API response caching
-- Skeleton loaders for better perceived performance
-- Toast notifications with animations
-- Real-time form validation
-- Smooth micro-interactions
+### Performance & UX
+- Code splitting and lazy loading per route
+- React Query with localStorage persistence for offline-first data
+- Skeleton loaders for perceived performance
+- Global toast notifications for all errors and actions
+- Dark mode with persistence
+- Command palette (Cmd+K)
+- Framer Motion animations
 
-### 🔐 Security
-- Clerk authentication with JWT
+### Security
+- Clerk authentication with JWT (frontend + backend)
 - Row Level Security (RLS) in Supabase
-- Secure API endpoints
-- Environment-based configuration
+- Helmet security headers + CORS
+- Rate limiting (300 req/15min read, 100 req/15min write)
+- Input validation with Zod (frontend + backend)
+- Idempotency keys for safe retries
 - Error tracking with Sentry
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 18 or higher
-- npm or yarn
+- npm
 - Accounts for:
   - [Supabase](https://supabase.com) (database)
   - [Clerk](https://clerk.com) (authentication)
@@ -110,16 +113,12 @@ SUPABASE_URL=https://xxxxx.supabase.co
 SUPABASE_SERVICE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 RESEND_API_KEY=re_xxxxx
 FRONTEND_URL=http://localhost:5173
+PRODUCTION_URL=https://your-frontend-domain.vercel.app
 ```
 
 4. **Set up the database**
 
-Run migrations in Supabase SQL editor (in order):
-```sql
--- Run each file from supabase/migrations/ folder
-```
-
-Or use Supabase CLI:
+Run migrations in Supabase SQL editor (in order from `supabase/migrations/`) or use the CLI:
 ```bash
 supabase db push
 ```
@@ -141,239 +140,231 @@ npm run dev
 
 Visit http://localhost:5173
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 expense-tracker-starter/
-├── src/                      # Frontend source code
-│   ├── components/          # React components
-│   │   ├── Layout.jsx       # Main layout with navigation
-│   │   ├── Modal.jsx        # Animated modal component
-│   │   ├── Toast.jsx        # Toast notifications
-│   │   ├── ToastContainer.jsx # Toast provider
-│   │   ├── Skeleton.jsx     # Loading skeletons
-│   │   ├── Summary.jsx      # Financial summary cards
-│   │   ├── TransactionForm.jsx # Transaction form with validation
-│   │   ├── TransactionList.jsx # Transaction list with filters
-│   │   ├── BudgetModal.jsx  # Budget creation/editing
-│   │   ├── RecurringTransactionModal.jsx
-│   │   └── ...
-│   ├── pages/               # Page components (lazy loaded)
-│   │   ├── Dashboard.jsx    # Main dashboard
-│   │   ├── Transactions.jsx # Transaction management
-│   │   ├── Budgets.jsx      # Budget tracking
-│   │   ├── Reports.jsx      # Analytics and reports
-│   │   ├── Team.jsx         # Team collaboration
-│   │   ├── RecurringTransactions.jsx
-│   │   └── Settings.jsx
-│   ├── hooks/               # Custom React hooks
-│   │   ├── useOrganization.js # Organization state
-│   │   └── useRealtime.js   # Real-time subscriptions
-│   ├── lib/                 # Utilities and services
-│   │   ├── apiClient.js     # API client with caching
-│   │   ├── cache.js         # In-memory cache utility
-│   │   ├── supabase.js      # Supabase client
-│   │   ├── clerk.js         # Clerk utilities
-│   │   ├── sentry.js        # Error tracking
-│   │   ├── exportUtils.js   # PDF/CSV export
-│   │   └── ...
-│   ├── constants.js         # App constants
-│   ├── utils.js             # Helper functions
-│   ├── router.jsx           # Route configuration
-│   ├── index.css            # Global styles & animations
-│   └── main.jsx             # App entry point
-├── server/                   # Backend source code
-│   ├── routes/              # API routes
-│   │   ├── organizations.js # Organization management
-│   │   ├── transactions.js  # Transaction CRUD
-│   │   ├── budgets.js       # Budget management
-│   │   ├── members.js       # Team member management
-│   │   ├── invitations.js   # Invitation system
-│   │   └── recurringTransactions.js
-│   ├── lib/                 # Backend utilities
-│   │   ├── email.js         # Email service (Resend)
+├── src/                          # React frontend (TypeScript)
+│   ├── pages/                   # Route-level page components (lazy loaded)
+│   │   ├── dashboard/           # Dashboard with metrics, charts, live feed
+│   │   ├── transactions/        # Transaction management with filters
+│   │   ├── budgets/             # Budget tracking with health indicators
+│   │   ├── recurring/           # Recurring transaction management
+│   │   ├── team/                # Team & organization management
+│   │   ├── reports/             # Analytics and reporting
+│   │   ├── settings/            # User and org settings
+│   │   ├── landing/             # Public landing page
+│   │   └── legal/               # Terms, privacy, FAQ, contact
+│   ├── components/              # Shared components
+│   │   ├── layout/              # AppLayout, SideNav, TopNav, AppFooter
+│   │   ├── shared/              # PageHeader, StatCard
+│   │   ├── stitch/              # Design system components
+│   │   ├── Toast.tsx            # Toast notification component
+│   │   ├── ToastContainer.tsx   # Toast provider and context
+│   │   ├── QueryErrorHandler.tsx # Global error → toast handler
+│   │   ├── ErrorBoundary.tsx    # React error boundary with Sentry
+│   │   ├── ProtectedRoute.jsx   # Auth guard
+│   │   └── ...                  # Modals, forms, charts
+│   ├── hooks/                   # Custom React hooks
+│   │   ├── useTransactions.js   # React Query-based transaction CRUD
+│   │   ├── useBudgets.js        # React Query-based budget management
+│   │   ├── useOrganization.js   # Organization state
+│   │   └── useTransactionFilters.ts # Filter/sort state
+│   ├── integration/             # Typed integration layer
+│   │   ├── api/apiClient.ts     # Typed API client with error emission
+│   │   ├── auth/clerk.ts        # Clerk auth utilities
+│   │   ├── hooks/               # Typed hooks (useOrganization, useRealtime)
+│   │   ├── cache/cache.ts       # Cache management
+│   │   └── monitoring/sentry.ts # Sentry initialization
+│   ├── lib/                     # Core utilities
+│   │   ├── apiClient.js         # API client with global error bus
+│   │   ├── queryClient.js       # React Query client + persister
+│   │   ├── supabase.js          # Supabase client
+│   │   ├── cache.js             # In-memory cache with TTL
+│   │   ├── exportUtils.js       # PDF/CSV export
+│   │   └── validation.ts        # Zod schemas
+│   ├── types/                   # TypeScript type definitions
+│   ├── router.tsx               # Route config with lazy loading
+│   ├── main.tsx                 # App entry (Clerk, React Query, Sentry, PostHog)
+│   ├── constants.js             # App constants (categories, currencies)
+│   └── index.css                # Tailwind + global styles
+├── server/                       # Express backend (Node.js)
+│   ├── routes/                  # API route handlers
+│   │   ├── organizations.js     # Organization CRUD
+│   │   ├── transactions.js      # Transaction CRUD
+│   │   ├── budgets.js           # Budget CRUD
+│   │   ├── members.js           # Member management
+│   │   ├── invitations.js       # Invitation system
+│   │   └── recurringTransactions.js # Recurring transaction CRUD
+│   ├── middleware/              # Express middleware
+│   │   ├── auth.js              # Clerk JWT verification
+│   │   ├── idempotency.js       # Safe retry support
+│   │   └── orgAccess.js         # Organization-level access control
+│   ├── lib/                     # Backend utilities
+│   │   ├── supabase.js          # Supabase admin client
+│   │   ├── email.js             # Resend email service
+│   │   ├── scheduler.js         # Cron job scheduler
 │   │   ├── recurringProcessor.js # Process recurring transactions
-│   │   └── scheduler.js     # Cron job scheduler
-│   ├── middleware/          # Express middleware
-│   │   └── auth.js          # JWT validation
-│   └── index.js             # Server entry point
-├── supabase/
-│   └── migrations/          # Database migrations
-├── public/                  # Static assets
-├── docs/                    # Documentation
-│   ├── USER_GUIDE.md        # User documentation
-│   ├── API_DOCUMENTATION.md # API reference
-│   └── DEPLOYMENT.md        # Deployment guide
-├── vite.config.js           # Vite configuration (optimized)
-├── tailwind.config.js       # Tailwind CSS configuration
+│   │   ├── logger.js            # Logging utility
+│   │   ├── auditLog.js          # Audit logging
+│   │   └── validation.js        # Zod request validation
+│   ├── docs/openapi.json        # OpenAPI/Swagger spec
+│   └── index.js                 # Server entry (Express, CORS, rate limiting)
+├── supabase/migrations/          # Database migrations (9 tables + RLS)
+├── e2e/                          # Playwright E2E tests
+├── .github/workflows/            # CI (E2E tests)
+├── docs/                         # Documentation
+├── public/                       # Static assets
+├── vercel.json                   # Vercel deployment config
+├── vite.config.ts                # Vite build config with code splitting
+├── tailwind.config.js            # Tailwind with custom design tokens
+├── playwright.config.js          # E2E test config
+├── tsconfig.json                 # TypeScript config
 └── package.json
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
-- **React 18.3** - UI framework with hooks
-- **Vite 7.3** - Fast build tool and dev server
-- **React Router 7** - Client-side routing with lazy loading
-- **Tailwind CSS 3** - Utility-first CSS framework
+- **React 19** with TypeScript 6
+- **Vite 8** - Build tool with optimized chunking
+- **React Router 7** - Routing with lazy loading
+- **React Query 5** - Data fetching, caching, and offline persistence
+- **Tailwind CSS 3** - Utility-first CSS with custom design tokens
 - **Recharts** - Interactive data visualization
+- **Framer Motion** - Animations and transitions
+- **Lucide React** - Icon library
 - **Clerk** - Authentication and user management
 - **jsPDF + html2canvas** - PDF generation
+- **Zod** - Runtime validation
 
 ### Backend
-- **Node.js + Express** - REST API server
-- **Supabase** - PostgreSQL database with real-time
-- **Clerk** - JWT token validation
-- **Resend** - Transactional email service
+- **Express 5** - REST API server
+- **Supabase** - PostgreSQL with Row Level Security and realtime
+- **Clerk SDK** - JWT token verification
+- **Resend** - Transactional email
 - **node-cron** - Scheduled task execution
+- **Helmet** - Security headers
+- **express-rate-limit** - API rate limiting
+- **Swagger UI** - Interactive API docs (dev mode)
+- **Zod** - Request validation
 
 ### Monitoring & Analytics
 - **Sentry** - Error tracking and performance monitoring
-- **PostHog** - Product analytics and feature flags
+- **PostHog** - Product analytics and session recording
 
-### Development Tools
-- **ESLint** - Code linting
-- **Prettier** - Code formatting
-- **Git** - Version control
+### Testing
+- **Vitest** - Unit testing
+- **Playwright** - End-to-end testing
+- **GitHub Actions** - CI pipeline
 
-## 🔧 Available Scripts
+## Available Scripts
 
 ### Frontend
 ```bash
-npm run dev          # Start development server
+npm run dev          # Start dev server (http://localhost:5173)
 npm run build        # Build for production
 npm run preview      # Preview production build
 npm run lint         # Run ESLint
+npm test             # Run unit tests (Vitest)
+npx playwright test  # Run E2E tests
 ```
 
 ### Backend
 ```bash
 cd server
-npm run dev          # Start backend with nodemon
-npm start            # Start backend (production)
+npm run dev          # Start with nodemon (hot reload)
+npm start            # Start for production
 ```
 
-## 📚 Documentation
+## API Endpoints
 
-- **[User Guide](./docs/USER_GUIDE.md)** - Complete user documentation
-- **[API Documentation](./docs/API_DOCUMENTATION.md)** - API reference for developers
-- **[Deployment Guide](./docs/DEPLOYMENT.md)** - Production deployment instructions
-- **[Monitoring Guide](./docs/MONITORING.md)** - Sentry & PostHog setup
-- **[Vercel Guide](./docs/VERCEL_DEPLOYMENT.md)** - Vercel deployment steps
+All endpoints require Clerk JWT authentication via `Authorization: Bearer <token>` header.
 
-## 🎯 Key Features Explained
+| Method | Route | Purpose |
+|--------|-------|---------|
+| GET/POST | `/api/organizations` | Organization CRUD |
+| GET | `/api/organizations/me` | Get current user's org |
+| GET/POST/PUT/DELETE | `/api/transactions` | Transaction CRUD |
+| GET/POST/PUT/DELETE | `/api/budgets` | Budget CRUD |
+| GET/POST/PUT/DELETE | `/api/recurring-transactions` | Recurring transaction CRUD |
+| GET | `/api/members` | List organization members |
+| POST/DELETE | `/api/invitations` | Manage team invitations |
 
-### API Caching
-Intelligent caching reduces API calls by ~70%:
-- Organization data cached for 5 minutes
-- Automatic cache invalidation on mutations
-- Configurable TTL per endpoint
+Interactive API docs available at `/api/docs` in development mode.
 
-### Real-time Collaboration
-Hybrid approach for reliability:
-- Supabase WebSocket subscriptions for instant updates
-- Automatic fallback to 30-second polling
-- "Live" indicator shows connection status
+## Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│  Frontend (Vercel)                              │
+│  React 19 + TypeScript + React Query + Realtime │
+└──────────────────────┬──────────────────────────┘
+                       │ REST API (Bearer JWT)
+┌──────────────────────▼──────────────────────────┐
+│  Backend API (Render)                           │
+│  Express 5 + Clerk JWT + Rate Limiting + Helmet │
+└──────────────────────┬──────────────────────────┘
+                       │ Supabase Admin Client
+┌──────────────────────▼──────────────────────────┐
+│  Database (Supabase)                            │
+│  PostgreSQL + RLS + Realtime + 9 tables         │
+└─────────────────────────────────────────────────┘
+```
+
+### Error Handling
+- Global `QueryErrorHandler` auto-toasts all failed queries
+- API client error bus surfaces errors from realtime hooks and manual fetches
+- Status-specific messages (429, 401, 403, 5xx) for user clarity
+- Deduplication prevents toast spam on rapid failures
+- Sentry captures all errors with user context
+- React `ErrorBoundary` catches render crashes
+
+### Data Flow
+- React Query manages server state with 5-minute staleness and localStorage persistence
+- Supabase realtime subscriptions for live updates across team members
+- Automatic fallback to 30-second polling when WebSocket fails
+- In-memory cache with configurable TTL for frequently accessed data
 
 ### Code Splitting
-Optimized bundle loading:
-- Route-based code splitting with React.lazy()
-- Vendor chunks separated for better caching
-- Initial bundle reduced by ~60%
+- Route-based splitting with `React.lazy()`
+- Vendor chunks: react-vendor, clerk-vendor, chart-vendor, pdf-vendor, supabase-vendor, monitoring-vendor
+- Per-page chunks: 3-22 KB each (gzipped)
 
-### Performance Optimizations
-- React.memo() prevents unnecessary re-renders
-- useMemo() for expensive calculations
-- useCallback() for stable function references
-- Optimized Vite build configuration
+## Deployment
 
-## 🚀 Deployment
-
-### Quick Deploy
-
-**Frontend (Vercel)**:
+### Frontend (Vercel)
 ```bash
 vercel --prod
 ```
 
-**Backend (Railway)**:
-```bash
-railway up
-```
+Configured via `vercel.json` with SPA rewrites, security headers, and API proxying.
 
-See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed instructions including:
-- Environment setup
-- Database migrations
-- Service configuration
-- Custom domains
-- Monitoring setup
+### Backend (Render)
+Deploy as a Node.js web service pointing to the `server/` directory.
 
-## 📊 Performance
+Environment variables must be set on both platforms. See [Deployment Guide](./docs/DEPLOYMENT.md) for details.
 
-### Bundle Size (Production)
-- Initial load: ~150 KB (gzipped)
-- Vendor chunks: ~500 KB (cached separately)
-- Page chunks: 3-17 KB each (lazy loaded)
-
-### Lighthouse Scores
-- Performance: 95+
-- Accessibility: 100
-- Best Practices: 95+
-- SEO: 100
-
-## 🔐 Security
-
-- JWT authentication with Clerk
-- Row Level Security (RLS) in Supabase
-- CORS protection
-- Input validation and sanitization
-- XSS protection
-- Secure environment variables
-
-## 🌐 Browser Support
-
-- Chrome (last 2 versions)
-- Firefox (last 2 versions)
-- Safari (last 2 versions)
-- Edge (last 2 versions)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Run linter: `npm run lint`
-5. Commit: `git commit -m 'Add amazing feature'`
-6. Push: `git push origin feature/amazing-feature`
-7. Open a Pull Request
-
-### Code Style
-- Follow ESLint configuration
-- Use React best practices
-- Write meaningful commit messages
-- Add comments for complex logic
-- Update documentation for new features
-
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
+
+**Rate limit errors (429)**:
+- The API allows 300 requests per 15 minutes for reads
+- If hitting limits, the frontend will show a toast: "Too many requests. Please wait a moment and try again."
 
 **Port already in use**:
 ```bash
 npx kill-port 3001
-# Or use different port
-PORT=3002 npm run dev
 ```
 
 **Database connection failed**:
 - Check Supabase project status
-- Verify environment variables
-- Check RLS policies are enabled
+- Verify environment variables match your Supabase project
+- Ensure RLS policies are enabled
 
 **Authentication errors**:
-- Verify Clerk keys are correct
+- Verify Clerk keys are correct for your environment
 - Check redirect URLs in Clerk dashboard
 - Clear browser cache and cookies
 
@@ -384,64 +375,34 @@ npm install
 npm run build
 ```
 
-See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for more troubleshooting tips.
+## Documentation
 
-## 📈 Roadmap
+- [User Guide](./docs/USER_GUIDE.md) - Complete user documentation
+- [API Documentation](./docs/API_DOCUMENTATION.md) - API reference
+- [Deployment Guide](./docs/DEPLOYMENT.md) - Production deployment
+- [Vercel Guide](./docs/VERCEL_DEPLOYMENT.md) - Vercel-specific steps
+- [Monitoring Guide](./docs/MONITORING.md) - Sentry & PostHog setup
+- [Design System](./docs/DESIGN.md) - UI design reference
+- [Contributing](./docs/CONTRIBUTING.md) - Contribution guidelines
+- [Project Overview](./docs/PROJECT_OVERVIEW.md) - Full architecture deep-dive
 
-### ✅ Completed (v1.0)
-- Multi-user authentication
-- Team collaboration with roles
-- Transaction management
-- Recurring transactions
-- Budget tracking with alerts
-- Reports and analytics
-- Real-time updates
-- PDF/CSV export
-- Performance optimizations
+## Contributing
 
-### 🔄 In Progress (v1.1)
-- Mobile responsive improvements
-- Advanced filtering options
-- Custom categories
-- Bulk operations
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes
+4. Run linter: `npm run lint`
+5. Run tests: `npm test`
+6. Commit: `git commit -m 'Add amazing feature'`
+7. Push: `git push origin feature/amazing-feature`
+8. Open a Pull Request
 
-### 📋 Planned (v1.2+)
-- Mobile app (React Native)
-- Receipt scanning with OCR
-- Investment tracking
-- Tax reporting
-- Bank integrations
-- API webhooks
-- Multi-organization support
-- AI-powered insights
-
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- [Clerk](https://clerk.com) - Authentication
-- [Supabase](https://supabase.com) - Database and real-time
-- [Resend](https://resend.com) - Email delivery
-- [Recharts](https://recharts.org) - Data visualization
-- [Tailwind CSS](https://tailwindcss.com) - Styling framework
-
-## 📞 Support
-
-- 📖 [User Guide](./docs/USER_GUIDE.md)
-- 🔧 [API Documentation](./docs/API_DOCUMENTATION.md)
-- 🚀 [Deployment Guide](./docs/DEPLOYMENT.md)
-- 🐛 [Report Issues](https://github.com/MuhammadRaedSiddiqui/expense-tracker-starter/issues)
-
-## 👨‍💻 Author
+## Author
 
 **Muhammad Raed Siddiqui**
 - GitHub: [@MuhammadRaedSiddiqui](https://github.com/MuhammadRaedSiddiqui)
 - Project: [Finance Tracker](https://github.com/MuhammadRaedSiddiqui/expense-tracker-starter)
-
----
-
-⭐ If you find this project useful, please consider giving it a star!
-
-Made with ❤️ using React, Supabase, and Clerk
